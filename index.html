@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Markdown在线编辑器 - www.MdEditor.com</title>
+		<style>
+			*{font-family: Simsun,  sans-serif }
+		</style>
+	</head>
+	<body>
+		<h1>傻瓜弹曲</h1>
+		<p>使用公元前 1980 年的人工智障技术制造的一个输入简谱并且能够带伴奏与歌词播放的APP。</p>
+		<p>
+			<a href="https://asdfqw.gitee.io/foolplay/edit.htm">傻瓜弹曲程序入口&gt;&gt;&gt;</a>
+		</p>
+		<p>
+			<a href="https://asdfqw.gitee.io/foolplay/edit.htm?music=心愿">《心愿》</a> | 
+			<a href="https://asdfqw.gitee.io/foolplay/edit.htm?music=踏浪">《踏浪》</a> | 
+			<a href="https://asdfqw.gitee.io/foolplay/edit.htm?music=爱拼才会赢">《爱拼才会赢》</a> | 
+			<a href="https://asdfqw.gitee.io/foolplay/edit.htm?music=劳动最光荣">《劳动最光荣》</a>
+		</p>
+		<h2>功能</h2>
+		<p>（如上所述）</p>
+		<ul>
+			<li>键盘简谱输入；</li>
+			<li>
+				简易播放，包括人声合成以及伴奏，但没有暂停（<code>|X X X X|X X X X|...|</code>
+				）；
+			</li>
+			<li>可以按照JSON格式保存到电脑上或者读取由本程序保存功能输出的文件。</li>
+		</ul>
+		<p>至于菜单上所显示的剩下几乎所有功能都没有实现（不要奇怪为什么点击某选项没有反应）。编辑功能有些Bug，不要太介意……</p>
+		<h2>浏览器</h2>
+		<ul>
+			<li>最新的桌面浏览器应该都能工作；</li>
+			<li>Internet Explorer 11（以及部分手机浏览器）之类近代浏览器（无 Web Audio API 支持）可以编辑歌谱，但不能出声音。</li>
+			<li>介意ES6语法的浏览器不能放伴奏并会弹出（不止）一个错误框。</li>
+			<li>不打算兼容手机，不过应该能凑合过去。</li>
+		</ul>
+		<h2>计划</h2>
+		<p>本人很懒，无心更新，下面的计划压根不会执行。在放寒暑假的时候可能会动一动。</p>
+		<ul>
+			<li>加入对反复记号以及弱起的支持；</li>
+			<li>简化以及去除各 JS 文件内的多余代码；</li>
+			<li>美化歌谱及编辑器</li>
+			<li>解决浏览器打印不分页问题</li>
+			<li>……</li>
+		</ul>
+		<h2>不多的帮助</h2>
+		<ul>
+			<li>
+				<code>数字</code>
+				-&gt;简谱音符表示
+			</li>
+			<li>
+				<code>+</code>
+				-&gt;普通音高或低八度
+			</li>
+			<li>
+				<code>*</code>
+				-&gt;普通音高或高八度
+			</li>
+			<li>
+				<code>-</code>
+				-&gt;延长音符（加时线）
+			</li>
+			<li>
+				<code>_</code>
+				（<code>Shift + -</code>
+				） -&gt;缩短音符（减时线）
+			</li>
+			<li>
+				<code>^</code>
+				-&gt;在光标前面的音符的前面画一条延音线/圆滑线（两个音的圆滑线？）
+			</li>
+			<li>
+				<code>` </code>
+				-&gt;延长前一个音符
+			</li>
+			<li>
+				<code>Ctrl + ↑|↓</code>
+				-&gt;切换编辑歌谱以及歌词（不支持多段，因为无法播放）。
+				<ul>
+					<li>用鼠标点击音符下方的空白区域也可以</li>
+				</ul>
+			</li>
+		</ul>
+		<h2>音源哪里来的？</h2>
+		<p>
+			采集自 <a href="http://www.hanyupinyin.cn/">汉语拼音网</a>
+			；忘说了，拼音数据来自 <a href="https://github.com/mozillazg/pinyin-data">pinyin-data</a>
+		</p>
+	</body>
+</html>

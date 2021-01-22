@@ -1,0 +1,3340 @@
+{
+	"title": "踏浪",
+	"author": "",
+	"music": [
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"小"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"小"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"的"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"一"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"片"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"云"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"呀"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"慢"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"慢"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"地"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"走"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"过"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"请"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"你"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"们"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"歇"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"歇"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"脚"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"呀"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"暂"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"时"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"停"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"下"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 16,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"山"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"上"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"的"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"山"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"花"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"儿"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"开"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"呀"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				""
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				""
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"我"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"才"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"到"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"山"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"上"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"原"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"嘛"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"你"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"也"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"是"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"上"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"山"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"看"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"那"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"山"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"花"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 16,
+			"word": [
+				"开"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"小"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"小"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"的"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"一"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"阵"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"风"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"呀"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"慢"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"慢"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"地"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"走"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"过"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"请"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"你"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"们"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"歇"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"歇"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"脚"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"呀"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"暂"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"时"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"停"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"下"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 16,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"海"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"上"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"的"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"海"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"花"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"儿"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"开"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"呀"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				""
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				""
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"我"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"才"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"到"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"海"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"边"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"原"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"嘛"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"你"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"也"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"爱"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"浪"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"花"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"才"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"到"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"海"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"边"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 16,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 8,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 8,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 4,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 16,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 8,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 8,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 16,
+			"word": [],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"小"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"小"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"的"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"一"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"片"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"云"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"呀"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"慢"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"慢"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"地"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"走"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"过"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"请"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"你"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"们"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"歇"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"歇"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"脚"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"呀"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"暂"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"时"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"停"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"下"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 16,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"山"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"上"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"的"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"山"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"花"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"儿"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"开"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"呀"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				""
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				""
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"我"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"才"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"到"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"山"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"上"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"原"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"嘛"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"你"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"也"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"是"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"上"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"山"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"看"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"那"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"山"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"花"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 16,
+			"word": [
+				"开"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"小"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"小"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"的"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"一"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"阵"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"风"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"呀"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"慢"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"慢"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"地"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"走"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"过"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"请"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"你"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"们"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"歇"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"歇"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"脚"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"呀"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"暂"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"时"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"停"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"下"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 16,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"海"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"上"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"的"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"海"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"花"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"儿"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"开"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"呀"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				""
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				""
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"我"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"才"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"到"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"海"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"边"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"原"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 2,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"嘛"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"你"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"也"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 4,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"爱"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"浪"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"花"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"才"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"到"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"海"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": -1,
+			"length": 4,
+			"word": [
+				"边"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": -1,
+			"length": 16,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 7,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"啦"
+			],
+			"fx": {}
+		}
+	],
+	"tempo": [
+		4,
+		4
+	],
+	"speed": "87",
+	"arpeggio": "-3",
+	"setting": {},
+	"loops": []
+}

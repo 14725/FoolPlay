@@ -1,0 +1,1094 @@
+{
+	"title": "劳动最光荣",
+	"author": "",
+	"music": [
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"太"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"阳"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"光，"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				""
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"金"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"亮"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"亮"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"雄"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"鸡"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"唱"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"三"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				"唱"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"花"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 8,
+			"word": [
+				"儿"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"醒"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"了"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"鸟"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 2,
+			"word": [
+				"儿"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 1,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 2,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"忙"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"梳"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 16,
+			"word": [
+				"妆"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 6,
+			"word": [
+				"小"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 1,
+			"length": 2,
+			"word": [
+				"喜"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"鹊"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"造"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"新"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"房"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 6,
+			"word": [
+				"小"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 2,
+			"word": [
+				"蜜"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"蜂"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"采"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"蜜"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"忙"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"幸"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"福"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"的"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"生"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"活"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"从"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"哪"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"里"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 8,
+			"word": [
+				"来？"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				""
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"要"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"靠"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"劳"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 1,
+			"length": 8,
+			"word": [
+				"动"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"来"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"创"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 12,
+			"word": [
+				"造"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 0,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				""
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"青"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 2,
+			"word": [
+				"青"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 2,
+			"word": [
+				"的"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"叶"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"儿"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"红"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"红"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 2,
+			"word": [
+				"的"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"花"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"小"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"蝴"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 6,
+			"word": [
+				"蝶"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"爱"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"玩"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"耍"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"不"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"爱"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"劳"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"动"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"不"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"学"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"习"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"我"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"们"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 2,
+			"word": [
+				"大"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 1,
+			"length": 2,
+			"word": [
+				"家"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"不"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"学"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 16,
+			"word": [
+				"它"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 6,
+			"word": [
+				"要"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 1,
+			"length": 2,
+			"word": [
+				"学"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"喜"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"鹊"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"造"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"新"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"房"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 6,
+			"word": [
+				"要"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 2,
+			"word": [
+				"学"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"蜜"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"蜂"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"采"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"蜜"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"忙"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"劳"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"动"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"的"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"欢"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"乐"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"说"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"不"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 8,
+			"word": [
+				"尽"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 16,
+			"word": [
+				" "
+			],
+			"fx": {
+				"extend": true
+			}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"劳"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"动"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 6,
+			"octave": 0,
+			"length": 2,
+			"word": [
+				"的"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 8,
+			"word": [
+				"创"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 3,
+			"octave": 1,
+			"length": 8,
+			"word": [
+				"造"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 2,
+			"octave": 1,
+			"length": 4,
+			"word": [
+				"最"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 5,
+			"octave": 0,
+			"length": 4,
+			"word": [
+				"光"
+			],
+			"fx": {}
+		},
+		{
+			"pitch": 1,
+			"octave": 1,
+			"length": 16,
+			"word": [
+				"荣"
+			],
+			"fx": {}
+		}
+	],
+	"tempo": [
+		4,
+		2
+	],
+	"speed": "98",
+	"arpeggio": "0",
+	"setting": {},
+	"loops": []
+}
