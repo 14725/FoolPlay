@@ -117,9 +117,10 @@ Util.onCJKInput = function hack_composition(ele,listener){
 	ele.addEventListener("compositionend",compositionListener);
 };
 Util.queries = function queryString() {
-	var str = localtion.href
+	var str = location.href
 	/* 检查URL参数 https://zhuanlan.zhihu.com/p/257077535 */
 	var params = str.split('?')[1];
+	if(params == null)    return {};
 	var param = params.split('&');
 	var obj = {};
 	for (var i = 0; i < param.length; i++) {
@@ -1520,7 +1521,7 @@ UI.main = function ui_main(){
 	//All is inited；
 	//打开指定文件
 	var file = Util.queries().music
-	if(file.length > 0 ){
+	if(file && file.length > 0 ){
 		var factFile = "music/" + file + ".json"
 		var request = new XMLHttpRequest();
 		request.open('GET', factFile, true);
