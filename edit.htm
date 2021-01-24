@@ -112,8 +112,6 @@
 	</div>
 	<div class="item">和弦
 		<div class="menu">
-			<a onclick="Chord(1)" target="help">机械计算</a>
-			<hr>	
 			<a onclick="PopupWindow.open(chordWindow)" target="help">手动输入</a>
 			<a onclick="和弦标注(1)">新机械</a>
 			<a onclick="转换为C调()" target="help">转换为C调</a>
@@ -124,7 +122,7 @@
 <div class="header">
 	<center><input class="title" type="text" onchange="Music.title = this.value;document.title = this.value + ' - 傻瓜弹曲'" placeholder="请输入标题..."/></center>
 	<br/><label>1 =
-	<select class="arpeggio" size="1" style="max-width:1.7em;" onchange="Music.arpeggio = this.value">
+	<select class="arpeggio" size="1" style="max-width:1.7em;" onchange="Music.arpeggio = this.value;">
 		<option value="-4">Ab</option>
 		<option value="-3">A</option>
 		<option value="-2">Bb</option>
@@ -214,7 +212,6 @@
 </script>
 	<div class="window about on">
 		<div class="windowtitle">关于...<button class="close"><b>×</b></button></div>
-		<img src="img/about.png" style="max-width:80vw;"/>
 	</div>
 	<div class="window on" id="chordWindow">
 		<div class="windowtitle">手动输入和弦<button class="close"><b>×</b></button></div>
