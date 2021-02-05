@@ -1303,6 +1303,11 @@ UI.openFile = function ui_openFile(datastr){
 		UI.render();
 		UI.authorArea.value = Music.author;
 		document.title = Music.title+ ' - 傻瓜弹曲';
+		UI.titleBox.value = Music.title;
+		UI.arpeggioBox.value = Music.arpeggio;
+		UI.tempo0Box.value = Music.tempo[0];
+		UI.tempo1Box.value = Music.tempo[1];
+		UI.speedBox.value = Music.speed;
 	}catch(e){
 		PopupWindow.alert("这个文件里存的东西我用不了，抱歉。")
 		//throw e;
