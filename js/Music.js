@@ -1509,10 +1509,11 @@ UI.main = function ui_main(){
 		UI.shouldScroll  = false;
 	    if(!(width == window.innerWidth) && !(width > 1000 && window.innerWidth > 1000)){
 	    	UI.layout();
+            width = window.innerWidth;
 	    }
 	    UI.shouldScroll  = oldScroll;
 	});
-	width == window.innerWidth;
+	width = window.innerWidth;
 	//动态隐藏光标，防止引起混乱。
 	UI.caretStyle = document.createElement("style");
 	UI.caretStyle.innerHTML = "#caret{display:none!important}";
