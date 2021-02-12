@@ -137,30 +137,24 @@ Player.loadPyTable = function player_loadPyTable(){
 	}
 }
 Player.main = function player_main(){
-	
-	var noop={}
 	if(!("AudioContext" in window)){
 		UI.statusbar.querySelector("div").innerHTML = "您的浏览器对音频编辑没有足够的编辑功能。";
 		return;
 	}
 	Player.ctx = new AudioContext();
-	Player.target = Player.ctx.destination
+	Player.DC = Player.ctx.createDynamicsCompressor();
+	Player.DC.connect(Player.ctx.destination);
+	Player.target = Player.DC;
 	var real = new Float32Array(11);
 	var imag = new Float32Array(11);
-	var ac = new AudioContext();
-	var osc = ac.createOscillator();
-	var gainNode = ac.createGain();
-	gainNode.gain.exponentialRampToValueAtTime(1.2, ac.currentTime +0.001);
-	gainNode.gain.exponentialRampToValueAtTime(1, ac.currentTime +0.002);
-	gainNode.gain.exponentialRampToValueAtTime(0.01, ac.currentTime +1);
-	gainNode.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 2);
+	var ac = Player.ctx;
 
 	real[0] = 0;
 	imag[0] = 0;
 	real[1] = 0.2;
 	imag[1] = 0;
 	for(var i = 1;i<=15;i++){
-		real[i] = 0.2 * Math.pow((15-i) * 0.1,4)
+		real[i] = 0.2 * Math.pow((15-i) * 0.1,4);
 		imag[i] = 0;
 	}
 
