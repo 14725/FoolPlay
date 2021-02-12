@@ -928,6 +928,7 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			else
 				cancel = false;
 			break;
+		//快捷键
 		case 78://(Ctrl+)N
 			if(event.ctrlKey)
 				void(window.open(location.href,'_blank','toolbar=no'))
@@ -946,7 +947,11 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			else
 				cancel = false;
 			break;
+		case 27://Esc
+		    event.target.value = "";
+		    break;
 		default:
+		    log(event.keyCode);
 			cancel = false;
 			break;
 		
@@ -1102,6 +1107,7 @@ UI.onInput = function(event){
 				event.target.value = "";
 				UI.render();
 				break;
+			case "s":
 			case "e":
 			case "c":
 			case "o":
@@ -1123,17 +1129,24 @@ UI.onInput = function(event){
 				
 				break;
 			case "|":
-				var reg = /\|-(\d)/;
-				var lopId = reg.exec(content);
+				var reg = /\|-(\d).*/;
+				var lopId = reg.exec(content.join(""));
 				if(lopId == null)	return;
 				lopId = lopId[1]
 				if(lopId == null)	return;
 				var sid = Music.indexNoteInSection(UI.selEnd);
 				if(sid == -1)		sid = 0;
 				if(Music.loops[sid] == null)	Music.loops[sid] = {};
-				Music.loops[sid].house = [lopId];
+				if(lopId == 0){
+                    delete Music.loops[sid].house;
+				}else{
+					Music.loops[sid].house = [lopId];
+				}
+				
 				UI.layout();	
 				event.target.value = "";
+				content.shift();content.shift();
+
 		}
 	}
 }
@@ -1490,7 +1503,16 @@ UI.main = function ui_main(){
 		UI.layout();
 		UI.container.getBoundingClientRect();
 	});
-	window.addEventListener("resize",UI.layout);
+	var width = 0;
+	window.addEventListener("resize",function(){
+		var oldScroll = UI.shouldScroll;
+		UI.shouldScroll  = false;
+	    if(!(width == window.innerWidth) && !(width > 1000 && window.innerWidth > 1000)){
+	    	UI.layout();
+	    }
+	    UI.shouldScroll  = oldScroll;
+	});
+	width == window.innerWidth;
 	//动态隐藏光标，防止引起混乱。
 	UI.caretStyle = document.createElement("style");
 	UI.caretStyle.innerHTML = "#caret{display:none!important}";

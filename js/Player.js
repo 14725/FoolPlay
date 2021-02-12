@@ -33,13 +33,13 @@ PinYin.voice = function pinyin_voice(sentense,detune,start,len){
 			n.buffer = Player.pyTable[curPY[j]];
 			
 			if(PinYin.shengmu.indexOf(curPY[j])==-1){
-				n.playbackRate.value = detune[0].f / 440 / 2;
-				//n.playbackRate.value = detune[0].f / 440;
+				//n.playbackRate.value = detune[0].f / 440 / 2;
+				n.playbackRate.value = detune[0].f / 440;
 				for(var k=1;k<detune.length;k++){
-					n.playbackRate.setValueAtTime(detune[k-1].f / 440 / 2,detune[k].time + start - 0.05);
-					//n.playbackRate.setValueAtTime(detune[k-1].f / 440,detune[k].time + start - 0.05);
-					n.playbackRate.exponentialRampToValueAtTime(detune[k].f / 440 / 2,detune[k].time + start+0.05);
-					//n.playbackRate.exponentialRampToValueAtTime(detune[k].f / 440,detune[k].time + start+0.05);
+					//n.playbackRate.setValueAtTime(detune[k-1].f / 440 / 2,detune[k].time + start - 0.05);
+					n.playbackRate.setValueAtTime(detune[k-1].f / 440,detune[k].time + start - 0.05);
+					//n.playbackRate.exponentialRampToValueAtTime(detune[k].f / 440 / 2,detune[k].time + start+0.05);
+					n.playbackRate.exponentialRampToValueAtTime(detune[k].f / 440,detune[k].time + start+0.05);
 				}
 				n.loop = true;
 				n2 = ctx.createGain();
