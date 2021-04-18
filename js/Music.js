@@ -435,7 +435,7 @@ UI.layout = function ui_layout(){//功能：读取浏览器对歌谱的布局，
 		}
 	})	
 }
-UI.throttledLayout = Util.throttle(UI.layout,null,16);
+UI.throttledLayout = UI.layout;
 UI.redraw = function ui_redraw(){
 	var temp,isreved = false;
 	
@@ -507,7 +507,7 @@ UI.redraw = function ui_redraw(){
 	}
 	if(UI.shouldScroll)    UI.autoScroll();
 }
-UI.autoScroll = Util.throttle(function ui_autoScroll(){
+UI.autoScroll = function ui_autoScroll(){
 	//Scroll
 	var containerTop = UI.container.offsetTop - window.pageYOffset;
 	var statusbarTop = UI.statusbar.getBoundingClientRect().top
@@ -545,7 +545,7 @@ UI.autoScroll = Util.throttle(function ui_autoScroll(){
 			window.scroll(0,0);
 		}
 	}
-},null,30);
+};
 UI.appendCLine = function ui_appendCLine(pid,nid,word,ishouse){
 	if(word == null)	word="";
 	var className = ishouse ? "house" : "cline";
