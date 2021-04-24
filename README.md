@@ -2,12 +2,14 @@
 
 使用公元前 1980 年的人工智障技术制造的一个输入简谱并且能够带伴奏与歌词播放的APP。
 
+
 [傻瓜弹曲程序入口>>>](https://asdfqw.gitee.io/foolplay/edit.htm "傻瓜弹曲程序入口>>>")
 
 [《心愿》](https://asdfqw.gitee.io/foolplay/edit.htm?music=心愿) | 
 [《踏浪》](https://asdfqw.gitee.io/foolplay/edit.htm?music=踏浪) | 
 [《爱拼才会赢》](https://asdfqw.gitee.io/foolplay/edit.htm?music=爱拼才会赢) | 
 [《劳动最光荣》](https://asdfqw.gitee.io/foolplay/edit.htm?music=劳动最光荣) | 
+[《没有共产党就没有新中国》(https://asdfqw.gitee.io/foolplay/edit.htm?music=没有共产党就没有新中国)]
 
 ## 功能
 （如上所述）
