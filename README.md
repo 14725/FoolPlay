@@ -9,7 +9,7 @@
 [《踏浪》](https://asdfqw.gitee.io/foolplay/edit.htm?music=踏浪) | 
 [《爱拼才会赢》](https://asdfqw.gitee.io/foolplay/edit.htm?music=爱拼才会赢) | 
 [《劳动最光荣》](https://asdfqw.gitee.io/foolplay/edit.htm?music=劳动最光荣) | 
-[《没有共产党就没有新中国》(https://asdfqw.gitee.io/foolplay/edit.htm?music=没有共产党就没有新中国)]
+[《没有共产党就没有新中国》](https://asdfqw.gitee.io/foolplay/edit.htm?music=没有共产党就没有新中国)
 
 ## 功能
 （如上所述）
