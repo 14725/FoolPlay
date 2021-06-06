@@ -1,4 +1,4 @@
-/*Fix from normalize.css*/
+ff/*Fix from normalize.css*/
 /**
  * Prevent `sub` and `sup` elements from affecting the line height in
  * all browsers.
@@ -238,14 +238,15 @@ input::-ms-clear{
 	margin: 0 auto;
 	padding: 1px 0;
 }
-.hasupo .upo,.hasdo .downo{
-	border: 1px solid;
-	border-radius: 50% 50%;
-	width: 0px;
-	height: 0px;
-	margin: auto;
-	padding: 0;
-	box-sizing:border-box;
+.hasupo .upo, .hasdo .downo {
+    /* border: 1px solid; */
+    border-radius: 50% 50%;
+    width: 2px;
+    height: 2px;
+    margin: auto;
+    padding: 0;
+    box-sizing: border-box;   
+    background:currentColor;
 }
 .container:not(.fensanalign *)::after{
 	display:block;
@@ -266,6 +267,7 @@ input::-ms-clear{
 .yin{
 	position:relative;
 	padding:0 3px;
+	font-family: "Bookman Old Style", serif;
 }
 .yin sup{
 	position:absolute;
