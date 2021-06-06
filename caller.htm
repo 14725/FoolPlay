@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width">
+    <title>傻瓜弹曲启动程序</title>
+</head>
+
+<body>
+	<script>
+		var to = "./edit.htm";
+	</script>
+    <script>
+		(function(){
+			if (!Array.isArray) {
+				Array.isArray = function(arg) {
+					return Object.prototype.toString.call(arg) === '[object Array]';
+				};
+			}
+
+		})();
+		(function (){
+			"use strict";
+			function isChromium(userAgent) {
+				var chromium = "mozilla/&&applewebkit/&&chrome/&&safari/".split("&&");
+				for (var i = 0; i < chromium.length; i++)
+					if (userAgent.indexOf(chromium[i]) < 0)
+						return false;
+				return true;
+			}
+			var debug = true;
+			function log(str){
+				var p = document.createElement("p");
+				p.innerText = str;
+				document.body.appendChild(p);
+				return log;
+			}
+			function link(str){
+				var p = document.createElement("a");
+				p.innerText = p.href = str;
+				p.target = "_top";
+				document.body.appendChild(p);
+				return log;
+			}
+			function message(e) {
+				var o = e.origin;
+				var d = e.data;
+				if(o !== null && o !== "null" && o !== "file:"){
+					// 非法访问！
+					d = null;
+					return;
+				}
+				if(typeof d === "object" && ("music" in d) && Array.isArray(d.music)){
+					log("已经读取《" + d.title + "》的数据，正在启动傻瓜弹曲……");
+					log("如果在2秒内没有反应，请点击下面链接继续启动……");
+					link(to);
+					localStorage.open = JSON.stringify(d);
+					window.open(to,"_top");
+				}else if(typeof d === "string"){
+					//调试目的
+					if(debug){
+						log(d);
+						return;
+					}
+				}
+				
+				window.removeEventListener("message",message);
+				
+			}
+			if(!isChromium(navigator.userAgent.toLowerCase())){
+				log("本文件是傻瓜弹曲文件，请点击下面的链接进入傻瓜弹曲，并从那里打开文档。");
+				link(to);
+			}else{
+				window.addEventListener("message",message);
+			}
+			
+			if(!("postMessage" in window)){
+				
+			}
+		
+		})();
+    </script>
+
+</body>
+
+</html>

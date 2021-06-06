@@ -304,8 +304,22 @@ var UI = {
 	contextMenu:document.querySelector("#contextMenu"),
 	speedLabel:document.querySelector('#speedLabel'),
 	authorArea:document.querySelector('.author'),
-	selStart:-1,
-	selEnd:-1,
+	//selStart:-1,
+	//selEnd:-1,
+	from:-1,
+	author:-1,
+	get selStart(){
+		return this.from;
+	},
+	set selStart(v){
+		this.from = v;
+	},
+	get selEnd(){
+		return this.author;
+	},
+	set selEnd(v){
+		this.author = v;
+	},
 	isMouseDown:false,
 	domsAreas:-1,
 	clipboard:[],
@@ -390,7 +404,7 @@ UI.render = Util.throttle(function ui_render(){//功能：刷新歌谱的主要�
 
 UI.layout = function ui_layout(){//功能：读取浏览器对歌谱的布局，
 	//重绘光标
-	UI.coverOn.innerHTML = "<div id=\"caret\" class=\"caret\"></div>";
+	[].slice.call(UI.coverOn.querySelectorAll(".cline")).forEach(function(a){a.parentNode.removeChild(a)});
 	//定位
 	//	获取全部的DOM元素列表
 	var list = UI.domList = Array.prototype.slice.call(document.querySelectorAll(".note"));
@@ -477,23 +491,23 @@ UI.redraw = function ui_redraw(){
 		caret.style.display = "block";
 		
 		if(Music.music.length == 0){
-			caret.style.left = "0";
+			UI.editbox.style.left = caret.style.left = "0";
 			caret.style.height = "40px";
 		}else{
 			yinheight = 40;
 			ciheight = UI.ciheight;
-			caret.style.left = "0";
+			UI.editbox.style.left = caret.style.left = "0";
 			if(UI.selEnd != -1){
-				caret.style.left = UI.domsAreas[UI.selEnd].x + UI.domsAreas[UI.selEnd].width + "px"
+				UI.editbox.style.left = caret.style.left = UI.domsAreas[UI.selEnd].x + UI.domsAreas[UI.selEnd].width + "px"
 			}
 			if(UI.editingLynicLine == -1){
 				//在音符级别
-				caret.style.top = (UI.selEnd == -1 ? 0 : UI.domsAreas[UI.selEnd].y) + "px";
+				UI.editbox.style.top = caret.style.top = (UI.selEnd == -1 ? 0 : UI.domsAreas[UI.selEnd].y) + "px";
 				caret.style.height = yinheight + "px";
 			}else{
 				//在歌词级别
 
-				caret.style.top = (
+				UI.editbox.style.top = caret.style.top = (
 					UI.domsAreas[Math.max(UI.selEnd,0)].y + UI.yinheight + 
 						ciheight * UI.editingLynicLine 
 					) + 
@@ -587,7 +601,7 @@ UI.getHTMLforNote = function ui_getHTMLforNote(note,id){
 	if(note.pitch == null)
 		note.pitch = 1;
 	text = (note.pitch = Math.max(Math.min(note.pitch ,7),0)).toString();
-	var addTimeLine = note.pitch=="0"?"0":"—"
+	var addTimeLine = note.pitch=="0"?"0":"–"
 	switch(note.length){
 		case 2:	className += "f16";break;
 		case 3:	//	1.
@@ -699,6 +713,7 @@ UI.switchLine = function ui_switchLine(up){
 UI.onKeyDown = function ui_onKeyDown(event){
 	var cancel = true;
 	var start,end;
+	event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
 	start	= Math.min(UI.selStart,UI.selEnd);
 	end		= Math.max(UI.selStart,UI.selEnd);
 	//if(UI.selStart == UI.selEnd && UI.selEnd == -1)
@@ -737,7 +752,7 @@ UI.onKeyDown = function ui_onKeyDown(event){
 				}else{
 					UI.spliceWord(start,end-start +1 ,"");
 					UI.selStart = -1;
-					UI.selEnd 	= start;
+					UI.selEnd 	= start - 1;
 				}
 			}
 			UI.render();
@@ -751,15 +766,16 @@ UI.onKeyDown = function ui_onKeyDown(event){
 				if(UI.editingLynicLine == -1){
 					UI.insertEdit([]);
 				}else{
-					UI.spliceWord(end,1 ,"");
+					UI.spliceWord(end+1,1 ,"");
 					UI.selStart = -1;
+					UI.selEnd 	= end;
 					UI.render();
 				}
 			}else{
 				if(UI.editingLynicLine == -1){
 					UI.insertEdit([]);
 				}else{
-					UI.spliceWord(start,end - start + 1 ,"");
+					UI.spliceWord(start ,end - start + 1 ,"");
 					UI.selStart = -1;
 					UI.selEnd 	= end;
 					UI.render();
@@ -951,7 +967,7 @@ UI.onKeyDown = function ui_onKeyDown(event){
 		    event.target.value = "";
 		    break;
 		default:
-		    log(event.keyCode);
+		    console.log(event.keyCode);
 			cancel = false;
 			break;
 		
@@ -965,6 +981,8 @@ UI.onKeyDown = function ui_onKeyDown(event){
 }
 UI.onInput = function(event){
 	//歌谱的输入方法
+	
+	event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
 	if(UI.editingLynicLine != -1)	return;
 	var content = event.target.value;
 	if(content == "")return;
@@ -1031,6 +1049,7 @@ UI.onInput = function(event){
 				UI.insertEdit([note]);
 				Player.simplePlay(note.pitch,note.octave);
 				event.target.value = "";
+				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
 				break;
 			case "-":
 			case "/":
@@ -1046,6 +1065,7 @@ UI.onInput = function(event){
 					}
 				}
 				event.target.value = "";
+				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
 				break;
 			case "*":
 				if(Music.music[UI.selEnd] != null){
@@ -1056,6 +1076,7 @@ UI.onInput = function(event){
 				}
 				Player.simplePlay(note.pitch,note.octave);
 				event.target.value = "";
+				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
 				break;
 			case "+":
 				if(Music.music[UI.selEnd] != null){
@@ -1066,6 +1087,7 @@ UI.onInput = function(event){
 					Player.simplePlay(note.pitch,note.octave);
 				}
 				event.target.value = "";
+				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
 				break;
 			case "`":
 			case "~":
@@ -1079,6 +1101,7 @@ UI.onInput = function(event){
 					UI.insertEdit([note])
 				}
 				event.target.value = "";
+				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
 				break;
 			case "^":
 			case "…":
@@ -1088,6 +1111,7 @@ UI.onInput = function(event){
 					UI.render();
 				}
 				event.target.value = "";
+				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
 				break;
 			case ":":
 			case "：":
@@ -1105,6 +1129,7 @@ UI.onInput = function(event){
 					Music.loops[sid].do = false;
 				}
 				event.target.value = "";
+				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
 				UI.render();
 				break;
 			case "s":
@@ -1124,6 +1149,7 @@ UI.onInput = function(event){
 					UI.render();
 					event.target.readonly = "readonly";
 					event.target.value = "";
+					event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
 					event.target.readonly = "";
 				}
 				
@@ -1145,6 +1171,7 @@ UI.onInput = function(event){
 				
 				UI.layout();	
 				event.target.value = "";
+				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
 				content.shift();content.shift();
 
 		}
@@ -1299,6 +1326,9 @@ UI.openListener = function ui_openListener(me){
 }
 UI.openFile = function ui_openFile(datastr){
 	try{
+		if(datastr.indexOf("<script>") > 0){
+			datastr = datastr.split("<script>")[1].split("</script>")[0];
+		}
 		var data = JSON.parse(datastr);
 		if(data['music'] == null){
 			PopupWindow.alert("这个文件里存的东西我用不了，抱歉。");
@@ -1346,15 +1376,19 @@ UI.saveAs = function ui_saveAs(){
 	if(Music.title.replace(/\s/g,"") == "")	Music.title = "未命名歌曲";
 	var a = document.createElement("a");
 	a.style.display="none"
-	a.download = Music.title + ".json";
-	var content = UI.outString();
+	a.download = Music.title + ".htm";
+	a.href = location.href;
+	a.href = "./caller.htm";
+	var content;
 	try{
 		localStorage.saved=content;
 	}catch(e){
 		console.warn("localStorage 拒绝访问。这应该不是什么天大的事情。");
 		console.warn(e);
 	}
-	var blob = new Blob([content], {type : 'application/json'});
+	content = '<meta charset="utf-8" /><noscript>本文件是傻瓜弹曲文件，请进入<a href="%self%">傻瓜弹曲</a>，并从那里打开文档。</noscript><iframe src="%url%" id="i" width="600" height="400" onload="l()" frameborder="0"></iframe><script>%data%</script><script>function l(){document.querySelector("#i").contentWindow.postMessage(JSON.parse(document.querySelector("script").innerText),"*")}</script>';
+	content = content.replace("%self%",location.href).replace("%url%",a.href).replace("%data%",UI.outString());
+	var blob = new Blob([content], {type : 'text/html'});
 	if('msSaveOrOpenBlob' in navigator){
 		window.navigator.msSaveOrOpenBlob(blob, a.download);
 	}else{
@@ -1362,6 +1396,7 @@ UI.saveAs = function ui_saveAs(){
 		a.href = url;
 		document.body.appendChild(a);
 		a.click();
+		document.body.removeChild(a);
 	}
 }
 UI.onContextMenu = function ui_onContextMenu(event){
@@ -1530,6 +1565,7 @@ UI.main = function ui_main(){
 	//打开指定文件
 	var file = Util.queries().music
 	if(file && file.length > 0 ){
+		//网络示例文件专属！
 		var factFile = "music/" + file + ".json"
 		var request = new XMLHttpRequest();
 		request.open('GET', factFile, true);
@@ -1538,9 +1574,15 @@ UI.main = function ui_main(){
 		}
 		request.send();
 	}else{
+		//只要不是示例文件！
 		try{
-			if(localStorage.saved!=null)
+			if(localStorage.open != null){
+				//alert(localStorage.open);
+				UI.openFile(localStorage.open);
+				localStorage.removeItem("open");
+			}else if(localStorage.saved!=null){
 				UI.openFile(localStorage.saved);
+			}
 			setInterval(function autosave(){
 				var content = UI.outString();
 				localStorage.saved=content;

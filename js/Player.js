@@ -13,7 +13,7 @@ PinYin.getPinYin = function pinyin_getPinYin(oneword){
 	}
 	return PinYin.splitUp(PinYinData.pinyin[pos]);
 }
-PinYin.voice = function pinyin_voice(sentense,detune,start,len){
+PinYin.voice = function pinyin_voice(sentense,detune,start,len,vol){
 	if(!Player.enableVoice)return;
 	sentense = sentense.split("").map(function(a){return PinYin.getPinYin(a)});
 	
@@ -21,6 +21,7 @@ PinYin.voice = function pinyin_voice(sentense,detune,start,len){
 	var curPY = [];
 	var n = null,n2=null,n0 = null;
 	var ctx = Player.ctx;
+	var advance = 0;
 	start = Player.timeStart  +start;
 	
 	for(var i = 0;i<sentense.length;i++){
@@ -44,22 +45,23 @@ PinYin.voice = function pinyin_voice(sentense,detune,start,len){
 				n.loop = true;
 				n2 = ctx.createGain();
 				n2.gain.value = 0.001
-				n2.gain.linearRampToValueAtTime(       1,start + i * len + j * d1 + d1);
-				n2.gain.linearRampToValueAtTime(		0.8,start + i * len + j * d1 + len*0.8);
-				n2.gain.linearRampToValueAtTime(	0.001,start + i * len + j * d1 + len);
+				n2.gain.linearRampToValueAtTime(       1,start + i * len + j * d1 + d1 - advance);
+				n2.gain.linearRampToValueAtTime(		0.8,start + i * len + j * d1 + len*0.8 - advance);
+				n2.gain.linearRampToValueAtTime(	0.001,start + i * len + j * d1 + len - advance);
 				n.connect(n2);
 				n2.connect(n0);
 			}else{
+				advance = 0.1;
 				n.loop = false;
 				n.connect(n0);
 			}
 			
-			n.start(start + i * len + j * d1);
+			n.start(start + i * len + j * d1 - advance);
 			n.stop(start + i * len +len - 0.05);
 		}
-		n0.gain.exponentialRampToValueAtTime(0.5,(start + i * len +Math.min(0.3 * len,0.1) ));
-		n0.gain.exponentialRampToValueAtTime(0.5,(start + i * len +Math.max(0.7 * len,len-0.1)));
-		n0.gain.exponentialRampToValueAtTime(0.001,(start + i * len +1 * len+0.2));
+		n0.gain.exponentialRampToValueAtTime(0.5 * vol,(start + i * len +Math.min(0.3 * len,0.1) ) - advance);
+		n0.gain.exponentialRampToValueAtTime(0.4 * vol,(start + i * len +Math.min(0.9 * len,len-0.05)));
+		n0.gain.exponentialRampToValueAtTime(0.001 * vol,(start + i * len +1 * len+0.2));
 		n0.connect(Player.target)
 	}
 }
@@ -103,7 +105,7 @@ var Player = {
 	enableMusic:true,
 };
 Player.soundItem = {
-	vol:0.5,//0~1
+	vol:0.3,//0~1
 	len:1,//sec 
 	start:0,
 	f:[{
@@ -180,11 +182,11 @@ Player.start = function player_start(startTime,tune,len,vol,isChord){
 	Player.ctx.resume();
 	vol = vol * 0.3;
 	var osc = Player.ctx.createOscillator();
-	osc.type = "square";
+	//osc.type = "sine";
 	osc.setPeriodicWave(Player.wave);
 	var gain = Player.ctx.createGain()
 	gain.gain.value=0.001;
-	gain.gain.exponentialRampToValueAtTime(vol,Player.timeStart+startTime+0.001)
+	gain.gain.exponentialRampToValueAtTime(vol,Player.timeStart+startTime+0.05)
 	gain.gain.exponentialRampToValueAtTime(vol*0.2,Player.timeStart+startTime+len*0.6)
 	gain.gain.exponentialRampToValueAtTime(0.001 ,Player.timeStart+startTime+len)
 	osc.frequency.value= tune;
@@ -198,7 +200,7 @@ Player.simplePlay = function player_simplePlay(tune ,octave){
 	if(tune == 0)		return;
 	if(!Player.enableSMPlay)	return;
 	tune = Player.fMap[tune];
-	var f = 440 * Math.pow(2,tune + octave);
+	var f = 440 * Math.pow(2,tune + octave+Music.arpeggio/12);
 	Player.start(Player.ctx.currentTime-Player.timeStart,f,0.25,1);
 	
 }
@@ -218,7 +220,7 @@ Player.sing = function player_sing(){
 		var item = voice[i];
 		if(item.word == "")continue;
 		if(item.word == null)continue;
-		PinYin.voice(item.word,item.f,item.start,item.len)
+		PinYin.voice(item.word,item.f,item.start,item.len,item.vol)
 	}
 	for(var i = cacheStartNum;i < voice.length;i+=cacheNum){
 		(function(start){setTimeout(function(){
@@ -228,7 +230,7 @@ Player.sing = function player_sing(){
 				var item = voice[start];
 				if(item.word == "")continue;
 				if(item.word == null)continue;
-				PinYin.voice(item.word,item.f,item.start,item.len)
+				PinYin.voice(item.word,item.f,item.start,item.len,item.vol)
 			}
 		},Math.max(0,voice[i].start * 1000 - cacheTime))})(i)
 	}
@@ -258,7 +260,6 @@ Player.trace = function player_train( log ){
 	console.log(log)
 }
 Player.main();
-Player.play = Player.sing;
 Player.splitUp = function player_splitUp_outdated(){
 	Music.getLenSectionTempo();
 	var sp32b = Music.speedS;
@@ -283,7 +284,7 @@ Player.splitUp = function player_splitUp_outdated(){
 		if((i>=1 && music[i-1].fx.triplets)||(i>=2 && music[i-2].fx.triplets)){
 			curTime += time;
 		}else{
-			curTime = (curLen- music[i].length)* sp32b;
+			curTime = (curLen- music[i].length)* sp32b + 0.1;
 		}
 		if(music[i].fx.extend){
 			if(i >= 1){
@@ -335,16 +336,22 @@ Player.splitUp = function player_splitUp_outdated(){
 	chordNotes.forEach(function (noteary,id) {
 		var sttime = lenSection * id;
 		var ttlen = lenSection;
+		var extend = 1;
+		if(id < chordNotes.length-1 && noteary.toString() == chordNotes[id+1].toString()){
+			extend = 4;
+		}
+		var volBoost = 1.2;
 		while(ttlen > 0){
 			noteary.forEach(function (note){
 				var newItem = Util.clone(Player.soundItem);
-				newItem.len = ttlen * sp32b;
-				newItem.start = sttime * sp32b;
-				newItem.vol = newItem.vol / 2;
+				newItem.len = (ttlen + extend) * sp32b ;
+				newItem.start = sttime * sp32b + 0.1;
+				newItem.vol = newItem.vol * volBoost /4;
 				newItem.f[0].f = 440*Math.pow(2,(Player.fMap[note]-1+Music.arpeggio/12))
 				newItem.isChord = true;
 				Player.music.push(newItem);
 			});
+			volBoost = 1;
 			sttime += lenTempo;
 			ttlen  -= lenTempo
 		}
