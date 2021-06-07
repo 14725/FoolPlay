@@ -737,7 +737,8 @@ UI.onKeyDown = function ui_onKeyDown(event){
 		return;
 	}
 	
-	setTimeout(function(){UI.refreshIME();},1);
+	
+	
 	switch(event.keyCode){
 		
 		//现在删除的行为有些复杂，所以暂时注释掉。
@@ -996,7 +997,6 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			UI.refreshIME("");
 			break;
 		default:
-		    console.log(event.keyCode);
 			cancel = false;
 			break;
 		
@@ -1017,7 +1017,11 @@ UI.refreshIME = function ui_refresh_IME(value){
 UI.onInput = function(event){
 	//歌谱的输入方法
 	UI.refreshIME();
-	if(UI.editingLynicLine != -1)	return;
+	if(UI.editingLynicLine != -1)
+	{
+		//UI.refreshIME("");
+		return;
+	}
 	var content = event.target.value;
 	if(content == "")return;
 	if(true){//转时值对应表
@@ -1082,8 +1086,8 @@ UI.onInput = function(event){
 				}
 				UI.insertEdit([note]);
 				Player.simplePlay(note.pitch,note.octave);
-				event.target.value = "";
-				UI.refreshIME();
+				
+				UI.refreshIME("");
 				break;
 			case "-":
 			case "/":
@@ -1098,8 +1102,7 @@ UI.onInput = function(event){
 						UI.render();
 					}
 				}
-				event.target.value = "";
-				UI.refreshIME();
+				UI.refreshIME("");
 				
 				break;
 			case "*":
@@ -1110,8 +1113,7 @@ UI.onInput = function(event){
 					UI.render();
 				}
 				Player.simplePlay(note.pitch,note.octave);
-				event.target.value = "";
-				UI.refreshIME();
+				UI.refreshIME("");
 				break;
 			case "+":
 				if(Music.music[UI.selEnd] != null){
@@ -1121,8 +1123,7 @@ UI.onInput = function(event){
 					UI.render();
 					Player.simplePlay(note.pitch,note.octave);
 				}
-				event.target.value = "";
-				UI.refreshIME();
+				UI.refreshIME("");
 				break;
 			case "`":
 			case "~":
@@ -1222,8 +1223,8 @@ UI.onInput = function(event){
 
 		}
 	}
-	UI.refreshIME();
 	event.target.value = event.target.value.replace(/[^ds|\-0-9]/g,"");
+	UI.refreshIME();
 }
 UI.onChangeListener = function ui_onChangeListener(event){
 	var content = event.target.value;
@@ -1239,9 +1240,9 @@ UI.onChangeListener = function ui_onChangeListener(event){
 	else 			howmany = end - start + 1,	index = start+1;
 	if(UI.editingLynicLine == -1)				UI.editingLynicLine = 0;	
 	UI.spliceWord(index,howmany,content)
-	event.target.value= "";
 	UI.selStart  = 	-1;
 	UI.selEnd 	+= 	content.length;
+	UI.refreshIME("");
 	UI.render();
 }
 
@@ -1541,6 +1542,11 @@ UI.setEditor = function ui_setEditor(){
 			UI.onChangeListener(e)
 		}
 	});
+	
+	
+	//FUCK~~~
+	//FIXME
+	setInterval(function(){UI.refreshIME();},100);
 }
 UI.writeBack = function ui_write_back(){
 	/* 把音乐的基本参数从对话框写到Music对象里面 */

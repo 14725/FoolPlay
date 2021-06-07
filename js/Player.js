@@ -1,5 +1,5 @@
 var PinYin = {
-	pyrep:{yun:"vn",y:"i",w:"u",ui:"uei",iu:"ou",un:"uen",ie:"iie",ue:"ve",zi:"zsi",ci:"csi",si:"ssi"},
+	pyrep:{xu:"xv",yu:"yv",yun:"vn",y:"i",w:"u",ui:"uei",iu:"ou",un:"uen",ie:"iie",ue:"ve",zi:"zsi",ci:"csi",si:"ssi"},
 	pys: ["a","ai","an","ang","b","c","ch","d","e","ei","en","eng","er","f","g","h","i","ie","in","ing","j","k","l","m","n","o","ong","ou","p","q","ri","s","sh","t","u","ue","v","x","z","zh","si","r"     ,"ao" ,"vn","ve"].sort(function(a,b){return b.length - a.length}),
 	shengmu:["b","p","m","f","d","t","l","n","g","k","h","j","q","x","zh","ch","sh","z","c","s"],
 	fakeShengMu:[""],
@@ -17,12 +17,28 @@ PinYin.voice = function pinyin_voice(sentense,detune,start,len,vol){
 	if(!Player.enableVoice)return;
 	sentense = sentense.split("").map(function(a){return PinYin.getPinYin(a)});
 	
+	 
 	var d1 = 0.1;
 	var curPY = [];
 	var n = null,n2=null,n0 = null;
 	var ctx = Player.ctx;
 	var advance = 0;
 	start = Player.timeStart  +start;
+	
+	
+	var detuner = ctx.createOscillator();
+	detuner.frequency.value = 5;
+	detuner.start(start);
+	detuner.stop(start + len);
+	var gain_detuner = ctx.createGain();
+	gain_detuner.gain.value = 0;
+	//console.log(len * 0.8,0.3,len-0.001)
+	gain_detuner.gain.linearRampToValueAtTime(0,Math.min(Math.max(start + len * 0.2,0.8),start + len-0.001));
+	gain_detuner.gain.linearRampToValueAtTime(30,start + len );
+	detuner.connect(gain_detuner);
+	
+
+	//return;
 	
 	for(var i = 0;i<sentense.length;i++){
 		curPY = sentense[i];
@@ -36,6 +52,7 @@ PinYin.voice = function pinyin_voice(sentense,detune,start,len,vol){
 			if(PinYin.shengmu.indexOf(curPY[j])==-1){
 				//n.playbackRate.value = detune[0].f / 440 / 2;
 				n.playbackRate.value = detune[0].f / 440;
+				gain_detuner.connect(n.detune);
 				for(var k=1;k<detune.length;k++){
 					//n.playbackRate.setValueAtTime(detune[k-1].f / 440 / 2,detune[k].time + start - 0.05);
 					n.playbackRate.setValueAtTime(detune[k-1].f / 440,detune[k].time + start - 0.05);
@@ -62,7 +79,11 @@ PinYin.voice = function pinyin_voice(sentense,detune,start,len,vol){
 		n0.gain.exponentialRampToValueAtTime(0.5 * vol,(start + i * len +Math.min(0.3 * len,0.1) ) - advance);
 		n0.gain.exponentialRampToValueAtTime(0.4 * vol,(start + i * len +Math.min(0.9 * len,len-0.05)));
 		n0.gain.exponentialRampToValueAtTime(0.001 * vol,(start + i * len +1 * len+0.2));
-		n0.connect(Player.target)
+		n0.connect(Player.target);
+		(function(n0){
+		    setTimeout(function(){n0.disconnect(Player.target);},(start - Player.ctx.currentTime + len) * 1000 + 200);	
+		})(n0);
+		
 	}
 }
 PinYin.splitUp = function pinyin_splitUp(pinyin){
@@ -194,6 +215,7 @@ Player.start = function player_start(startTime,tune,len,vol,isChord){
 	gain.connect(Player.target)
 	osc.start(Player.timeStart + startTime);
 	osc.stop(Player.timeStart + startTime + len);
+	setTimeout(function(){gain.disconnect(Player.target);},(Player.timeStart + startTime - Player.ctx.currentTime + len) * 1000 + 300);
 }
 Player.simplePlay = function player_simplePlay(tune ,octave){
 	if(!Player.ctx)		return;	
@@ -346,7 +368,7 @@ Player.splitUp = function player_splitUp_outdated(){
 				var newItem = Util.clone(Player.soundItem);
 				newItem.len = (ttlen + extend) * sp32b ;
 				newItem.start = sttime * sp32b + 0.1;
-				newItem.vol = newItem.vol * volBoost /4;
+				newItem.vol = newItem.vol * volBoost /8;
 				newItem.f[0].f = 440*Math.pow(2,(Player.fMap[note]-1+Music.arpeggio/12))
 				newItem.isChord = true;
 				Player.music.push(newItem);
