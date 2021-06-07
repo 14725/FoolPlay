@@ -139,7 +139,20 @@ Util.queries = function queryString() {
 	return obj;
 };
 
-
+Util.copy = function util_copy(e) {
+    let transfer = document.createElement('input');
+    document.body.appendChild(transfer);
+    transfer.value = e;  // 这里表示想要复制的内容
+    transfer.focus();
+    transfer.select();
+    if (!document.execCommand('copy')) {
+        PopupWindow.alert("错误：不能复制文本。")
+    }
+    transfer.blur();
+    console.log('复制成功');
+    document.body.removeChild(transfer);
+    
+}
 
 
 var PopupWindow = {
@@ -293,6 +306,7 @@ Music.flat = function music_flat(){//功能：返回去除反复记号的乐谱
 var UI = {
 	container:document.querySelector(".container"),
 	editbox:document.querySelector("#editbox"),
+	IMETip:document.querySelector("#imetip"),
 	statusbar:document.querySelector(".status"),
 	coverOn:document.querySelector("#coverOn"),
 	titleBox:document.querySelector(".title"),
@@ -465,7 +479,10 @@ UI.redraw = function ui_redraw(){
 	if(UI.selStart >= Music.music.length)	UI.selStart = Music.music.length - 1;
 	if(UI.selEnd < -1)	UI.selEnd = -1;
 	if(UI.selEnd >= Music.music.length)	UI.selEnd = Music.music.length - 1;
+	//显示光标
+	caret.style.display = "block";
 	if(UI.selStart != -1){
+		//UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = "0";
 		//有选择区域：绘制选择拖蓝
 		if(UI.selStart > UI.selEnd){
 			//确保选区头部 < 尾部
@@ -486,34 +503,31 @@ UI.redraw = function ui_redraw(){
 		});
 		//隐藏光标
 		caret.style.display = "none";
-	}else{
-		//显示光标
-		caret.style.display = "block";
+	}
 		
-		if(Music.music.length == 0){
-			UI.editbox.style.left = caret.style.left = "0";
-			caret.style.height = "40px";
+		
+	if(Music.music.length == 0){
+		UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = "0";
+		caret.style.height = "40px";
+	}else{
+		yinheight = 40;
+		ciheight = UI.ciheight;
+		UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = "0";
+		if(UI.selEnd != -1){
+			UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = UI.domsAreas[UI.selEnd].x + UI.domsAreas[UI.selEnd].width + "px"
+		}
+		if(UI.editingLynicLine == -1){
+			//在音符级别
+			UI.IMETip.style.top = UI.editbox.style.top = caret.style.top = (UI.selEnd == -1 ? 0 : UI.domsAreas[UI.selEnd].y) + "px";
+			caret.style.height = yinheight + "px";
 		}else{
-			yinheight = 40;
-			ciheight = UI.ciheight;
-			UI.editbox.style.left = caret.style.left = "0";
-			if(UI.selEnd != -1){
-				UI.editbox.style.left = caret.style.left = UI.domsAreas[UI.selEnd].x + UI.domsAreas[UI.selEnd].width + "px"
-			}
-			if(UI.editingLynicLine == -1){
-				//在音符级别
-				UI.editbox.style.top = caret.style.top = (UI.selEnd == -1 ? 0 : UI.domsAreas[UI.selEnd].y) + "px";
-				caret.style.height = yinheight + "px";
-			}else{
-				//在歌词级别
-
-				UI.editbox.style.top = caret.style.top = (
-					UI.domsAreas[Math.max(UI.selEnd,0)].y + UI.yinheight + 
-						ciheight * UI.editingLynicLine 
-					) + 
-				"px";
-				caret.style.height = ciheight + "px";
-			}
+			//在歌词级别
+				UI.IMETip.style.top = UI.editbox.style.top = caret.style.top = (
+				UI.domsAreas[Math.max(UI.selEnd,0)].y + UI.yinheight + 
+					ciheight * UI.editingLynicLine 
+				) + 
+			"px";
+			caret.style.height = ciheight + "px";
 		}
 	}	
 	if(isreved){
@@ -713,7 +727,6 @@ UI.switchLine = function ui_switchLine(up){
 UI.onKeyDown = function ui_onKeyDown(event){
 	var cancel = true;
 	var start,end;
-	event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
 	start	= Math.min(UI.selStart,UI.selEnd);
 	end		= Math.max(UI.selStart,UI.selEnd);
 	//if(UI.selStart == UI.selEnd && UI.selEnd == -1)
@@ -724,12 +737,15 @@ UI.onKeyDown = function ui_onKeyDown(event){
 		return;
 	}
 	
-
+	setTimeout(function(){UI.refreshIME();},1);
 	switch(event.keyCode){
 		
 		//现在删除的行为有些复杂，所以暂时注释掉。
 		//Delete
 		case 8://Backspace
+			if(UI.editbox.value != ""){
+				UI.refreshIME("");
+			}
 			if(Music.music.length == 0)return;
 			if(UI.selEnd == -1)return;
 			if(UI.selStart <= -1){//没有选择
@@ -758,6 +774,9 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			UI.render();
 			break; 
 		case 46://Delete
+			if(UI.editbox.value != ""){
+				UI.refreshIME("");
+			}
 			if(UI.selStart <= -1)
 				UI.selEnd++;
 			if(Music.music.length == 0)return;
@@ -787,6 +806,7 @@ UI.onKeyDown = function ui_onKeyDown(event){
 		//Select
 		
 		case 37:// " <- "
+			UI.refreshIME("");
 			if(Music.music.length == 0)return;
 			if(!event.shiftKey){
 				UI.selStart = -1;
@@ -798,6 +818,7 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			UI.redraw();
 			break;
 		case 39:// " -> "
+			UI.refreshIME("");
 			if(Music.music.length == 0)return;
 			if(!event.shiftKey){
 				if(UI.selStart != -1){
@@ -831,6 +852,7 @@ UI.onKeyDown = function ui_onKeyDown(event){
 				if(UI.selEnd == Music.music.length)	UI.selEnd--;
 				UI.selEnd = UI.getClosestNoteIn(UI.domsAreas[UI.selEnd].midX,UI.domsAreas[UI.selEnd].midY - 60);
 			}
+			UI.refreshIME("");
 			UI.redraw();
 			break;
 		case 40:// "  |	"
@@ -853,10 +875,12 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			if(UI.selEnd != -1){
 				UI.selEnd = UI.getClosestNoteIn(UI.domsAreas[UI.selEnd].midX,UI.domsAreas[UI.selEnd].midY + 60);
 			}
+			UI.refreshIME("");
 			UI.redraw();
 			break;
 			
 		case 65://（Ctrl+）A 
+			UI.refreshIME("");
 			if(Music.music.length == 0)return;
 			if(event.ctrlKey){
 				UI.selStart = 0;
@@ -867,6 +891,7 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			}
 			break;
 		case 35://End
+			UI.refreshIME("");
 			if(Music.music.length == 0)return;
 			if(UI.selEnd == -1){
 				UI.selEnd = 0;
@@ -877,9 +902,11 @@ UI.onKeyDown = function ui_onKeyDown(event){
 				UI.selStart = UI.selEnd + 1
 			}
 			UI.selEnd = Music.music.length - 1;
+			UI.refreshIME("");
 			UI.redraw();
 			break;
 		case 36://Home
+			UI.refreshIME("");
 			if(Music.music.length == 0)return;
 			if(UI.selEnd == -1){
 				UI.selEnd = 0;
@@ -895,6 +922,7 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			UI.redraw();
 			break;
 		case 33://Page UP
+			UI.refreshIME("");
 			if(Music.music.length == 0)return;
 			if(!event.shiftKey){
 				UI.selStart = -1;
@@ -911,6 +939,7 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			UI.redraw();
 			break;
 		case 34://Page Down
+			UI.refreshIME("");
 			if(Music.music.length == 0)return;
 			if(!event.shiftKey){
 				UI.selStart = -1;
@@ -964,8 +993,8 @@ UI.onKeyDown = function ui_onKeyDown(event){
 				cancel = false;
 			break;
 		case 27://Esc
-		    event.target.value = "";
-		    break;
+			UI.refreshIME("");
+			break;
 		default:
 		    console.log(event.keyCode);
 			cancel = false;
@@ -979,10 +1008,15 @@ UI.onKeyDown = function ui_onKeyDown(event){
 		event.stopPropagation();
 	}
 }
+
+UI.refreshIME = function ui_refresh_IME(value){
+	if(value != null)	UI.editbox.value = value;
+	UI.IMETip.innerText = UI.editbox.value;
+}
+
 UI.onInput = function(event){
 	//歌谱的输入方法
-	
-	event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
+	UI.refreshIME();
 	if(UI.editingLynicLine != -1)	return;
 	var content = event.target.value;
 	if(content == "")return;
@@ -1018,7 +1052,7 @@ UI.onInput = function(event){
 		}
 	}
 	var note;
-	content = content.split("……").join("…").split("'").join("").split("");
+	content = content.split("……").join("…").split("'").join("").toLowerCase().split("");
 	for(var i = 0;i<content.length;i++){
 		var oneChar = content[i];
 		var diffFrom;
@@ -1049,7 +1083,7 @@ UI.onInput = function(event){
 				UI.insertEdit([note]);
 				Player.simplePlay(note.pitch,note.octave);
 				event.target.value = "";
-				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
+				UI.refreshIME();
 				break;
 			case "-":
 			case "/":
@@ -1065,7 +1099,8 @@ UI.onInput = function(event){
 					}
 				}
 				event.target.value = "";
-				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
+				UI.refreshIME();
+				
 				break;
 			case "*":
 				if(Music.music[UI.selEnd] != null){
@@ -1076,7 +1111,7 @@ UI.onInput = function(event){
 				}
 				Player.simplePlay(note.pitch,note.octave);
 				event.target.value = "";
-				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
+				UI.refreshIME();
 				break;
 			case "+":
 				if(Music.music[UI.selEnd] != null){
@@ -1087,7 +1122,7 @@ UI.onInput = function(event){
 					Player.simplePlay(note.pitch,note.octave);
 				}
 				event.target.value = "";
-				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
+				UI.refreshIME();
 				break;
 			case "`":
 			case "~":
@@ -1101,7 +1136,7 @@ UI.onInput = function(event){
 					UI.insertEdit([note])
 				}
 				event.target.value = "";
-				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
+				
 				break;
 			case "^":
 			case "…":
@@ -1111,7 +1146,7 @@ UI.onInput = function(event){
 					UI.render();
 				}
 				event.target.value = "";
-				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
+				
 				break;
 			case ":":
 			case "：":
@@ -1129,9 +1164,10 @@ UI.onInput = function(event){
 					Music.loops[sid].do = false;
 				}
 				event.target.value = "";
-				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
+				
 				UI.render();
 				break;
+			case "d":
 			case "s":
 			case "e":
 			case "c":
@@ -1149,7 +1185,6 @@ UI.onInput = function(event){
 					UI.render();
 					event.target.readonly = "readonly";
 					event.target.value = "";
-					event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
 					event.target.readonly = "";
 				}
 				
@@ -1164,18 +1199,31 @@ UI.onInput = function(event){
 				if(sid == -1)		sid = 0;
 				if(Music.loops[sid] == null)	Music.loops[sid] = {};
 				if(lopId == 0){
-                    delete Music.loops[sid].house;
+					delete Music.loops[sid].house;
 				}else{
 					Music.loops[sid].house = [lopId];
 				}
 				
 				UI.layout();	
 				event.target.value = "";
-				event.target.style.background = (event.target.value.trim().length > 0)?"#fff":"none";
 				content.shift();content.shift();
+			case "1":
+			case "2":
+			case "3":
+			case "4":
+			case "5":
+			case "6":
+			case "7":
+			case "8":
+			case "9":
+				break;
+			default:
+				//event.target.value = "";
 
 		}
 	}
+	UI.refreshIME();
+	event.target.value = event.target.value.replace(/[^ds|\-0-9]/g,"");
 }
 UI.onChangeListener = function ui_onChangeListener(event){
 	var content = event.target.value;
@@ -1438,6 +1486,8 @@ UI.setEditor = function ui_setEditor(){
 			}
 		}
 		UI.editbox.focus();
+		UI.editbox.value = "";
+		UI.refreshIME();
 		//setTimeout(function(){ UI.redraw()},0);
 	})
 	document.addEventListener("mousemove",function ui_selecter(event){
@@ -1472,7 +1522,7 @@ UI.setEditor = function ui_setEditor(){
 			UI.selEnd = myid
 		}
 		UI.selStart = -1;
-		if(UI.isShiftDown) UI.selStart = UI.oldSelStart
+		if(UI.isShiftDown) UI.selStart = UI.oldSelStart;
 		UI.redraw();
 	})
 	UI.container.addEventListener("contextmenu",UI.onContextMenu)
