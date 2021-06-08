@@ -1,5 +1,5 @@
 var PinYin = {
-	pyrep:{xu:"xv",yu:"yv",yun:"vn",y:"i",w:"u",ui:"uei",iu:"ou",un:"uen",ie:"iie",ue:"ve",zi:"zsi",ci:"csi",si:"ssi"},
+	pyrep:{xu:"xv",yu:"yv",yun:"vn",y:"i",w:"u",ui:"uei",iu:"ou",ue:"ve",un:"uen",ie:"iie",zi:"zsi",ci:"csi",si:"ssi"},
 	pys: ["a","ai","an","ang","b","c","ch","d","e","ei","en","eng","er","f","g","h","i","ie","in","ing","j","k","l","m","n","o","ong","ou","p","q","ri","s","sh","t","u","ue","v","x","z","zh","si","r"     ,"ao" ,"vn","ve"].sort(function(a,b){return b.length - a.length}),
 	shengmu:["b","p","m","f","d","t","l","n","g","k","h","j","q","x","zh","ch","sh","z","c","s"],
 	fakeShengMu:[""],
