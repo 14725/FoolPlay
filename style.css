@@ -361,7 +361,7 @@ label{
 	-webkit-animation-iteration-count: infinite;
 	height:60px;
 }
-#editbox{
+.editbox{
 	box-sizing:border-box;
 	position:absolute;
 	pointer-event:none;

@@ -69,15 +69,15 @@ PinYin.voice = function pinyin_voice(sentense,detune,start,len,vol){
 				n2.connect(n0);
 			}else{
 				advance = 0.1;
-				n.loop = false;
+				n.loop = false; 
 				n.connect(n0);
 			}
 			
 			n.start(start + i * len + j * d1 - advance);
 			n.stop(start + i * len +len - 0.05);
 		}
-		n0.gain.exponentialRampToValueAtTime(0.5 * vol,(start + i * len +Math.min(0.3 * len,0.1) ) - advance);
-		n0.gain.exponentialRampToValueAtTime(0.4 * vol,(start + i * len +Math.min(0.9 * len,len-0.05)));
+		n0.gain.exponentialRampToValueAtTime(0.5 * vol,(start + i * len +Math.min(0.4 * len,0.1) ) - advance);
+		n0.gain.exponentialRampToValueAtTime(0.3 * vol,(start + i * len +Math.min(0.7 * len,len-0.05)));
 		n0.gain.exponentialRampToValueAtTime(0.001 * vol,(start + i * len +1 * len+0.2));
 		n0.connect(Player.target);
 		(function(n0){
@@ -86,6 +86,8 @@ PinYin.voice = function pinyin_voice(sentense,detune,start,len,vol){
 		
 	}
 }
+
+
 PinYin.splitUp = function pinyin_splitUp(pinyin){
 	var i,ans = [];
 	pinyin = pinyin.toLowerCase().replace(PinYin.fixRegExp,"$1v");
@@ -117,8 +119,7 @@ var Player = {
 	target:null,
 	wave:null,
 	pyTable:{},
-	
-	
+	pianoSample:null,
 	
 	enableSMPlay:true,
 	enableVoice:true,
@@ -159,6 +160,19 @@ Player.loadPyTable = function player_loadPyTable(){
 		len++;
 	}
 }
+Player.loadSample = function player_loadSample(){
+	var request = new XMLHttpRequest();
+	request.open('GET', 'data/pianosap.wav', true);
+	request.responseType = 'arraybuffer';
+	request.onload = function() {
+		var audioData = request.response;
+		Player.ctx.decodeAudioData(audioData, function(buffer) {
+			Player.pianoSample = buffer;
+		}),
+		function(e){console.warn("钢琴采样加载失败，将使用合成音效。" + e.err)};
+	}
+	request.send();
+}
 Player.main = function player_main(){
 	if(!("AudioContext" in window)){
 		UI.statusbar.querySelector("div").innerHTML = "您的浏览器对音频编辑没有足够的编辑功能。";
@@ -167,6 +181,8 @@ Player.main = function player_main(){
 	Player.ctx = new AudioContext();
 	Player.DC = Player.ctx.createDynamicsCompressor();
 	Player.DC.connect(Player.ctx.destination);
+	Player.voiceNode = Player.ctx.createGain();
+	Player.voiceNode.gain.value = 1;
 	Player.target = Player.DC;
 	var real = new Float32Array(11);
 	var imag = new Float32Array(11);
@@ -180,9 +196,9 @@ Player.main = function player_main(){
 		real[i] = 0.2 * Math.pow((15-i) * 0.1,4);
 		imag[i] = 0;
 	}
-
 	Player.wave = ac.createPeriodicWave(real, imag, {disableNormalization: true});
 	Player.loadPyTable();
+	Player.loadSample();
 }
 Player.fMap = {};
 (function fillfMap(){
@@ -201,18 +217,31 @@ Player.start = function player_start(startTime,tune,len,vol,isChord){
 	if((!Player.enableMusic) && (!isChord))return;
 	if((!Player.enableChord) && (isChord))return;
 	Player.ctx.resume();
+
 	vol = vol * 0.3;
-	var osc = Player.ctx.createOscillator();
-	//osc.type = "sine";
-	osc.setPeriodicWave(Player.wave);
 	var gain = Player.ctx.createGain()
-	gain.gain.value=0.001;
-	gain.gain.exponentialRampToValueAtTime(vol,Player.timeStart+startTime+0.05)
-	gain.gain.exponentialRampToValueAtTime(vol*0.2,Player.timeStart+startTime+len*0.6)
-	gain.gain.exponentialRampToValueAtTime(0.001 ,Player.timeStart+startTime+len)
-	osc.frequency.value= tune;
-	osc.connect(gain)
-	gain.connect(Player.target)
+	
+	gain.connect(Player.target)	
+
+	var osc;
+	if(!Player.pianoSample){
+		gain.gain.value=0.001;
+		gain.gain.exponentialRampToValueAtTime(vol,Player.timeStart+startTime+0.05);
+		gain.gain.exponentialRampToValueAtTime(vol*0.2,Player.timeStart+startTime+len*0.6);
+		gain.gain.exponentialRampToValueAtTime(0.001 ,Player.timeStart+startTime+len);
+		osc = Player.ctx.createOscillator();
+		//osc.type = "sine";
+		osc.setPeriodicWave(Player.wave);
+		osc.frequency.value= tune;
+	}else{
+		gain.gain.value=vol;
+		gain.gain.exponentialRampToValueAtTime(vol*0.4,Player.timeStart+startTime+len*0.9);
+		gain.gain.exponentialRampToValueAtTime(0.001 ,Player.timeStart+startTime+len);
+		osc = Player.ctx.createBufferSource();
+		osc.buffer = Player.pianoSample;
+		osc.playbackRate.value = tune / (440 * Math.pow(2,-9/12));
+	}
+	osc.connect(gain);
 	osc.start(Player.timeStart + startTime);
 	osc.stop(Player.timeStart + startTime + len);
 	setTimeout(function(){gain.disconnect(Player.target);},(Player.timeStart + startTime - Player.ctx.currentTime + len) * 1000 + 300);
@@ -312,12 +341,17 @@ Player.splitUp = function player_splitUp_outdated(){
 			if(i >= 1){
 				if(music[i].pitch +music[i].octave * 13 == music[i-1].pitch +music[i-1].octave * 13){
 					Player.music[Player.music.length-1].len += time;
+					Player.music[Player.music.length-2].len += time;
 				}else{
 					var newItem = Util.clone(Player.soundItem);
 					newItem.len = time;
 					newItem.start = curTime;
 					newItem.f[0].f = 440*Math.pow(2,(Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12))
 					newItem.word = music[i].word[0];
+					newItem.vol /= 2.5;
+					Player.music.push(newItem)
+					newItem = Util.clone(newItem);
+					newItem.f[0].f /= 4;
 					Player.music.push(newItem)
 				}
 				music[i].word = music[i].word.map(function(item){if(item){return item.replace(/\s/g,"")}else{return ""}})
@@ -349,8 +383,13 @@ Player.splitUp = function player_splitUp_outdated(){
 			newItem.start = curTime
 			newItem.f[0].f = 440*Math.pow(2,(Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12))
 			newItem.word = music[i].word[0];
-			Player.music.push(newItem)
+			newItem.vol /= 2.5;
+			Player.music.push(newItem);
 			Player.voice.push(newItem)
+			newItem = Util.clone(newItem);
+			newItem.f[0].f /= 4;
+			Player.music.push(newItem)
+			
 		}
 	}
 
@@ -361,14 +400,14 @@ Player.splitUp = function player_splitUp_outdated(){
 		var extend = 1;
 		if(id < chordNotes.length-1 && noteary.toString() == chordNotes[id+1].toString()){
 			extend = 4;
-		}
+		} 
 		var volBoost = 1.2;
 		while(ttlen > 0){
 			noteary.forEach(function (note){
 				var newItem = Util.clone(Player.soundItem);
 				newItem.len = (ttlen + extend) * sp32b ;
 				newItem.start = sttime * sp32b + 0.1;
-				newItem.vol = newItem.vol * volBoost /8;
+				newItem.vol = newItem.vol * volBoost /6;
 				newItem.f[0].f = 440*Math.pow(2,(Player.fMap[note]-1+Music.arpeggio/12))
 				newItem.isChord = true;
 				Player.music.push(newItem);

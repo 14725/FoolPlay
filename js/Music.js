@@ -305,7 +305,7 @@ Music.flat = function music_flat(){//功能：返回去除反复记号的乐谱
 //UI 
 var UI = {
 	container:document.querySelector(".container"),
-	editbox:document.querySelector("#editbox"),
+	editbox:document.querySelector(".editbox"),
 	IMETip:document.querySelector("#imetip"),
 	statusbar:document.querySelector(".status"),
 	coverOn:document.querySelector("#coverOn"),
