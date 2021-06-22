@@ -183,7 +183,7 @@ Player.main = function player_main(){
 	Player.DC.connect(Player.ctx.destination);
 	Player.voiceNode = Player.ctx.createGain();
 	Player.voiceNode.gain.value = 1;
-	Player.target = Player.ctx.destnation;
+	Player.target = Player.ctx.destination;
 	var real = new Float32Array(11);
 	var imag = new Float32Array(11);
 	var ac = Player.ctx;
