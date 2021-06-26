@@ -1,18 +1,20 @@
+// jshint maxerr:9999
+
 var PinYin = {
 	pyrep:{xu:"xv",yu:"yv",yun:"vn",y:"i",w:"u",ui:"uei",iu:"ou",ue:"ve",un:"uen",ie:"iie",zi:"zsi",ci:"csi",si:"ssi"},
 	pys: ["a","ai","an","ang","b","c","ch","d","e","ei","en","eng","er","f","g","h","i","ie","in","ing","j","k","l","m","n","o","ong","ou","p","q","ri","s","sh","t","u","ue","v","x","z","zh","si","r"     ,"ao" ,"vn","ve"].sort(function(a,b){return b.length - a.length}),
 	shengmu:["b","p","m","f","d","t","l","n","g","k","h","j","q","x","zh","ch","sh","z","c","s"],
 	fakeShengMu:[""],
 };
-PinYin.matchRegExp = /(zh|ch|sh|r|z|c|s|b|p|m|f|d|t|n|l|g|k|h|j|q|x)?(i|u|v)?(i|u|v|ong|eng|ang|en|an|ou|ao|ei|ai|e|o|a)/
-PinYin.fixRegExp = /^([jqx])u/
+PinYin.matchRegExp = /(zh|ch|sh|r|z|c|s|b|p|m|f|d|t|n|l|g|k|h|j|q|x)?(i|u|v)?(i|u|v|ong|eng|ang|en|an|ou|ao|ei|ai|e|o|a)/;
+PinYin.fixRegExp = /^([jqx])u/;
 PinYin.getPinYin = function pinyin_getPinYin(oneword){
 	var pos = PinYinData.word.indexOf(oneword);
 	if(pos === -1){
 		return [];
 	}
 	return PinYin.splitUp(PinYinData.pinyin[pos]);
-}
+};
 PinYin.voice = function pinyin_voice(sentense,detune,start,len,vol){
 	if(!Player.enableVoice)return;
 	sentense = sentense.split("").map(function(a){return PinYin.getPinYin(a)});
@@ -43,7 +45,7 @@ PinYin.voice = function pinyin_voice(sentense,detune,start,len,vol){
 	for(var i = 0;i<sentense.length;i++){
 		curPY = sentense[i];
 		n0 = ctx.createGain();
-		n0.gain.value = 0.001
+		n0.gain.value = 0.001;
 		for(var j=0;j<curPY.length;j++){
 			n = ctx.createBufferSource();
 			if(!Player.pyTable[curPY[j]])	return;
@@ -61,7 +63,7 @@ PinYin.voice = function pinyin_voice(sentense,detune,start,len,vol){
 				}
 				n.loop = true;
 				n2 = ctx.createGain();
-				n2.gain.value = 0.001
+				n2.gain.value = 0.001;
 				n2.gain.linearRampToValueAtTime(       1,start + i * len + j * d1 + d1 - advance);
 				n2.gain.linearRampToValueAtTime(		0.8,start + i * len + j * d1 + len*0.8 - advance);
 				n2.gain.linearRampToValueAtTime(	0.001,start + i * len + j * d1 + len - advance);
@@ -80,12 +82,13 @@ PinYin.voice = function pinyin_voice(sentense,detune,start,len,vol){
 		n0.gain.exponentialRampToValueAtTime(0.3 * vol,(start + i * len +Math.min(0.7 * len,len-0.05)));
 		n0.gain.exponentialRampToValueAtTime(0.001 * vol,(start + i * len +1 * len+0.2));
 		n0.connect(Player.target);
+		// jshint undef:true,boss:true
 		(function(n0){
 		    setTimeout(function(){n0.disconnect(Player.target);},(start - Player.ctx.currentTime + len) * 1000 + 200);	
 		})(n0);
 		
 	}
-}
+};
 
 
 PinYin.splitUp = function pinyin_splitUp(pinyin){
@@ -98,22 +101,25 @@ PinYin.splitUp = function pinyin_splitUp(pinyin){
 		if(pinyin.length == 0)break;
 		if(PinYin.pys[i] == pinyin.substr(0,PinYin.pys[i].length)){
 			ans.push(PinYin.pys[i]);
-			pinyin = pinyin.substr(PinYin.pys[i].length)
+			pinyin = pinyin.substr(PinYin.pys[i].length);
 			i = -1;
 			continue;
 		}
 	}
 	return ans;
-}
+};
 PinYin.main = function(){
 	
-}
+};
 
 var Player = {
 	ctx :null,
 	trans:0,
 	music:[],
 	voice:[],
+	highLight:[],
+	highLightTid:0,
+	highLightStamp:0,
 	timePassed:0,
 	timeStart:0,
 	target:null,
@@ -137,7 +143,11 @@ Player.soundItem = {
 	fx:[],
 	word:"",
 	isChord:false
-}
+};
+Player.highLightItem = {
+  time:0,
+  eleId:0
+};
 Player.loadPyTable = function player_loadPyTable(){
 	var table =PinYin.pys;
 	var len = 0,loaded = 0;
@@ -151,15 +161,15 @@ Player.loadPyTable = function player_loadPyTable(){
 				Player.ctx.decodeAudioData(audioData, function(buffer) {
 					Player.pyTable[table[i]] = buffer;
 					loaded++;
-					Player.trace("正在加载语音合成音源，已完成 " + (loaded * 100 / len).toFixed(2) + "%。" )
+					Player.trace("正在加载语音合成音源，已完成 " + (loaded * 100 / len).toFixed(2) + "%。" );
 				}),
 				function(e){console.warn("Error with decoding audio data" + e.err)};
-			}
+			};
 			request.send();
 		})(i);
 		len++;
 	}
-}
+};
 Player.loadSample = function player_loadSample(){
 	var request = new XMLHttpRequest();
 	request.open('GET', 'data/pianosap.wav', true);
@@ -170,9 +180,9 @@ Player.loadSample = function player_loadSample(){
 			Player.pianoSample = buffer;
 		}),
 		function(e){console.warn("钢琴采样加载失败，将使用合成音效。" + e.err)};
-	}
+	};
 	request.send();
-}
+};
 Player.main = function player_main(){
 	if(!("AudioContext" in window)){
 		UI.statusbar.querySelector("div").innerHTML = "您的浏览器对音频编辑没有足够的编辑功能。";
@@ -183,7 +193,7 @@ Player.main = function player_main(){
 	Player.DC.connect(Player.ctx.destination);
 	Player.voiceNode = Player.ctx.createGain();
 	Player.voiceNode.gain.value = 1;
-	Player.target = Player.ctx.destination;
+	Player.target = Player.DC;
 	var real = new Float32Array(11);
 	var imag = new Float32Array(11);
 	var ac = Player.ctx;
@@ -199,11 +209,11 @@ Player.main = function player_main(){
 	Player.wave = ac.createPeriodicWave(real, imag, {disableNormalization: true});
 	Player.loadPyTable();
 	Player.loadSample();
-}
+};
 Player.fMap = {};
 (function fillfMap(){
 	var fMap = Player.fMap;
-	var p = 1 / 12
+	var p = 1 / 12;
 	fMap[6] = 0;
 	fMap[7] = 2*p;
 	fMap[1] = -9*p;
@@ -219,9 +229,9 @@ Player.start = function player_start(startTime,tune,len,vol,isChord){
 	Player.ctx.resume();
 
 	vol = vol * 0.3;
-	var gain = Player.ctx.createGain()
+	var gain = Player.ctx.createGain();
 	
-	gain.connect(Player.target)	
+	gain.connect(Player.target);
 
 	var osc;
 	if(!Player.pianoSample){
@@ -245,7 +255,7 @@ Player.start = function player_start(startTime,tune,len,vol,isChord){
 	osc.start(Player.timeStart + startTime);
 	osc.stop(Player.timeStart + startTime + len);
 	setTimeout(function(){gain.disconnect(Player.target);},(Player.timeStart + startTime - Player.ctx.currentTime + len) * 1000 + 300);
-}
+};
 Player.simplePlay = function player_simplePlay(tune ,octave){
 	if(!Player.ctx)		return;	
 	if(tune == 0)		return;
@@ -254,7 +264,18 @@ Player.simplePlay = function player_simplePlay(tune ,octave){
 	var f = 440 * Math.pow(2,tune + octave+Music.arpeggio/12);
 	Player.start(Player.ctx.currentTime-Player.timeStart,f,0.25,1);
 	
-}
+};
+Player.queueHighLight = function fn(){
+  var cur = Player.highLight.shift();
+  if(document.querySelector(".hl"))
+    document.querySelector(".hl").className = document.querySelector(".hl").className.replace(" hl","");
+  if(cur == null) return;
+  UI.dom[Math.max(0,cur.eleId-1)].className += " hl";
+  //console.log(document.querySelectorAll(".yin")[cur.eleId].outerHTML)
+  var time = Date.now();
+  setTimeout(fn,Math.max(0, (Player.highLightStamp+cur.time*1000-time)|0));
+  //console.log(Player.highLight[0].time)
+};
 Player.sing = function player_sing(){
 	//... player_start(startTime,tune,len,vol){
 	Player.timeStart = Player.ctx.currentTime;
@@ -266,14 +287,14 @@ Player.sing = function player_sing(){
 	//延迟的播放，否则手机会崩
 	var cacheNum = 2;
 	var cacheStartNum = 2;
-	var cacheTime = 250;
+	var cacheTime = 1000;
 	for(var i = 0;i < Math.min(voice.length,cacheStartNum+1);i++){
 		var item = voice[i];
 		if(item.word == "")continue;
 		if(item.word == null)continue;
-		PinYin.voice(item.word,item.f,item.start,item.len,item.vol)
+		PinYin.voice(item.word,item.f,item.start,item.len,item.vol);
 	}
-	for(var i = cacheStartNum;i < voice.length;i+=cacheNum){
+	for(i = cacheStartNum;i < voice.length;i+=cacheNum){
 		(function(start){setTimeout(function(){
 			Player.ctx.resume();
 			var end = Math.min(voice.length - 1,start + cacheNum)
@@ -283,9 +304,9 @@ Player.sing = function player_sing(){
 				if(item.word == null)continue;
 				PinYin.voice(item.word,item.f,item.start,item.len,item.vol)
 			}
-		},Math.max(0,voice[i].start * 1000 - cacheTime))})(i)
+		},Math.max(0,voice[i].start * 1000 - cacheTime))})(i);
 	}
-	for(var i = 0;i < Math.min(music.length,cacheStartNum+1);i++){
+	for(i = 0;i < Math.min(music.length,cacheStartNum+1);i++){
 		var item = music[i];
 		if(isNaN(item.f[0].f))continue;
 		Player.start(item.start,item.f[0].f,item.len,item.vol,item.isChord)
@@ -301,7 +322,8 @@ Player.sing = function player_sing(){
 			}
 		},Math.max(0,music[i].start* 1000 - cacheTime))})(i)
 	}
-	
+	  Player.highLightStamp = Date.now();
+  Player.queueHighLight();
 }
 Player.trace = function player_train( log ){
 	//var log = Array.prototype.splice.call(arguments).join(" ");
@@ -316,27 +338,35 @@ Player.splitUp = function player_splitUp_outdated(){
 	var sp32b = Music.speedS;
 	Player.music = [];
 	Player.voice = [];
+	Player.highLight = [];
 	var curLen = 0;
 	var curTime = 0;
 	var music = Music.flat();
 	var lenTempo = Music.lenTempo;
 	var lenSection = Music.lenSection;
 	var time;
+	var cItem;
 	for(var i=0;i<music.length;i++){
 		curLen += music[i].length;
 		if(i>=2 && music[i-2].fx.triplets ){
 			curLen -= music[i].length;
 		}
 		if(music[i].fx.triplets || (i>=1 && music[i-1].fx.triplets)||(i>=2 && music[i-2].fx.triplets)){
-			time = sp32b * 2 * music[i].length / 3
+			time = sp32b * 2 * music[i].length / 3;
 		}else{
-			time = sp32b * music[i].length
+			time = sp32b * music[i].length;
 		}
 		if((i>=1 && music[i-1].fx.triplets)||(i>=2 && music[i-2].fx.triplets)){
 			curTime += time;
 		}else{
 			curTime = (curLen- music[i].length)* sp32b + 0.1;
 		}
+		// 光标！
+		cItem = Util.clone(Player.highLightItem);
+		cItem.time = curTime;
+		cItem.eleId = music[i].rawIndex;
+		Player.highLight.push(cItem);
+		
 		if(music[i].fx.extend){
 			if(i >= 1){
 				if(music[i].pitch +music[i].octave * 13 == music[i-1].pitch +music[i-1].octave * 13){
@@ -414,9 +444,9 @@ Player.splitUp = function player_splitUp_outdated(){
 			});
 			volBoost = 1;
 			sttime += lenTempo;
-			ttlen  -= lenTempo
+			ttlen  -= lenTempo;
 		}
 
 	});
     Player.music.sort(function(a,b){return a.start - b.start});
-}
+};

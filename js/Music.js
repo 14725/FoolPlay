@@ -4,6 +4,69 @@ HTMLElement.prototype.matchesSelector = function() {
 	var body = HTMLElement.prototype;
 	return body.webkitMatchesSelector || body.msMatchesSelector || body.mozMatchesSelector || body.oMatchesSelector;
 }();
+/**
+ * window.requestIdleCallback()
+ * version 0.0.0
+ * Browser Compatibility:
+ * https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback#browser_compatibility
+ */
+if (!window.requestIdleCallback) {
+  window.requestIdleCallback = function (callback, options) {
+    var options = options || {};
+    var relaxation = 1;
+    var timeout = options.timeout || relaxation;
+    var start = performance.now();
+    return setTimeout(function () {
+      callback({
+        get didTimeout() {
+          return options.timeout ? false : (performance.now() - start) - relaxation > timeout;
+        },
+        timeRemaining: function () {
+          return Math.max(0, relaxation + (performance.now() - start));
+        },
+      });
+    }, relaxation);
+  };
+}
+
+/**
+* window.cancelIdleCallback()
+* version 0.0.0
+* Browser Compatibility:
+* https://developer.mozilla.org/en-US/docs/Web/API/Window/cancelIdleCallback#browser_compatibility
+*/
+if (!window.cancelIdleCallback) {
+  window.cancelIdleCallback = function (id) {
+    clearTimeout(id);
+  };
+}
+
+/**
+* window.requestAnimationFrame()
+* version 0.0.0
+* Browser Compatibility:
+* https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame#browser_compatibility
+*/
+if (!window.requestAnimationFrame) {
+  window.requestAnimationFrame = function (callback) {
+    return window.setTimeout(function () {
+      callback(Date.now());
+    }, 1000 / 60);
+  };
+}
+
+/**
+* window.cancelAnimationFrame()
+* version 0.0.0
+* Browser Compatibility:
+* https://developer.mozilla.org/en-US/docs/Web/API/Window/cancelAnimationFrame#browser_compatibility
+*/
+if (!window.cancelAnimationFrame) {
+  window.cancelAnimationFrame = function (id) {
+    clearTimeout(id);
+  };
+}
+
 
 //Utils
 Util = {
@@ -300,7 +363,11 @@ Music.split = function music_splitIntoMeasures(){//功能：把连续的音符�
 };
 Music.flat = function music_flat(){//功能：返回去除反复记号的乐谱
 	// Just Dummy now... TODO
-	return Util.clone(Music.music)
+	var res = Util.clone(Music.music);
+	res.forEach(function(me,idx){
+	  me.rawIndex = idx;
+	});
+	return res;
 }
 //UI 
 var UI = {
@@ -424,10 +491,12 @@ UI.layout = function ui_layout(){//功能：读取浏览器对歌谱的布局，
 	var list = UI.domList = Array.prototype.slice.call(document.querySelectorAll(".note"));
 	var rect;
 	UI.domsAreas = [];
+	UI.dom = []
 	list.forEach(function(dom){
 		//去除选择态
 		var id= parseInt(dom.dataset.id);
 		//获取对应的ID
+		if(!UI.dom[id]) UI.dom[id]=dom
 		if(!UI.domsAreas[id]){
 			//不存在：添加这个音符的区域
 			UI.domsAreas[id] = {
