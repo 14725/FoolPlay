@@ -367,11 +367,10 @@ label{
 .editbox{
 	box-sizing:border-box;
 	position:absolute;
-	pointer-event:none;
-	oopacity:0;
+	opacity:0;
 	width:0;
 	height:0;
-	outline:0;
+	outline:0!important;
 }
 #imetip{
 	background:white;
