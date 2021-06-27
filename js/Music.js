@@ -361,13 +361,123 @@ Music.split = function music_splitIntoMeasures(){//功能：把连续的音符�
 		sections.push(thisSection);
 	
 };
-Music.flat = function music_flat(){//功能：返回去除反复记号的乐谱
+Music.flatBar = function music_flat(){//功能：返回去除反复记号的乐谱
 	// Just Dummy now... TODO
-	var res = Util.clone(Music.music);
-	res.forEach(function(me,idx){
+
+
+
+	Music.music.forEach(function(me,idx){
 	  me.rawIndex = idx;
 	});
+	var res = [];
+	var fallCount = Music.sections.length * 10; // 备份：20遍反复
+	var cur = -1;  //当前位置
+
+	// 此处只处理单层反复记号 （||: ::||）
+    
+
+    // 状态表
+    var RE_NORMAL= 0;
+    var RE_INRE  = 1;
+
+    var status   = 0; // 状态！
+	var reStart  = 0; // 反复记号开始。默认从第0小节开始
+	var reEnd    = 0; // 反复记号结束位置。
+	var cntLine  = 0; // 经过的小节最多有多少行音乐？ 决定反复次数。
+	var reLeft   = 1; // 反复检查。
+	var hasHouse = false; // 是否检查房子？
+
+	while(fallCount-- > 0){
+        cur ++;
+        if(cur >= Music.sections.length) return res;
+        res.push(Music.flatOneBar(Music.sections[cur],reLeft-1));
+        //看这个小节！
+        switch(status){
+        	case RE_NORMAL: // 没有处理反复！
+        	    if(Music.loops[cur]){
+        	    	// 1. 如果这个小节是开始？
+        	    	if(Music.loops[cur]["do"]){
+        	    		// 清空状态
+                        reStart = cur;
+                        cntLine = 0;
+                        reLeft =  1;
+                        hasHouse = false;
+        	    	}
+                    // 2. 如果这个小节是反复？
+                    if(Music.loops[cur].loop){
+                    	// 切换状态！
+                    	status = RE_INRE; 
+                    	if(cntLine > 1){
+                    		reLeft = 2;
+                    	}else{
+                    		reLeft = 1;
+                    	}
+                    	
+                    	reEnd = cur;
+                        // 跳转指针！
+                        cur = reStart - 1;
+                        break;
+                    }
+        	    }
+				cntLine = Music.sections[cur].reduce(function(prev,cur){
+					return Math.max(prev,cur.note.word.length);
+				},cntLine);
+        	    break;
+        	case RE_INRE:
+        	    if(Music.loops[cur]){
+        	    	// 1. 如果这个小节是开始？
+        	    	if(Music.loops[cur]["do"]){/*什么也不做*/}
+                    // 2. 如果这个小节是反复？
+                    if(Music.loops[cur].loop){
+                    	if(reLeft >= cntLine){
+                    		// 切换状态！
+							status = RE_NORMAL; 
+							reLeft = 1;
+							reEnd = cur;
+							// 跳转指针！
+                            ;
+                    	} else {
+                    		reLeft ++;
+                    		// 跳转指针！
+                            cur = reStart - 1;
+                    	}
+                    	
+                        
+                    }
+
+        	    }
+        	    break;
+        }
+        
+        
+	}
+	console.warn("展开歌谱失败。");
+	console.log("Dump: ");
+	console.log(UI.outString());
+	PopupWindow.alert("无法识别歌谱的反复记号：将忽略反复。")
+	return Util.clone(Music.sections);
+}
+Music.flat = function(){
+    var res = [];
+    var bars = Music.flatBar();
+    bars.forEach(function(bar){
+    	bar.forEach(function(note){
+    		note.note.rawIndex = note.id;
+    		res.push(note.note);
+    	});
+    });
 	return res;
+}
+Music.flatOneBar = function(bar, line){
+	var rtn = Util.clone(bar);
+	rtn.forEach(function(n){
+		var tmp = n.note.word;
+		if(!tmp) tmp = [];
+		if(tmp[line]) tmp = [tmp[line]];
+		else    tmp = [];
+		n.note.word = tmp;
+	});
+	return rtn;
 }
 //UI 
 var UI = {
@@ -1043,25 +1153,6 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			else
 				cancel = false;
 			break;
-		//快捷键
-		case 78://(Ctrl+)N
-			if(event.ctrlKey)
-				void(window.open(location.href,'_blank','toolbar=no'))
-			else
-				cancel = false;
-			break
-		case 79://(Ctrl+)O
-			if(event.ctrlKey)
-				UI.open()
-			else
-				cancel = false;
-			break;
-		case 83://(Ctrl+)O
-			if(event.ctrlKey)
-				UI.saveAs()
-			else
-				cancel = false;
-			break;
 		case 27://Esc
 			UI.refreshIME("");
 			break;
@@ -1077,7 +1168,54 @@ UI.onKeyDown = function ui_onKeyDown(event){
 		event.stopPropagation();
 	}
 }
-
+//全局快捷键！！！！
+UI.onGlobalKeyDown = function(event){
+	var cancel = true;
+	var start,end;
+	start	= Math.min(UI.selStart,UI.selEnd);
+	end		= Math.max(UI.selStart,UI.selEnd);
+	//if(UI.selStart == UI.selEnd && UI.selEnd == -1)
+	//	UI.selEnd = 0;
+	if(event.keyCode==13){
+		UI.switchLine();
+		UI.onChangeListener(event);
+		return;
+	}
+	
+	
+	
+	switch(event.keyCode){
+		//快捷键
+		case 78://(Ctrl+)N
+			if(event.ctrlKey)
+				void(window.open(location.href,'_blank','toolbar=no'))
+			else
+				cancel = false;
+			break
+		case 79://(Ctrl+)O
+			if(event.ctrlKey)
+				UI.open()
+			else
+				cancel = false;
+			break;
+		case 83://(Ctrl+)S
+			if(event.ctrlKey)
+				UI.saveAs()
+			else
+				cancel = false;
+			break;
+		default:
+			cancel = false;
+			break;
+		
+	}
+	
+	if(cancel){
+		event.preventDefault();
+		event.stopImmediatePropagation();
+		event.stopPropagation();
+	}
+}
 UI.refreshIME = function ui_refresh_IME(value){
 	if(value != null)	UI.editbox.value = value;
 	UI.IMETip.innerText = UI.editbox.value;
@@ -1598,8 +1736,9 @@ UI.setEditor = function ui_setEditor(){
 	UI.container.addEventListener("contextmenu",UI.onContextMenu)
 	document.addEventListener("click",function ui_click_to_hide_menu(){setTimeout(function(){UI.contextMenu.style.display = "none"},1)})
 	document.oncontextmenu = function ui_to_disable_native_menu(){return event.target.matchesSelector("input,textarea");}
-	UI.editbox.addEventListener("keydown",UI.onKeyDown)
-	Util.onCJKInput(UI.editbox,UI.onInput)
+	UI.editbox.addEventListener("keydown",UI.onKeyDown);
+	document.addEventListener("keydown",UI.onGlobalKeyDown);
+	Util.onCJKInput(UI.editbox,UI.onInput);
 	UI.editbox.addEventListener("focus",function show_caret(){
 		UI.caretStyle.innerHTML = "";
 	})
