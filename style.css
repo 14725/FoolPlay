@@ -377,6 +377,7 @@ label{
 	font-family:monospace;
 	position:absolute;
 	font-weight:bold;
+	transform: translateY(-1.2em);
 }
 .cline{
 	height:10px;
