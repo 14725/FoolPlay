@@ -4,25 +4,18 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<meta name="force-rendering" content="webkit">
-<meta name="renderer" content="webkit">
-
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 	<div class="window loading destroy" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);display:block">
-		<div class="content"><h1>傻瓜弹曲</h1><p align="right">正在加载<span id="loadfile">调试器</span>…… </p></div>
+		<div class="content"><h1>傻瓜弹曲</h1><p align="right">正在加载<span id="loadfile">......</span>…… </p></div>
+	</div>	<div class="window loading nojs" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);display:block;opacity:1">
+		<div class="content"><h1>傻瓜弹曲</h1><p align="right">JavaScript已被禁用，因此本程序无法运行。 </p></div>
 	</div>
-	<!-- script>
-	    if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent))document.write('<scr'+'ipt src="http://cdn.jsdelivr.net/npm/eruda" onload="eruda.init()"></scr'+'ipt>');
-	</script -->
+
 	<script>loadfile.innerHTML = "网页内容布局"</script>
-<noscript>
-	<div class="window on">
-		<div class="windowtitle">系统错误</div>
-		<div class="content">您的浏览器不能运行</div>
-	</div>
-</noscript>
+	
+<script>document.querySelector('.nojs').outerHTML = '';</script>
 
 <div class="menu line" style="position:fixed">
 	<div class="item">
@@ -35,9 +28,7 @@
 			<div class="item">
 				导出
 				<div class="menu">
-					<a href="javascript:;">导出音频...</a>
-					<a href="javascript:;">导出HTML网页...`</a>
-					<a href="javascript:;">复制链接</a>
+					<a href="javascript:alert('没有实现。');">导出音频...</a>
 				</div>
 			</div>
 			<a href="javascript:window.print();">打印...</a>
@@ -88,9 +79,9 @@
 			<hr>
 			<label><input type="checkbox" checked onclick="Player.enableSMPlay = this.checked"/>编辑时奏音乐</label>
 			<hr>
-			<label><input type="checkbox" checked onclick="if(Player.enableVoice || Player.enableChord || this.checked){Player.enableMusic = this.checked}else{PopupWindow.alert('这三个选项我不想都不选。');return false;}"/>奏旋律</label>
-			<label><input type="checkbox" checked onclick="if(this.checked || Player.enableChord || Player.enableMusic){Player.enableVoice = this.checked}else{PopupWindow.alert('这三个选项我不想都不选。');return false;}"/>唱人声</label>
-			<label><input type="checkbox" checked onclick="if(Player.enableVoice || this.checked || Player.enableMusic){Player.enableChord = this.checked}else{PopupWindow.alert('这三个选项我不想都不选。');return false;}"/>奏伴奏</label>
+			<label><input type="checkbox" checked onclick="Player.enableMusic = this.checked"/>奏旋律</label>
+			<label><input type="checkbox" checked onclick="Player.enableVoice = this.checked"/>唱人声</label>
+			<label><input type="checkbox" checked onclick="Player.enableChord = this.checked"/>奏伴奏</label>
 
 			<hr>
 			<label><input type="checkbox"/>使用节拍器</label>
@@ -105,7 +96,7 @@
 	<div class="item">
 		帮助
 		<div class="menu">
-			<a href="help/index.htm" onclick="alert('暂不提供帮助...');var win = true/*window.open(this.href,this.target,'toolbar=no,width=640,height=480')*/;if(win!=null){return false;}" target="help">帮助主题...</a>
+			<a href="help/index.htm" onclick="PopupWindow.alert('暂不提供帮助...<br>查看关于以获得帮助。');var win = true/*window.open(this.href,this.target,'toolbar=no,width=640,height=480')*/;if(win!=null){return false;}" target="help">帮助主题...</a>
 			<hr>
 			<a href="./" >关于...</a>
 		</div>
