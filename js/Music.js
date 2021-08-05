@@ -499,35 +499,26 @@ var UI = {
 	//selEnd:-1,
 	from:-1,
 	author:-1,
-	// 注： 这些都是指选择的元素序号。其中 from = -1 => 空选，光标在 author 前面。
+	// 注： 这些都是指选择的元素序号。其中 from = author 为空选
 	// from <- [0, length]    author <- [0,length]
 	get selStart(){
 		return Math.min(this.from,this.author);
 	},
 	set selStart(v){
-		if(v == -1){
-			this.from = -1;
+		if(this.from > this.author){
+			this.author = v;
 		} else {
-			if(this.from > this.author){
-				this.author = v;
-			} else {
-				this.from = v;
-			}
+			this.from = v;
 		}
-		//this.from = v;
 	},
 	get selEnd(){
 		return Math.max(this.from,this.author);
 	},
 	set selEnd(v){
-		if(v >= Music.music.length){
-			this.author = -1;
+		if(this.from <= this.author){
+			this.author = v;
 		} else {
-			if(this.from < this.author){
-				this.author = v;
-			} else {
-				this.from = v;
-			}
+			this.from = v;
 		}
 	},
 	isMouseDown:false,
@@ -674,15 +665,15 @@ UI.redraw = function ui_redraw(){
 	// *** 旧代码 ***
 	//setStart	: 选取开始的音符的左边，约定-1为没有选区;
 	//selEnd	: 选取结束的音符的右边，约定最左边为-1;
-	// 注： 这些都是指选择的元素序号。其中 from = -1 => 空选，光标在 author 前面。
-	// from <- [-1, length-1]    author <- [0,length]
-	if(UI.from < -1)	UI.from = -1;
-	if(UI.from >= Music.music.length)	UI.from = Music.music.length - 1;
-	if(UI.author <= -1)	UI.author = 0;
-	if(UI.author >= Music.music.length)	UI.author = Music.music.length - 1;
+	// 注： 这些都是指选择的元素序号。其中 from = author 为空选
+	// from <- [0, length]    author <- [0,length]
+	if(UI.from   <= 0)	                UI.from = 0;
+	if(UI.from   >= Music.music.length)	UI.from = Music.music.length;
+	if(UI.author <= 0)	UI.author = 0;
+	if(UI.author >= Music.music.length)	UI.author = Music.music.length;
 	//显示光标
 	caret.style.display = "block";
-	if(UI.from != -1){
+	if(UI.from != UI.author){
 		//UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = "0";
 		//有选择区域：绘制选择拖蓝
 		UI.domList.forEach(function(dom,index){
@@ -709,20 +700,21 @@ UI.redraw = function ui_redraw(){
 		yinheight = 40;
 		ciheight = UI.ciheight;
 		UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = "0";
-		if(UI.author != 0){
-			UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = UI.domsAreas[UI.author-1].x + UI.domsAreas[UI.author-1].width + "px"
+		if(UI.author != Music.music.length){
+			UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = UI.domsAreas[UI.author].x + "px"
+		} else {
+			UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = UI.domsAreas[UI.author - 1].x + UI.domsAreas[UI.author - 1].width + "px"
 		}
 		if(UI.editingLynicLine == -1){
 			//在音符级别
-			UI.IMETip.style.top = UI.editbox.style.top = caret.style.top = (UI.author == 0 ? 0 : UI.domsAreas[UI.author-1].y) + "px";
+			UI.IMETip.style.top = UI.editbox.style.top = caret.style.top = UI.domsAreas[Math.min(UI.author,Music.music.length)].y + "px";
 			caret.style.height = yinheight + "px";
 		}else{
 			//在歌词级别
-				UI.IMETip.style.top = UI.editbox.style.top = caret.style.top = (
-				UI.domsAreas[Math.max(UI.author-1,0)].y + UI.yinheight + 
-					ciheight * UI.editingLynicLine 
-				) + 
-			"px";
+			UI.IMETip.style.top = UI.editbox.style.top = caret.style.top = (
+			    UI.domsAreas[Math.min(UI.author,Music.music.length-1)].y + UI.yinheight + 
+				ciheight * UI.editingLynicLine 
+			) + "px";
 			caret.style.height = ciheight + "px";
 		}
 	}	
@@ -731,40 +723,28 @@ UI.redraw = function ui_redraw(){
 UI.autoScroll = function ui_autoScroll(){
 	//Scroll
 	var containerTop = UI.container.offsetTop - window.pageYOffset;
-	var statusbarTop = UI.statusbar.getBoundingClientRect().top
+	var statusbarTop = UI.statusbar.getBoundingClientRect().top;
+	var author = Math.min(UI.author,Music.music.length)
 	if(Music.music.length){
-		if(UI.author > 0){
-			if(UI.domsAreas[UI.author-1].y + UI.domsAreas[UI.author-1].height + containerTop > statusbarTop){
-				//窗口边缘下面
-				UI.domList.every(function(item,index){
-					if(index < UI.author-1)	return true;
-					if(item.dataset.id == UI.author-1){
-						item.scrollIntoView(false);
-						window.scrollBy(0,+30);
-						return false;
-					}
-					return true;
-				});
-			}else if(UI.domsAreas[UI.author-1].y + containerTop < 30){
-				//窗口边缘上面
-				if(UI.domsAreas[UI.author-1].y == 0){
-					window.scroll(0,0);
-					return;
-				}
-				UI.domList.every(function(item, index){
-					if(index < UI.author-1)	return true;
-					if(item.dataset.id == UI.author-1){
-						item.scrollIntoView(true);
-						window.scrollBy(0,-30);
-						return false;
-					}
-					return true;
-				})
-			}
-		}else if(UI.author == -1){
-			//无选择, 光标在最上面
+		if(UI.domsAreas[UI.author].y == 0){
 			window.scroll(0,0);
+			return;
 		}
+		UI.domList.every(function(item,index){
+			if(item.dataset.id == author){
+				if(UI.domsAreas[author].y + UI.domsAreas[author].height + containerTop > statusbarTop){
+					//窗口边缘下面
+                    item.scrollIntoView(false);
+				    window.scrollBy(0,+30);
+				}else if(UI.domsAreas[author].y + containerTop < 30){
+					//窗口边缘上面
+                    item.scrollIntoView(true); 
+                    window.scrollBy(0,-30);
+				}
+				return false;
+			}
+			return true;
+		});
 	}
 };
 UI.appendCLine = function ui_appendCLine(pid,nid,word,ishouse){
@@ -859,15 +839,15 @@ UI.getHTMLUnit = function ui_getHTMLUnit(classes,pitch,word,id){
 		.split("$id").join(id);
 }
 UI.switchLine = function ui_switchLine(up){
-	if(UI.author == 0){
-		UI.author = 1;
+	if(UI.author >= Music.music.length){
+		UI.author = Music.music.length - 1;
 		UI.switchLine(up);
-		UI.author = 0;
+		UI.author = Music.music.length;
 		UI.redraw();
 		return;
 	};
 	var oldscrPos = document.documentElement.scrollTop || document.body.scrollTop;
-	var oldelePos = UI.domsAreas[UI.author-1].y ;
+	var oldelePos = UI.domsAreas[UI.author].y ;
 	var changed = false;
 	if(up){
 		if(UI.editingLynicLine <= 0){
@@ -912,12 +892,13 @@ UI.switchLine = function ui_switchLine(up){
 	else            UI.layout();
 	UI.shouldScroll = true;
 	var scrPos = Math.max(document.documentElement.scrollTop || document.body.scrollTop);
-	var elePos = UI.domsAreas[UI.author-1].y;
+	var elePos = UI.domsAreas[UI.author].y;
 	if((up && elePos < oldelePos) || (!up && elePos > oldelePos)){
 		window.scrollBy(0,+(elePos-oldelePos))
 	}
 }
 UI.onKeyDown = function ui_onKeyDown(event){
+	// TODO: Fix the Keyboard after UI.insertEdit([]);
 	var cancel = true;
 	var start,end;
 	start	= UI.selStart;
@@ -943,7 +924,7 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			if(Music.music.length == 0)return;
 			//最开始
 			if(UI.author == 0)return;
-			if(UI.form == -1){//没有选择
+			if(UI.from != UI.author){//没有选择
 				if(UI.editingLynicLine == -1){
 					if(Music.music[UI.author-1].length % 3 ==0)
 						Music.music[UI.author-1].length = Music.music[UI.author-1].length / 3 * 2;
@@ -1191,11 +1172,7 @@ UI.onGlobalKeyDown = function(event){
 	end		= Math.max(UI.selStart,UI.selEnd);
 	//if(UI.selStart == UI.selEnd && UI.selEnd == -1)
 	//	UI.selEnd = 0;
-	if(event.keyCode==13){
-		UI.switchLine();
-		UI.onChangeListener(event);
-		return;
-	}
+
 	
 	
 	
@@ -1203,7 +1180,7 @@ UI.onGlobalKeyDown = function(event){
 		//快捷键
 		case 78://(Ctrl+)N
 			if(event.ctrlKey)
-				void(window.open(location.href,'_blank','toolbar=no'))
+				UI.new();
 			else
 				cancel = false;
 			break
@@ -1238,6 +1215,7 @@ UI.refreshIME = function ui_refresh_IME(value){
 
 UI.onInput = function(event){
 	//歌谱的输入方法
+	//TODO: Check this after the UI.insertEdit 
 	UI.refreshIME();
 	if(UI.editingLynicLine != -1)
 	{
@@ -1283,8 +1261,8 @@ UI.onInput = function(event){
 		var oneChar = content[i];
 		var diffFrom;
 		if(Music.music[UI.selEnd] != null){
-			diffFrom = note = Music.music[UI.selEnd].pitch;
-			diffFrom += Music.music[UI.selEnd].octave  * 8;
+			diffFrom = note = Music.music[UI.selEnd - 1].pitch;
+			diffFrom += Music.music[UI.selEnd - 1].octave  * 8;
 		}
 		switch(oneChar){
 			case "0":
@@ -1317,8 +1295,8 @@ UI.onInput = function(event){
 			case "=":
 			case ".":
 			case "。":
-				if(Music.music[UI.selEnd] != null){
-					note = Music.music[UI.selEnd];
+				if(Music.music[UI.selEnd - 1] != null){
+					note = Music.music[UI.selEnd - 1];
 					if(conventTable[oneChar][note.length]){
 						note.length = conventTable[oneChar][note.length];
 						UI.render();
@@ -1328,8 +1306,8 @@ UI.onInput = function(event){
 				
 				break;
 			case "*":
-				if(Music.music[UI.selEnd] != null){
-					note = Music.music[UI.selEnd];
+				if(Music.music[UI.selEnd - 1] != null){
+					note = Music.music[UI.selEnd - 1];
 					if(note.octave == 1)    note.octave = 0;
 					else                     note.octave = 1;
 					UI.render();
@@ -1338,8 +1316,8 @@ UI.onInput = function(event){
 				UI.refreshIME("");
 				break;
 			case "+":
-				if(Music.music[UI.selEnd] != null){
-					note = Music.music[UI.selEnd];
+				if(Music.music[UI.selEnd - 1] != null){
+					note = Music.music[UI.selEnd - 1];
 					if(note.octave == -1)    note.octave = 0;
 					else                     note.octave = -1;
 					UI.render();
@@ -1350,7 +1328,7 @@ UI.onInput = function(event){
 			case "`":
 			case "~":
 			case "·":
-				if(Music.music[UI.selEnd] != null){
+				if(Music.music[UI.selEnd - 1] != null){
 					note = Music.MusicNote();
 					note.pitch = Music.music[UI.selEnd].pitch;
 					note.octave = Music.music[UI.selEnd].octave;
@@ -1363,8 +1341,8 @@ UI.onInput = function(event){
 				break;
 			case "^":
 			case "…":
-				if(Music.music[UI.selEnd] != null){
-					note = Music.music[UI.selEnd];
+				if(Music.music[UI.selEnd - 1] != null){
+					note = Music.music[UI.selEnd - 1];
 					note.fx.extend = !note.fx.extend;
 					UI.render();
 				}
@@ -1373,7 +1351,7 @@ UI.onInput = function(event){
 				break;
 			case ":":
 			case "：":
-				var sid = Music.indexNoteInSection(UI.selEnd);
+				var sid = Music.indexNoteInSection(UI.selEnd - 1);
 				if(sid == -1)	sid = 0;
 				if(Music.loops[sid] == null)
 					Music.loops[sid] = {};
@@ -1397,7 +1375,7 @@ UI.onInput = function(event){
 			case "o":
 
 				var cmd = content[i-1] +  content[i];
-				var sid = Music.indexNoteInSection(UI.selEnd);
+				var sid = Music.indexNoteInSection(UI.selEnd - 1);
 				var map = {ds:"ds",dc:"dc",co:"coda",se:"segno"}
 				if(sid == -1)	sid = 0;
 				cmd = cmd.toLowerCase();
@@ -1418,7 +1396,7 @@ UI.onInput = function(event){
 				if(lopId == null)	return;
 				lopId = lopId[1]
 				if(lopId == null)	return;
-				var sid = Music.indexNoteInSection(UI.selEnd);
+				var sid = Music.indexNoteInSection(UI.selEnd - 1);
 				if(sid == -1)		sid = 0;
 				if(Music.loops[sid] == null)	Music.loops[sid] = {};
 				if(lopId == 0){
@@ -1449,6 +1427,7 @@ UI.onInput = function(event){
 	UI.refreshIME();
 }
 UI.onChangeListener = function ui_onChangeListener(event){
+	//TODO: Check this after spliceWord
 	var content = event.target.value;
 	if(content == "")return;
 	if(content.length > 10){
@@ -1469,29 +1448,8 @@ UI.onChangeListener = function ui_onChangeListener(event){
 }
 
 UI.insertEdit = function ui_insertEdit(notes){
-	var isreved;
-	if(UI.selStart > UI.selEnd){
-		temp = UI.selStart;
-		UI.selStart = UI.selEnd;
-		UI.selEnd = temp;
-		isreved = true;
-	}
 	notes = notes.slice();
-	if(UI.selStart == -1){
-		if(UI.selEnd == -1){
-			Music.music = [].concat(notes,Music.music.slice())
-		}else{
-			Music.music = [].concat(Music.music.slice(0,UI.selEnd+1),notes,Music.music.slice(UI.selEnd+1))
-		}
-	}else{
-		Music.music = [].concat(Music.music.slice(0,UI.selStart),notes,Music.music.slice(UI.selEnd+1))
-	}
-	if(UI.selStart == -1){
-		UI.selEnd = UI.selEnd + notes.length;
-	}else{
-		UI.selEnd = UI.selStart + notes.length - 1;
-		UI.selStart = -1;
-	}
+	Music.music = [].concat(Music.music.slice(0,UI.selStart),notes,Music.music.slice(UI.selEnd));
 	UI.render();
 }
 UI.spliceWord = function ui_spliceWord(index,howmany,str){
@@ -1554,16 +1512,10 @@ UI.cut = function ui_cut(){
 }
 UI.copy = function ui_copy(){
 	var isreved;
-	if(UI.selStart > UI.selEnd){
-		temp = UI.selStart;
-		UI.selStart = UI.selEnd;
-		UI.selEnd = temp;
-		isreved = true;
-	}
 	if(UI.selStart == -1){
 		return;
 	}
-	UI.clipboard = Util.clone(Music.music.slice(UI.selStart,UI.selEnd+ 1))
+	UI.clipboard = Util.clone(Music.music.slice(UI.selStart,UI.selEnd))
 	if(isreved){
 		temp = UI.selStart;
 		UI.selStart = UI.selEnd;
@@ -1575,7 +1527,16 @@ UI.paste = function ui_paste(){
 	UI.insertEdit(Util.clone(UI.clipboard))
 }
 UI.open = function ui_open(){
-	UI.openBox.click();
+	UI.openBox.parentNode.reset();
+	var file = Util.queries().music;
+
+	if(file && file.length > 0 ){
+		PopupWindow.alert("请点击“新建”来开一个新窗口，而不是在这里直接打开。这是示例页面，您的数据可能会丢失。");
+	}else {
+		UI.openBox.click();
+	}
+	
+	
 }
 UI.openListener = function ui_openListener(me){
 	if(!me.files){
@@ -1586,7 +1547,7 @@ UI.openListener = function ui_openListener(me){
 		var reader = new FileReader();
 		reader.readAsText(me.files[0]);
 		reader.onload = function(){
-			UI.openFile(reader.result)
+			UI.openFile(reader.result);
 		}
 		openFailedCount = 0;
 	}else{
@@ -1668,6 +1629,48 @@ UI.saveAs = function ui_saveAs(){
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
+	}
+};
+UI.new = function ui_new(action){
+	var file = Util.queries().music;
+	if (action == "force"){
+        localStorage.open = '{&quot;music&quot;:[]}';
+        window.open(location.href.split('?')[0],'_blank','toolbar=no');
+	} else if (action == "view") {
+        window.open(location.href.split('?')[0],'_blank','toolbar=no');
+	}
+	if(file && file.length > 0 ){
+		dom = document.createElement("div");
+	    dom.id = "PopupWindowAlert";
+	    dom.className = "window destroy on";
+	    dom.innerHTML = 
+	    '<div class="windowtitle">'
+	        '来自网页的消息 <button class="close"><b>×</b></button>'
+	    '</div>'
+	    '<div class="content">'
+	        '<div class="msg">'
+                '<p>您现在正在查看示例页面。</p>'
+                '<ul>'
+                    '<li>'
+                        '<a href="javascript:void(UI.new(this.className))" class="force">继续新建文件</a><br>'
+                        '- 您未保存的数据将会丢失'
+                    '</li>'
+					'<li>'
+                        '<a href="javascript:void(UI.new(this.className))" class="force">检查您未保存的文件</a><br>'
+                    '</li>'
+                '</ul>'
+	        '</div>'
+	        '<center>'
+	            '<button onclick="PopupWindow.close(this.parentElement.parentElement.parentElement)">'
+	                '知道了'
+	            '</button>'
+			'</center>'
+		'</div>';
+	    dom.querySelector(".msg").innerHTML = msg.split("\n").join("<br>");
+	    document.body.appendChild(dom);
+	    PopupWindow.open(dom);
+	} else {
+		UI.new("force");
 	}
 }
 UI.onContextMenu = function ui_onContextMenu(event){
