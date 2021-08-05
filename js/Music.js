@@ -499,17 +499,36 @@ var UI = {
 	//selEnd:-1,
 	from:-1,
 	author:-1,
+	// 注： 这些都是指选择的元素序号。其中 from = -1 => 空选，光标在 author 前面。
+	// from <- [0, length]    author <- [0,length]
 	get selStart(){
-		return this.from;
+		return Math.min(this.from,this.author);
 	},
 	set selStart(v){
-		this.from = v;
+		if(v == -1){
+			this.from = -1;
+		} else {
+			if(this.from > this.author){
+				this.author = v;
+			} else {
+				this.from = v;
+			}
+		}
+		//this.from = v;
 	},
 	get selEnd(){
-		return this.author;
+		return Math.max(this.from,this.author);
 	},
 	set selEnd(v){
-		this.author = v;
+		if(v >= Music.music.length){
+			this.author = -1;
+		} else {
+			if(this.from < this.author){
+				this.author = v;
+			} else {
+				this.from = v;
+			}
+		}
 	},
 	isMouseDown:false,
 	domsAreas:-1,
@@ -652,26 +671,24 @@ UI.redraw = function ui_redraw(){
 		dom.className = dom.className.replace("selected","").replace("  "," ")
 	})
 	//限制选区范围到合理位置：
+	// *** 旧代码 ***
 	//setStart	: 选取开始的音符的左边，约定-1为没有选区;
 	//selEnd	: 选取结束的音符的右边，约定最左边为-1;
-	if(UI.selStart < -1)	UI.selStart = -1;
-	if(UI.selStart >= Music.music.length)	UI.selStart = Music.music.length - 1;
-	if(UI.selEnd < -1)	UI.selEnd = -1;
-	if(UI.selEnd >= Music.music.length)	UI.selEnd = Music.music.length - 1;
+	// 注： 这些都是指选择的元素序号。其中 from = -1 => 空选，光标在 author 前面。
+	// from <- [-1, length-1]    author <- [0,length]
+	if(UI.from < -1)	UI.from = -1;
+	if(UI.from >= Music.music.length)	UI.from = Music.music.length - 1;
+	if(UI.author <= -1)	UI.author = 0;
+	if(UI.author >= Music.music.length)	UI.author = Music.music.length - 1;
 	//显示光标
 	caret.style.display = "block";
-	if(UI.selStart != -1){
+	if(UI.from != -1){
 		//UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = "0";
 		//有选择区域：绘制选择拖蓝
-		if(UI.selStart > UI.selEnd){
-			//确保选区头部 < 尾部
-			temp = UI.selStart;	UI.selStart = UI.selEnd; UI.selEnd = temp;
-			isreved = true;
-		}
 		UI.domList.forEach(function(dom,index){
 			if(index < id)	return;
 			var id= parseInt(dom.dataset.id);
-			if(id >= UI.selStart && id <= UI.selEnd){
+			if(id >= UI.selStart && id < UI.selEnd){
 				if(UI.editingLynicLine == -1){
 					dom.className += " selected"
 				}else{
@@ -692,26 +709,23 @@ UI.redraw = function ui_redraw(){
 		yinheight = 40;
 		ciheight = UI.ciheight;
 		UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = "0";
-		if(UI.selEnd != -1){
-			UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = UI.domsAreas[UI.selEnd].x + UI.domsAreas[UI.selEnd].width + "px"
+		if(UI.author != 0){
+			UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = UI.domsAreas[UI.author-1].x + UI.domsAreas[UI.author-1].width + "px"
 		}
 		if(UI.editingLynicLine == -1){
 			//在音符级别
-			UI.IMETip.style.top = UI.editbox.style.top = caret.style.top = (UI.selEnd == -1 ? 0 : UI.domsAreas[UI.selEnd].y) + "px";
+			UI.IMETip.style.top = UI.editbox.style.top = caret.style.top = (UI.author == 0 ? 0 : UI.domsAreas[UI.author-1].y) + "px";
 			caret.style.height = yinheight + "px";
 		}else{
 			//在歌词级别
 				UI.IMETip.style.top = UI.editbox.style.top = caret.style.top = (
-				UI.domsAreas[Math.max(UI.selEnd,0)].y + UI.yinheight + 
+				UI.domsAreas[Math.max(UI.author-1,0)].y + UI.yinheight + 
 					ciheight * UI.editingLynicLine 
 				) + 
 			"px";
 			caret.style.height = ciheight + "px";
 		}
 	}	
-	if(isreved){
-		temp = UI.selStart;	UI.selStart = UI.selEnd; UI.selEnd = temp;
-	}
 	if(UI.shouldScroll)    UI.autoScroll();
 }
 UI.autoScroll = function ui_autoScroll(){
@@ -719,27 +733,27 @@ UI.autoScroll = function ui_autoScroll(){
 	var containerTop = UI.container.offsetTop - window.pageYOffset;
 	var statusbarTop = UI.statusbar.getBoundingClientRect().top
 	if(Music.music.length){
-		if(UI.selEnd > -1){
-			if(UI.domsAreas[UI.selEnd].y + UI.domsAreas[UI.selEnd].height + containerTop > statusbarTop){
+		if(UI.author > 0){
+			if(UI.domsAreas[UI.author-1].y + UI.domsAreas[UI.author-1].height + containerTop > statusbarTop){
 				//窗口边缘下面
 				UI.domList.every(function(item,index){
-					if(index < UI.selEnd)	return true;
-					if(item.dataset.id == UI.selEnd){
+					if(index < UI.author-1)	return true;
+					if(item.dataset.id == UI.author-1){
 						item.scrollIntoView(false);
 						window.scrollBy(0,+30);
 						return false;
 					}
 					return true;
 				});
-			}else if(UI.domsAreas[UI.selEnd].y + containerTop < 30){
+			}else if(UI.domsAreas[UI.author-1].y + containerTop < 30){
 				//窗口边缘上面
-				if(UI.domsAreas[UI.selEnd].y == 0){
+				if(UI.domsAreas[UI.author-1].y == 0){
 					window.scroll(0,0);
 					return;
 				}
 				UI.domList.every(function(item, index){
-					if(index < UI.selEnd)	return true;
-					if(item.dataset.id == UI.selEnd){
+					if(index < UI.author-1)	return true;
+					if(item.dataset.id == UI.author-1){
 						item.scrollIntoView(true);
 						window.scrollBy(0,-30);
 						return false;
@@ -747,7 +761,7 @@ UI.autoScroll = function ui_autoScroll(){
 					return true;
 				})
 			}
-		}else if(UI.selEnd == -1){
+		}else if(UI.author == -1){
 			//无选择, 光标在最上面
 			window.scroll(0,0);
 		}
@@ -845,15 +859,15 @@ UI.getHTMLUnit = function ui_getHTMLUnit(classes,pitch,word,id){
 		.split("$id").join(id);
 }
 UI.switchLine = function ui_switchLine(up){
-	if(UI.selEnd == -1){
-		UI.selEnd = 0;
+	if(UI.author == 0){
+		UI.author = 1;
 		UI.switchLine(up);
-		UI.selEnd = -1;
+		UI.author = 0;
 		UI.redraw();
 		return;
 	};
 	var oldscrPos = document.documentElement.scrollTop || document.body.scrollTop;
-	var oldelePos = UI.domsAreas[UI.selEnd].y ;
+	var oldelePos = UI.domsAreas[UI.author-1].y ;
 	var changed = false;
 	if(up){
 		if(UI.editingLynicLine <= 0){
@@ -898,7 +912,7 @@ UI.switchLine = function ui_switchLine(up){
 	else            UI.layout();
 	UI.shouldScroll = true;
 	var scrPos = Math.max(document.documentElement.scrollTop || document.body.scrollTop);
-	var elePos = UI.domsAreas[UI.selEnd].y;
+	var elePos = UI.domsAreas[UI.author-1].y;
 	if((up && elePos < oldelePos) || (!up && elePos > oldelePos)){
 		window.scrollBy(0,+(elePos-oldelePos))
 	}
@@ -906,8 +920,8 @@ UI.switchLine = function ui_switchLine(up){
 UI.onKeyDown = function ui_onKeyDown(event){
 	var cancel = true;
 	var start,end;
-	start	= Math.min(UI.selStart,UI.selEnd);
-	end		= Math.max(UI.selStart,UI.selEnd);
+	start	= UI.selStart;
+	end		= UI.selEnd - 1;
 	//if(UI.selStart == UI.selEnd && UI.selEnd == -1)
 	//	UI.selEnd = 0;
 	if(event.keyCode==13){
@@ -927,28 +941,29 @@ UI.onKeyDown = function ui_onKeyDown(event){
 				UI.refreshIME("");
 			}
 			if(Music.music.length == 0)return;
-			if(UI.selEnd == -1)return;
-			if(UI.selStart <= -1){//没有选择
+			//最开始
+			if(UI.author == 0)return;
+			if(UI.form == -1){//没有选择
 				if(UI.editingLynicLine == -1){
-					if(Music.music[UI.selEnd].length % 3 ==0)
-						Music.music[UI.selEnd].length = Music.music[UI.selEnd].length / 3 * 2;
-					else if(Music.music[UI.selEnd].length > UI.defaultLength)
-						Music.music[UI.selEnd].length -= UI.defaultLength;
+					if(Music.music[UI.author-1].length % 3 ==0)
+						Music.music[UI.author-1].length = Music.music[UI.author-1].length / 3 * 2;
+					else if(Music.music[UI.author-1].length > UI.defaultLength)
+						Music.music[UI.author-1].length -= UI.defaultLength;
 					else{
-						UI.selStart = UI.selEnd;
+						UI.from = UI.author-1;
 						UI.insertEdit([]);
 					}
 				}else{
-					UI.spliceWord(UI.selEnd,1,"");
-					UI.selEnd--;
+					UI.spliceWord(UI.author-1,1,"");
+					UI.author--;
 				}
 			}else{
 				if(UI.editingLynicLine == -1){
 					UI.insertEdit([]);
 				}else{
 					UI.spliceWord(start,end-start +1 ,"");
-					UI.selStart = -1;
-					UI.selEnd 	= start - 1;
+					UI.from = -1;
+					UI.author 	= start;
 				}
 			}
 			UI.render();
@@ -957,17 +972,17 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			if(UI.editbox.value != ""){
 				UI.refreshIME("");
 			}
-			if(UI.selStart <= -1)
-				UI.selEnd++;
+			if(UI.from <= -1)
+				UI.author++;
 			if(Music.music.length == 0)return;
 			if(start <= -1){
-				UI.selStart = UI.selEnd;
+				UI.from = UI.author-1;
 				if(UI.editingLynicLine == -1){
 					UI.insertEdit([]);
 				}else{
 					UI.spliceWord(end+1,1 ,"");
-					UI.selStart = -1;
-					UI.selEnd 	= end;
+					UI.from = -1;
+					UI.author 	= end;
 					UI.render();
 				}
 			}else{
@@ -975,8 +990,8 @@ UI.onKeyDown = function ui_onKeyDown(event){
 					UI.insertEdit([]);
 				}else{
 					UI.spliceWord(start ,end - start + 1 ,"");
-					UI.selStart = -1;
-					UI.selEnd 	= end;
+					UI.from = -1;
+					UI.author 	= end;
 					UI.render();
 				}
 			}
@@ -989,12 +1004,12 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			UI.refreshIME("");
 			if(Music.music.length == 0)return;
 			if(!event.shiftKey){
-				UI.selStart = -1;
-			}else if(UI.selStart == -1){
-				UI.selStart = UI.selEnd;
-				UI.selEnd ++;
+				UI.from = -1;
+			}else if(UI.from == -1){
+				UI.from = UI.author;
+				UI.author ++;
 			}
-			UI.selEnd--;
+			UI.author--;
 			UI.redraw();
 			break;
 		case 39:// " -> "
