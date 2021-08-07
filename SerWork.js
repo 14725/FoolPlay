@@ -1,9 +1,12 @@
 var CACHE = "cache-first";
 self.addEventListener("install", function(evt){
+    self.skipWaiting();
 });
 
 self.addEventListener("fetch", function(evt){
-	evt.respondWith(cacheThenNetwork);
+	evt.respondWith(cacheThenNetwork(evt.request));
+    evt.waitUntil(update(evt.request));
+
 });
 
 function cacheThenNetwork(request){
