@@ -4,6 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<title>傻瓜弹曲</title>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -21,8 +22,8 @@
 	<div class="item">
 		文件
 		<div class="menu">
-			<a href="javascript:(function(){UI.new()})()">新建</a>
-			<a href="javascript:UI.open();;">打开...</a>
+			<a href="javascript:UI.new();">新建</a>
+			<a href="javascript:UI.open();">打开...</a>
 			<a href="javascript:UI.saveAs();">另存为...</a>
 			<hr>
 			<div class="item">
@@ -91,6 +92,7 @@
 		视图
 		<div class="menu">
 			<label><input type="checkbox" onclick="document.body.className=( this.checked?'fensanalign':'');UI.layout();"/>对齐最后一行</label>
+			<a onclick="UI.render()">重新渲染</a>
 		</div>
 	</div>
 	<div class="item">
@@ -101,7 +103,7 @@
 			<a href="./" >关于...</a>
 		</div>
 	</div>
-	<div class="item">和弦
+	<div class="item" hidden>和弦
 		<div class="menu">
 			<a onclick="PopupWindow.open(chordWindow)" target="help">手动输入</a>
 			<a onclick="和弦标注(1)">新机械</a>

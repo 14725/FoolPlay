@@ -1847,6 +1847,12 @@ UI.main = function ui_main(){
 			console.warn("貌似Edge浏览器的安全限制阻止了本地储存的使用。这会导致自动保存功能失效。")
 		}
 	}
+	try{
+		navigator.serviceWorker.register('service-worker.js', {
+			scope: './'
+		});
+	}
+	
 }
 
 UI.main();
