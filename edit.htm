@@ -57,16 +57,16 @@
 			<div class="item">
 				音符操作
 				<div class="menu">
-					<a href="javascript:(function(){for(var i=UI.selStart;i<=UI.selEnd;i++){Music.music[i].octave = Math.min(Music.music[i].octave+1,1)};UI.render();}())">升高八度</a>
-					<a href="javascript:(function(){for(var i=UI.selStart;i<=UI.selEnd;i++){Music.music[i].octave = Math.max(Music.music[i].octave-1,-1)};UI.render();})()">降低八度</a>
+					<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.min(Music.music[i].octave+1,1)};UI.render();}())">升高八度</a>
+					<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.max(Music.music[i].octave-1,-1)};UI.render();})()">降低八度</a>
 					<a href="javascript:(function(){if(UI.selStart == -1){UI.selStart = UI.senEnd};Music.music[UI.selEnd].fx.triplets = true;UI.render()})();">制作三连音...</a>
 				</div>
 			</div>
 			<div class="item">
 				段落操作
 				<div class="menu">
-					<a href="javascript:(function(){for(var i=UI.selStart;i<=UI.selEnd;i++){Music.music[i].octave = Math.min(Music.music[i].octave+1,1)};UI.render();}())">升高八度</a>
-					<a href="javascript:(function(){for(var i=UI.selStart;i<=UI.selEnd;i++){Music.music[i].octave = Math.max(Music.music[i].octave-1,-1)};UI.render();})()">降低八度</a>
+					<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.min(Music.music[i].octave+1,1)};UI.render();}())">升高八度</a>
+					<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.max(Music.music[i].octave-1,-1)};UI.render();})()">降低八度</a>
 					<a href="javascript:(function(){if(UI.selStart == -1){UI.selStart = UI.senEnd};Music.music[UI.selEnd].fx.triplets = true;UI.render()})();">制作三连音...</a>
 				</div>
 			</div>
@@ -162,8 +162,8 @@
 	<a href="javascript:UI.selStart = 0;UI.selEnd = 999999999999;UI.redraw();">全选</a>
 	<a href="javascript:UI.insertEdit([])">删除</a>
 	<hr>
-	<a href="javascript:(function(){for(var i=UI.selStart;i<=UI.selEnd;i++){Music.music[i].octave = Math.min(Music.music[i].octave+1,1)};UI.render();}())">升高八度</a>
-	<a href="javascript:(function(){for(var i=UI.selStart;i<=UI.selEnd;i++){Music.music[i].octave = Math.max(Music.music[i].octave-1,-1)};UI.render();})()">降低八度</a>
+	<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.min(Music.music[i].octave+1,1)};UI.render();}())">升高八度</a>
+	<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.max(Music.music[i].octave-1,-1)};UI.render();})()">降低八度</a>
 	<a href="javascript:(function(){if(UI.selStart == -1){UI.selStart = UI.selEnd};Music.music[UI.selStart].fx.triplets = true;UI.render()})();">制作三连音...</a>
 </div>
 <form style="display:none">

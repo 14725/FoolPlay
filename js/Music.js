@@ -528,7 +528,15 @@ var UI = {
 	defaultLength:8,
 	isShiftDown:false,
 	openFailedCount:0,
-	oldSelStart:0,
+	_oldSelStart:0,
+	get oldSelStart(){
+		console.warn("oldSelStart 已经停用. 请使用UI.from 或者 UI.author.")
+		return _oldSelStart;
+	},
+	set oldSelStart(v){
+		console.warn("oldSelStart 已经停用. 请使用UI.from 或者 UI.author.")
+		_oldSelStart = v;
+	},
 	lastClickedNotePos:null,
 	editingLynicLine:-1,
 	caretStyle:null,
@@ -707,7 +715,7 @@ UI.redraw = function ui_redraw(){
 		}
 		if(UI.editingLynicLine == -1){
 			//在音符级别
-			UI.IMETip.style.top = UI.editbox.style.top = caret.style.top = UI.domsAreas[Math.min(UI.author,Music.music.length)].y + "px";
+			UI.IMETip.style.top = UI.editbox.style.top = caret.style.top = UI.domsAreas[Math.min(UI.author,Music.music.length -1 )].y + "px";
 			caret.style.height = yinheight + "px";
 		}else{
 			//在歌词级别
@@ -724,9 +732,9 @@ UI.autoScroll = function ui_autoScroll(){
 	//Scroll
 	var containerTop = UI.container.offsetTop - window.pageYOffset;
 	var statusbarTop = UI.statusbar.getBoundingClientRect().top;
-	var author = Math.min(UI.author,Music.music.length)
+	var author = Math.min(UI.author,Music.music.length-1)
 	if(Music.music.length){
-		if(UI.domsAreas[UI.author].y == 0){
+		if(UI.domsAreas[author].y == 0){
 			window.scroll(0,0);
 			return;
 		}
@@ -846,8 +854,8 @@ UI.switchLine = function ui_switchLine(up){
 		UI.redraw();
 		return;
 	};
-	var oldscrPos = document.documentElement.scrollTop || document.body.scrollTop;
-	var oldelePos = UI.domsAreas[UI.author].y ;
+	var oldscrPos = Math.max(document.documentElement.scrollTop  ,document.body.scrollTop);
+	var oldelePos = UI.dom[UI.author].getBoundingClientRect().top;
 	var changed = false;
 	if(up){
 		if(UI.editingLynicLine <= 0){
@@ -888,13 +896,14 @@ UI.switchLine = function ui_switchLine(up){
 		});
 	}
 	UI.shouldScroll = false;
-	if(changed)    UI.render.atOnce();
-	else            UI.layout();
+	if(changed)   UI.render.atOnce();
+	UI.layout();
 	UI.shouldScroll = true;
-	var scrPos = Math.max(document.documentElement.scrollTop || document.body.scrollTop);
-	var elePos = UI.domsAreas[UI.author].y;
-	if((up && elePos < oldelePos) || (!up && elePos > oldelePos)){
-		window.scrollBy(0,+(elePos-oldelePos))
+	var scrPos = Math.max(document.documentElement.scrollTop , document.body.scrollTop);
+	var elePos = UI.dom[UI.author].getBoundingClientRect().top;
+	if(true){
+		window.scrollTo(0,oldscrPos);
+		window.scrollBy(0,-oldelePos + elePos)
 	}
 }
 UI.onKeyDown = function ui_onKeyDown(event){
@@ -903,6 +912,7 @@ UI.onKeyDown = function ui_onKeyDown(event){
 	var start,end;
 	start	= UI.selStart;
 	end		= UI.selEnd - 1;
+	var rect;
 	//if(UI.selStart == UI.selEnd && UI.selEnd == -1)
 	//	UI.selEnd = 0;
 	if(event.keyCode==13){
@@ -917,6 +927,13 @@ UI.onKeyDown = function ui_onKeyDown(event){
 		
 		//现在删除的行为有些复杂，所以暂时注释掉。
 		//Delete
+		case 46://Delete
+            if(UI.from == UI.author){
+                UI.from = ++UI.author;
+                
+            }
+
+		    // No break, let it fall down;
 		case 8://Backspace
 			if(UI.editbox.value != ""){
 				UI.refreshIME("");
@@ -924,60 +941,34 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			if(Music.music.length == 0)return;
 			//最开始
 			if(UI.author == 0)return;
-			if(UI.from != UI.author){//没有选择
+			if(UI.from == UI.author){//没有选择
 				if(UI.editingLynicLine == -1){
 					if(Music.music[UI.author-1].length % 3 ==0)
 						Music.music[UI.author-1].length = Music.music[UI.author-1].length / 3 * 2;
 					else if(Music.music[UI.author-1].length > UI.defaultLength)
 						Music.music[UI.author-1].length -= UI.defaultLength;
 					else{
-						UI.from = UI.author-1;
+						UI.from = UI.author - 1;
+						//UI.author;
 						UI.insertEdit([]);
+						UI.author = UI.from;
 					}
 				}else{
 					UI.spliceWord(UI.author-1,1,"");
-					UI.author--;
+					UI.from = UI.author 	= UI.selStart - 1;
 				}
 			}else{
 				if(UI.editingLynicLine == -1){
 					UI.insertEdit([]);
+					UI.author = UI.from;
 				}else{
-					UI.spliceWord(start,end-start +1 ,"");
-					UI.from = -1;
-					UI.author 	= start;
+					UI.spliceWord(UI.selStart,UI.selEnd - UI.selStart,"");
+					UI.from = UI.author 	= start;
 				}
 			}
 			UI.render();
 			break; 
-		case 46://Delete
-			if(UI.editbox.value != ""){
-				UI.refreshIME("");
-			}
-			if(UI.from <= -1)
-				UI.author++;
-			if(Music.music.length == 0)return;
-			if(start <= -1){
-				UI.from = UI.author-1;
-				if(UI.editingLynicLine == -1){
-					UI.insertEdit([]);
-				}else{
-					UI.spliceWord(end+1,1 ,"");
-					UI.from = -1;
-					UI.author 	= end;
-					UI.render();
-				}
-			}else{
-				if(UI.editingLynicLine == -1){
-					UI.insertEdit([]);
-				}else{
-					UI.spliceWord(start ,end - start + 1 ,"");
-					UI.from = -1;
-					UI.author 	= end;
-					UI.render();
-				}
-			}
-
-			break;
+		
 			
 		//Select
 		
@@ -985,10 +976,8 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			UI.refreshIME("");
 			if(Music.music.length == 0)return;
 			if(!event.shiftKey){
-				UI.from = -1;
-			}else if(UI.from == -1){
-				UI.from = UI.author;
-				UI.author ++;
+				// 未按 Shift 清除选择态
+				UI.from = UI.author - 1;
 			}
 			UI.author--;
 			UI.redraw();
@@ -997,36 +986,26 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			UI.refreshIME("");
 			if(Music.music.length == 0)return;
 			if(!event.shiftKey){
-				if(UI.selStart != -1){
-					UI.selEnd--;
-				}
-				UI.selStart = -1;
-			}else if(UI.selStart == -1){
-				UI.selStart = UI.selEnd + 1;
+				// 未按 Shift 清除选择态
+				UI.from = UI.author + 1;
 			}
-			UI.selEnd++;
+			UI.author++;
 			UI.redraw();
 			break;
 		case 38:// " /|\"
-				// "  | "
+				// "  | " 
 			if(Music.music.length == 0)return;
 			if(!event.shiftKey){
 				if(event.ctrlKey){
 					UI.switchLine(true);
 					break;
-				}else{
-					UI.selStart = -1;
-					if(UI.selStart != -1){
-						UI.selStart--;
-					}
 				}
-			}else if(UI.selStart == -1){
-				UI.selStart = UI.selEnd;
-				UI.selEnd++;
 			}
-			if(UI.selEnd != -1){
-				if(UI.selEnd == Music.music.length)	UI.selEnd--;
-				UI.selEnd = UI.getClosestNoteIn(UI.domsAreas[UI.selEnd].midX,UI.domsAreas[UI.selEnd].midY - 60);
+			if(UI.author == Music.music.length)	UI.author--;
+			rect = UI.domsAreas[Math.min(UI.author,Music.music.length - 1)];
+			UI.author = UI.getClosestNoteIn(rect.midX,rect.midY - rect.height * 0.6);
+			if(!event.shiftKey){
+                UI.from = UI.author;
 			}
 			UI.refreshIME("");
 			UI.redraw();
@@ -1038,18 +1017,12 @@ UI.onKeyDown = function ui_onKeyDown(event){
 				if(event.ctrlKey){
 					UI.switchLine();
 					break;
-				}else{
-					UI.selStart = -1;
-					if(UI.selStart != -1){
-						//UI.selStart++;
-					}
 				}
-			}else if(UI.selStart == -1){
-				UI.selStart = UI.selEnd;
-				UI.selStart++;
 			}
-			if(UI.selEnd != -1){
-				UI.selEnd = UI.getClosestNoteIn(UI.domsAreas[UI.selEnd].midX,UI.domsAreas[UI.selEnd].midY + 60);
+			rect = UI.domsAreas[Math.min(UI.author,Music.music.length - 1)];
+			UI.author = UI.getClosestNoteIn(rect.midX,rect.midY + rect.height * 0.6);
+			if(!event.shiftKey){
+                UI.from = UI.author;
 			}
 			UI.refreshIME("");
 			UI.redraw();
@@ -1069,66 +1042,44 @@ UI.onKeyDown = function ui_onKeyDown(event){
 		case 35://End
 			UI.refreshIME("");
 			if(Music.music.length == 0)return;
-			if(UI.selEnd == -1){
-				UI.selEnd = 0;
-			}
 			if(!event.shiftKey){
-				UI.selStart = -1;
-			}else if(UI.selStart == -1){
-				UI.selStart = UI.selEnd + 1
+				UI.from = Music.music.length ;
 			}
-			UI.selEnd = Music.music.length - 1;
+			UI.author = Music.music.length ;
 			UI.refreshIME("");
 			UI.redraw();
 			break;
 		case 36://Home
 			UI.refreshIME("");
 			if(Music.music.length == 0)return;
-			if(UI.selEnd == -1){
-				UI.selEnd = 0;
-			}
 			if(!event.shiftKey){
-				UI.selStart = -1;
-			}else if(UI.selStart == -1){
-				UI.selStart = UI.selEnd 
+				UI.from = 0;
 			}
-			UI.selEnd = 0;
-			UI.redraw();
-			UI.selEnd = -1;
+			UI.author = 0;
 			UI.redraw();
 			break;
 		case 33://Page UP
 			UI.refreshIME("");
 			if(Music.music.length == 0)return;
+			
+			rect = UI.domsAreas[Math.min(UI.author,Music.music.length-1)]
+			UI.author = UI.getClosestNoteIn(rect.midX,rect.midY - window.innerHeight + 100);
 			if(!event.shiftKey){
-				UI.selStart = -1;
-				if(UI.selStart != -1){
-					//UI.selStart++;
-				}
-			}else if(UI.selStart == -1){
-				UI.selStart = UI.selEnd;
-				UI.selStart++;
+                UI.from = UI.author;
 			}
-			if(UI.selEnd != -1){
-				UI.selEnd = UI.getClosestNoteIn(UI.domsAreas[UI.selEnd].midX,UI.domsAreas[UI.selEnd].midY - window.innerHeight - 100);
-			}
+			
 			UI.redraw();
 			break;
 		case 34://Page Down
 			UI.refreshIME("");
 			if(Music.music.length == 0)return;
+			
+			rect = UI.domsAreas[Math.min(UI.author,Music.music.length-1)]
+			UI.author = UI.getClosestNoteIn(rect.midX,rect.midY + window.innerHeight - 100);
 			if(!event.shiftKey){
-				UI.selStart = -1;
-				if(UI.selStart != -1){
-					//UI.selStart++;
-				}
-			}else if(UI.selStart == -1){
-				UI.selStart = UI.selEnd;
-				UI.selStart++;
+                UI.from = UI.author;
 			}
-			if(UI.selEnd != -1){
-				UI.selEnd = UI.getClosestNoteIn(UI.domsAreas[UI.selEnd].midX,UI.domsAreas[UI.selEnd].midY + window.innerHeight - 100);
-			}
+			
 			UI.redraw();
 			break;
 		case 88 ://(Ctrl+)X
@@ -1487,23 +1438,40 @@ UI.spliceWord = function ui_spliceWord(index,howmany,str){
 		Music.music[i].word[UI.editingLynicLine] = "";
 	}
 }
-UI.getClosestNote = function ui_getClosestNote(clientX,clientY){
+UI.getClosestNote = function ui_getClosestNote(clientX,clientY,over){
 	var containerRect = UI.container.getBoundingClientRect();
 	clientX -= containerRect.left;
 	clientY -= containerRect.top;
-	return UI.getClosestNoteIn(clientX,clientY)
+	return UI.getClosestNoteIn(clientX,clientY,over)
 }
-UI.getClosestNoteIn = function ui_getClosestNoteIn(x,y)/*:ID*/{
+UI.getClosestNoteIn = function ui_getClosestNoteIn(x,y,over)/*:ID*/{
 	var minid = 0;
 	var minDis = 99999999999999;
 	var tempDis = 0;
-	UI.domsAreas.forEach(function(rect,id){
-		tempDis = Math.abs(rect.midX - x)  + Math.abs(rect.midY - y) * 100000;
+	var rect;
+	if(over){
+		UI.domsAreas.forEach(function(rect,id){
+			tempDis = Math.abs(rect.x  + rect.width / 2 - x)  + Math.abs(rect.midY - y) * 100000;
+			if(tempDis < minDis){
+				minid = id;
+				minDis = tempDis;
+			}
+		});
+	
+		rect = UI.domsAreas[UI.domsAreas.length-1]
+		tempDis = Math.abs(rect.x + rect.width - x)  + Math.abs(rect.midY - y) * 100000;
 		if(tempDis < minDis){
-			minid = id;
-			minDis = tempDis;
+			minid = UI.domsAreas.length;
 		}
-	});
+	}else{
+		UI.domsAreas.forEach(function(rect,id){
+			tempDis = Math.abs(rect.midX - x)  + Math.abs(rect.midY - y) * 100000;
+			if(tempDis < minDis){
+				minid = id;
+				minDis = tempDis;
+			}
+		});
+	}
 	return minid;
 }
 UI.cut = function ui_cut(){
@@ -1636,37 +1604,39 @@ UI.new = function ui_new(action){
 	if (action == "force"){
         localStorage.open = '{&quot;music&quot;:[]}';
         window.open(location.href.split('?')[0],'_blank','toolbar=no');
+        return;
 	} else if (action == "view") {
         window.open(location.href.split('?')[0],'_blank','toolbar=no');
+        return;
 	}
 	if(file && file.length > 0 ){
 		dom = document.createElement("div");
 	    dom.id = "PopupWindowAlert";
 	    dom.className = "window destroy on";
 	    dom.innerHTML = 
-	    '<div class="windowtitle">'
-	        '来自网页的消息 <button class="close"><b>×</b></button>'
-	    '</div>'
-	    '<div class="content">'
-	        '<div class="msg">'
-                '<p>您现在正在查看示例页面。</p>'
-                '<ul>'
-                    '<li>'
-                        '<a href="javascript:void(UI.new(this.className))" class="force">继续新建文件</a><br>'
-                        '- 您未保存的数据将会丢失'
-                    '</li>'
-					'<li>'
-                        '<a href="javascript:void(UI.new(this.className))" class="force">检查您未保存的文件</a><br>'
-                    '</li>'
-                '</ul>'
-	        '</div>'
-	        '<center>'
-	            '<button onclick="PopupWindow.close(this.parentElement.parentElement.parentElement)">'
-	                '知道了'
-	            '</button>'
-			'</center>'
+	    '<div class="windowtitle">' + 
+	        '来自网页的消息 <button class="close"><b>×</b></button>' + 
+	    '</div>' + 
+	    '<div class="content">' + 
+	        '<div class="msg">' + 
+                '<p>您现在正在查看示例页面。</p>' + 
+                '<ul>' + 
+                    '<li>' + 
+                        '<a href="javascript:;" onclick="UI.new(this.className)" class="force">继续新建文件</a><br>' + 
+                        '- 您未保存的数据将会丢失' + 
+                    '</li>' + 
+					'<li>' + 
+                        '<a href="javascript:;" onclick="UI.new(this.className)"  class="force">检查您未保存的文件</a><br>' + 
+                    '</li>' + 
+                '</ul>' + 
+	        '</div>' + 
+	        '<center>'+
+	            '<button onclick="PopupWindow.close(this.parentElement.parentElement.parentElement)">'+
+	                '知道了'+
+	            '</button>'+
+			'</center>'+
 		'</div>';
-	    dom.querySelector(".msg").innerHTML = msg.split("\n").join("<br>");
+	    //dom.querySelector(".msg").innerHTML = msg.split("\n").join("<br>");
 	    document.body.appendChild(dom);
 	    PopupWindow.open(dom);
 	} else {
@@ -1693,17 +1663,18 @@ UI.setEditor = function ui_setEditor(){
 			return;
 		}
 		if(event.button >= 1){
-			return
+			return;
 		}
 		UI.lastClickedNotePos = [event.clientX,event.clientY];
 		if(UI.isShiftDown){
-			UI.selStart = UI.oldSelStart
+			//UI.from = UI.oldSelStart
 		}else{
-			UI.oldSelStart  = UI.selStart = UI.selEnd = UI.getClosestNote(event.clientX,event.clientY);
+			UI.oldSelStart  = UI.from = UI.author = UI.getClosestNote(event.clientX,event.clientY,true);
 			var heightYin 	= 40;
 			var eleArea		= document.querySelector(".geci").getBoundingClientRect();
 			var heightWord 	= eleArea.bottom - eleArea.top;
-			var h			= event.clientY - UI.domsAreas[UI.selEnd].y - UI.container.getBoundingClientRect().top;
+			var author      = Math.min(UI.author,Music.music.length-1)
+			var h			= event.clientY - UI.domsAreas[author].y - UI.container.getBoundingClientRect().top;
 			if(h > heightYin){
 				UI.editingLynicLine = parseInt((h-heightYin) / heightWord);
 				UI.redraw();
@@ -1721,8 +1692,9 @@ UI.setEditor = function ui_setEditor(){
 			return;
 		}
 		if(UI.isSelectMouseDown){
-			var myid = UI.getClosestNote(event.clientX,event.clientY);
-			UI.selEnd = myid;
+			var myid = UI.getClosestNote(event.clientX,event.clientY,true);
+			//debugger;
+			UI.author = myid;
 			if(event.clientY < 10){window.scrollBy(0,-10)}
 			if(event.clientY > UI.statusbar.getBoundingClientRect().top-10){window.scrollBy(0,10)}
 			UI.redraw();
@@ -1739,16 +1711,18 @@ UI.setEditor = function ui_setEditor(){
 		if(Math.abs(UI.lastClickedNotePos[0] - event.clientX) + Math.abs(UI.lastClickedNotePos[1] - event.clientY) > 10)return;
 		if(event.button >= 1)return;
 		if(!Music.music.length)return;
-		var myid = UI.getClosestNote(event.clientX,event.clientY);
-		var rect = UI.domsAreas[myid]
-		var mid = rect.x + rect.width /2;
-		if(mid + UI.container.getBoundingClientRect().left > event.clientX){
-			UI.selEnd = myid - 1;
-		}else{
-			UI.selEnd = myid
+		var myid = UI.getClosestNote(event.clientX,event.clientY,true);
+		//var rect = UI.domsAreas[Math.min(myid]
+		//var mid = rect.x + rect.width /2;
+		//if(mid + UI.container.getBoundingClientRect().left > event.clientX){
+		//	UI.author = myid;
+		//}else{
+		//	UI.author = myid+1;
+		//}
+		UI.from = UI.author;
+		if(UI.isShiftDown) {
+			UI.from = UI.oldSelStart;
 		}
-		UI.selStart = -1;
-		if(UI.isShiftDown) UI.selStart = UI.oldSelStart;
 		UI.redraw();
 	})
 	UI.container.addEventListener("contextmenu",UI.onContextMenu)
@@ -1772,7 +1746,7 @@ UI.setEditor = function ui_setEditor(){
 	
 	//FUCK~~~
 	//FIXME
-	setInterval(function(){UI.refreshIME();},100);
+	//setInterval(function(){UI.refreshIME();},100);
 }
 UI.writeBack = function ui_write_back(){
 	/* 把音乐的基本参数从对话框写到Music对象里面 */
