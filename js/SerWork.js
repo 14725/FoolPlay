@@ -1,8 +1,8 @@
 var CACHE = "cache-first";
-self.addEventLisener("install", function(evt){
+self.addEventListener("install", function(evt){
 });
 
-selft.addEventLisener("fetch", function(evt){
+self.addEventListener("fetch", function(evt){
 	evt.respondWith(cacheThenNetwork);
 });
 
