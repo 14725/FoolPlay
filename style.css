@@ -370,6 +370,11 @@ label{
 	opacity:0;
 	width:0;
 	height:0;
+	-webkit-pointer-events:none;
+	-moz-pointer-events:none;
+	-ms-pointer-events:none;
+	resize: none;
+	pointer-events: none;
 	outline:0!important;
 }
 #imetip{
