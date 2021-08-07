@@ -1848,7 +1848,7 @@ UI.main = function ui_main(){
 		}
 	}
 	//try{
-		navigator.serviceWorker.register('js/SerWork.js', {
+		navigator.serviceWorker.register('SerWork.js', {
 			scope: './'
 		});
 	//}catch(e){};
