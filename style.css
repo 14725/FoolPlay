@@ -173,7 +173,9 @@ input::-ms-clear{
 
 *{
 	box-sizing:border-box;
-
+	/* FUCK MORDEN IEs */
+	overscroll-behavior: none;
+  -ms-scroll-chaining: none;
 }
 :invalid{
 	border:solid red;
