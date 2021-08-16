@@ -6,7 +6,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 <title>傻瓜弹曲</title>
 <link rel="stylesheet" href="style.css" />
-<link rel="manifest" href="manifest.json" />
 </head>
 <body>
 	<div class="window loading destroy" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);display:block">
