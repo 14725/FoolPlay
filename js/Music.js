@@ -960,10 +960,10 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			}else{
 				if(UI.editingLynicLine == -1){
 					UI.insertEdit([]);
-					UI.author = UI.from;
+					UI.author = UI.from     = UI.selStart;
 				}else{
 					UI.spliceWord(UI.selStart,UI.selEnd - UI.selStart,"");
-					UI.from = UI.author 	= start;
+					UI.from = UI.author 	= UI.selStart;
 				}
 			}
 			UI.render();
@@ -1211,7 +1211,7 @@ UI.onInput = function(event){
 	for(var i = 0;i<content.length;i++){
 		var oneChar = content[i];
 		var diffFrom;
-		if(Music.music[UI.selEnd] != null){
+		if(Music.music[UI.selEnd-1] != null){
 			diffFrom = note = Music.music[UI.selEnd - 1].pitch;
 			diffFrom += Music.music[UI.selEnd - 1].octave  * 8;
 		}
@@ -1236,6 +1236,9 @@ UI.onInput = function(event){
 					}
 				}
 				UI.insertEdit([note]);
+				if(UI.from == UI.author){
+					UI.from = ++UI.author;
+				}
 				Player.simplePlay(note.pitch,note.octave);
 				
 				UI.refreshIME("");
@@ -1385,15 +1388,14 @@ UI.onChangeListener = function ui_onChangeListener(event){
 		content = content.replace(/\s/ig,"");
 	}
 	var start,end;
-	start					= Math.min(UI.selStart,UI.selEnd);
-	end						= Math.max(UI.selStart,UI.selEnd);
+	start					= UI.selStart;
+	end						= UI.selEnd;
 	var howmany,index;
-	if(start == -1)	howmany = 0,				index = end+1;
-	else 			howmany = end - start + 1,	index = start+1;
+	if(start == end)	howmany = 0,				index = end;
+	else 			    howmany = end - start,    	index = start;
 	if(UI.editingLynicLine == -1)				UI.editingLynicLine = 0;	
 	UI.spliceWord(index,howmany,content)
-	UI.selStart  = 	-1;
-	UI.selEnd 	+= 	content.length;
+	UI.selStart  = 	UI.selEnd   = content.length + start;
 	UI.refreshIME("");
 	UI.render();
 }
@@ -1602,7 +1604,7 @@ UI.saveAs = function ui_saveAs(){
 UI.new = function ui_new(action){
 	var file = Util.queries().music;
 	if (action == "force"){
-        localStorage.open = '{&quot;music&quot;:[]}';
+        localStorage.open = '{music:[]}';
         window.open(location.href.split('?')[0],'_blank','toolbar=no');
         return;
 	} else if (action == "view") {
@@ -1626,7 +1628,7 @@ UI.new = function ui_new(action){
                         '- 您未保存的数据将会丢失' + 
                     '</li>' + 
 					'<li>' + 
-                        '<a href="javascript:;" onclick="UI.new(this.className)"  class="force">检查您未保存的文件</a><br>' + 
+                        '<a href="javascript:;" onclick="UI.new(this.className)"  class="view">检查您未保存的文件</a><br>' + 
                     '</li>' + 
                 '</ul>' + 
 	        '</div>' + 
@@ -1847,11 +1849,11 @@ UI.main = function ui_main(){
 			console.warn("貌似Edge浏览器的安全限制阻止了本地储存的使用。这会导致自动保存功能失效。")
 		}
 	}
-	//try{
+	try{
 		navigator.serviceWorker.register('SerWork.js', {
 			scope: './'
 		});
-	//}catch(e){};
+	}catch(e){console.error(e);};
 	
 }
 
