@@ -77,7 +77,8 @@
 	<div class="item">
 		播放
 		<div class="menu">
-			<label><input type="checkbox" onclick="Player.sing();"/>播放/暂停</label>
+			<a href="javascript:(function(){Player.sing();})();">播放</a>
+			<a href="javascript:(function(){Player.stop();})();">停止</a>
 			<hr>
 			<label><input type="checkbox" checked onclick="Player.enableSMPlay = this.checked"/>编辑时奏音乐</label>
 			<hr>

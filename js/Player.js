@@ -17,6 +17,7 @@ PinYin.getPinYin = function pinyin_getPinYin(oneword){
 };
 PinYin.voice = function pinyin_voice(sentense,detune,start,len,vol){
 	if(!Player.enableVoice)return;
+	if(!sentense)    return;
 	sentense = sentense.split("").map(function(a){return PinYin.getPinYin(a)});
 	
 	 
@@ -83,9 +84,11 @@ PinYin.voice = function pinyin_voice(sentense,detune,start,len,vol){
 		n0.gain.exponentialRampToValueAtTime(0.001 * vol,(start + i * len +1 * len+0.2));
 		n0.connect(Player.target);
 		// jshint undef:true,boss:true
-		(function(n0){
-		    setTimeout(function(){n0.disconnect(Player.target);},(start - Player.ctx.currentTime + len) * 1000 + 200);	
-		})(n0);
+		var cancel = function(){n0.disconnect(Player.target);};
+		return cancel;
+/*		(function(n0){
+		    setTimeout(,(start - Player.ctx.currentTime + len) * 1000 + 200);	
+		})(n0);*/
 		
 	}
 };
@@ -131,7 +134,12 @@ var Player = {
 	enableVoice:true,
 	enableChord:true,
 	enableMusic:true,
+
+
+	tasking:[],
 };
+
+
 Player.soundItem = {
 	vol:0.3,//0~1
 	len:1,//sec 
@@ -254,7 +262,16 @@ Player.start = function player_start(startTime,tune,len,vol,isChord){
 	osc.connect(gain);
 	osc.start(Player.timeStart + startTime);
 	osc.stop(Player.timeStart + startTime + len);
-	setTimeout(function(){gain.disconnect(Player.target);},(Player.timeStart + startTime - Player.ctx.currentTime + len) * 1000 + 300);
+	
+    function cancel(){
+    	try{
+            gain.disconnect(Player.target);
+    	}catch(e){
+
+    	}
+    }
+    //setTimeout(cancel,(Player.timeStart + startTime - Player.ctx.currentTime + len) * 1000 + 300);
+	return cancel;
 };
 Player.simplePlay = function player_simplePlay(tune ,octave){
 	if(!Player.ctx)		return;	
@@ -262,7 +279,7 @@ Player.simplePlay = function player_simplePlay(tune ,octave){
 	if(!Player.enableSMPlay)	return;
 	tune = Player.fMap[tune];
 	var f = 440 * Math.pow(2,tune + octave+Music.arpeggio/12);
-	Player.start(Player.ctx.currentTime-Player.timeStart,f,0.25,1);
+	Player.start(Player.ctx.currentTime-Player.timeStart,f,1,1);
 	
 };
 Player.queueHighLight = function fn(){
@@ -272,65 +289,113 @@ Player.queueHighLight = function fn(){
   if(cur == null) return;
   UI.dom[Math.max(0,cur.eleId-1)].className += " hl";
   //console.log(document.querySelectorAll(".yin")[cur.eleId].outerHTML)
-  var time = Date.now();
+  var time = Math.round(Player.ctx.currentTime * 1000);
   setTimeout(fn,Math.max(0, (Player.highLightStamp+cur.time*1000-time)|0));
   //console.log(Player.highLight[0].time)
 };
-Player.sing = function player_sing(){
-	//... player_start(startTime,tune,len,vol){
+
+
+Player.tick = function player_tick(func,time){
+    var cancel = null;
+    var rest = [].slice.call(arguments);
+    rest.shift();
+    rest.shift();
+    if(!time){
+    	cancel = func.apply(null,rest);
+    }else{
+    	var tid = setTimeout(function(){
+			cancel = func.apply(null,rest);
+		});
+    }
+    
+    return function cancelTask(){
+    	if(cancel){
+    		cancel();
+    	}else{
+    		clearTimeout(tid);
+    	}
+    }
+};
+
+Player.stop = function player_stop(){
+	Player.tasking.forEach(function(a){try{a()}catch(e){}});
+	Player.highLight=[];
+	Player.tasking = [];
+	clearInterval(Player.musicTId);
+	clearInterval(Player.voiceTId);
+}
+
+Player.sing = Player.play = function player_play(){
 	Player.timeStart = Player.ctx.currentTime;
 	Player.splitUp();
+	Player.stop();
 	var voice = Util.clone(Player.voice);
 	var music = Util.clone(Player.music);
+	var timeAhead = player_play.timeAhead || 3;
 	Player.ctx.resume();
+    
+    function taskMusic(){
+    	var passedTime = Player.ctx.currentTime - Player.timeStart;
+    	var toTime = passedTime + timeAhead;
+    	var i = 0;
+    	var cur;
+    	while(music.length){
+            cur = music[0];
+            if(!cur.f[0] || isNaN(cur.f[0].f)){
+            	music.shift();
+            	return;
+            }
+            if(cur.start < toTime){
+            	//(startTime,tune,len,vol,isChord)
+            	music.shift();
+                Player.tasking.push(Player.tick(Player.start,0,cur.start,cur.f[0].f,cur.len,cur.vol,cur.isChord));
+            }else{
+            	return;
+            }
+    	}
+    	if(!voice.length){
+    		clearInterval(Player.musicTId);
+    	}
+    }
+    function taskVoice(){
+    	var passedTime = Player.ctx.currentTime - Player.timeStart;
+    	var toTime = passedTime + timeAhead;
+    	var i = 0;
+    	var cur;
+    	while(voice.length){
+            cur = voice[0];
+            if(!cur.f[0] || isNaN(cur.f[0].f)){
+            	voice.shift();
+            	return;
+            }
+            if(cur.start < toTime){
+            	//(sentense,detune,start,len,vol)
+            	voice.shift();
+                Player.tasking.push(Player.tick(PinYin.voice,0,cur.word,cur.f,cur.start,cur.len,cur.vol));
+            }else{
+            	return;
+            }
+    	}
+    	if(!voice.length){
+    		clearInterval(Player.voiceTId);
+    	}
+    }
 
-	//延迟的播放，否则手机会崩
-	var cacheNum = 2;
-	var cacheStartNum = 2;
-	var cacheTime = 1000;
-	for(var i = 0;i < Math.min(voice.length,cacheStartNum+1);i++){
-		var item = voice[i];
-		if(item.word == "")continue;
-		if(item.word == null)continue;
-		PinYin.voice(item.word,item.f,item.start,item.len,item.vol);
-	}
-	for(i = cacheStartNum;i < voice.length;i+=cacheNum){
-		(function(start){setTimeout(function(){
-			Player.ctx.resume();
-			var end = Math.min(voice.length - 1,start + cacheNum)
-			for(;start <= end;start++){
-				var item = voice[start];
-				if(item.word == "")continue;
-				if(item.word == null)continue;
-				PinYin.voice(item.word,item.f,item.start,item.len,item.vol)
-			}
-		},Math.max(0,voice[i].start * 1000 - cacheTime))})(i);
-	}
-	for(i = 0;i < Math.min(music.length,cacheStartNum+1);i++){
-		var item = music[i];
-		if(isNaN(item.f[0].f))continue;
-		Player.start(item.start,item.f[0].f,item.len,item.vol,item.isChord)
-	}
-	for(var i = cacheStartNum;i < music.length;i+=cacheNum){
-		(function(start){setTimeout(function(){
-			Player.ctx.resume();
-			var end = Math.min(music.length - 1,start + cacheNum)
-			for(;start <= end;start++){
-				var item = music[start];
-				if(isNaN(item.f[0].f))continue;
-				Player.start(item.start,item.f[0].f,item.len,item.vol,item.isChord)
-			}
-		},Math.max(0,music[i].start* 1000 - cacheTime))})(i)
-	}
-	  Player.highLightStamp = Date.now();
-  Player.queueHighLight();
-}
+    // voice
+    Player.musicTId = setInterval(taskMusic,500);
+    taskMusic();
+    Player.voiceTId = setInterval(taskVoice,500);
+    taskVoice();
+	Player.highLightStamp = Math.round(Player.ctx.currentTime * 1000);
+    Player.queueHighLight();
+};
+
 Player.trace = function player_train( log ){
 	//var log = Array.prototype.splice.call(arguments).join(" ");
 	if("UI" in window){
 		UI.statusbar.querySelector("div").innerHTML = log;
 	}
-	console.log(log)
+	console.log(log);
 }
 Player.main();
 Player.splitUp = function player_splitUp_outdated(){
@@ -381,8 +446,8 @@ Player.splitUp = function player_splitUp_outdated(){
 					newItem.vol /= 2.5;
 					Player.music.push(newItem)
 					newItem = Util.clone(newItem);
-					newItem.f[0].f /= 4;
-					Player.music.push(newItem)
+					//newItem.f[0].f /= 4;
+					//Player.music.push(newItem)
 				}
 				music[i].word = music[i].word.map(function(item){if(item){return item.replace(/\s/g,"")}else{return ""}})
 				if(music[i].word[0] == "" || music[i].word[0] == null){
@@ -417,12 +482,12 @@ Player.splitUp = function player_splitUp_outdated(){
 			Player.music.push(newItem);
 			Player.voice.push(newItem)
 			newItem = Util.clone(newItem);
-			newItem.f[0].f /= 4;
-			Player.music.push(newItem)
+			//newItem.f[0].f /= 4;
+			//Player.music.push(newItem)
 			
 		}
 	}
-
+    
 	var chordNotes = Chord.getChord();
 	chordNotes.forEach(function (noteary,id) {
 		var sttime = lenSection * id;
@@ -448,5 +513,6 @@ Player.splitUp = function player_splitUp_outdated(){
 		}
 
 	});
+	
     Player.music.sort(function(a,b){return a.start - b.start});
 };
