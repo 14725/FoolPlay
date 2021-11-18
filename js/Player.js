@@ -436,7 +436,7 @@ Player.splitUp = function player_splitUp_outdated(){
 			if(i >= 1){
 				if(music[i].pitch +music[i].octave * 13 == music[i-1].pitch +music[i-1].octave * 13){
 					Player.music[Player.music.length-1].len += time;
-					Player.music[Player.music.length-2].len += time;
+					//Player.music[Player.music.length-2].len += time;
 				}else{
 					var newItem = Util.clone(Player.soundItem);
 					newItem.len = time;

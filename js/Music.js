@@ -943,9 +943,9 @@ UI.onKeyDown = function ui_onKeyDown(event){
 			if(UI.author == 0)return;
 			if(UI.from == UI.author){//没有选择
 				if(UI.editingLynicLine == -1){
-					if(Music.music[UI.author-1].length % 3 ==0)
+					if(event.keyCode != 46 && Music.music[UI.author-1].length % 3 ==0)
 						Music.music[UI.author-1].length = Music.music[UI.author-1].length / 3 * 2;
-					else if(Music.music[UI.author-1].length > UI.defaultLength)
+					else if(event.keyCode != 46 && Music.music[UI.author-1].length > UI.defaultLength)
 						Music.music[UI.author-1].length -= UI.defaultLength;
 					else{
 						UI.from = UI.author - 1;
@@ -1284,11 +1284,13 @@ UI.onInput = function(event){
 			case "·":
 				if(Music.music[UI.selEnd - 1] != null){
 					note = Music.MusicNote();
-					note.pitch = Music.music[UI.selEnd].pitch;
-					note.octave = Music.music[UI.selEnd].octave;
+					note.pitch = Music.music[UI.selEnd-1].pitch;
+					note.octave = Music.music[UI.selEnd-1].octave;
 					note.length = UI.defaultLength;
 					note.fx.extend = true;
-					UI.insertEdit([note])
+					UI.insertEdit([note]);
+					UI.from++;
+					UI.author++;
 				}
 				event.target.value = "";
 				
