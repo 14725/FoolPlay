@@ -79,6 +79,7 @@
 		<div class="menu">
 			<a href="javascript:(function(){Player.sing();})();">播放</a>
 			<a href="javascript:(function(){Player.stop();})();">停止</a>
+			<a href="javascript:(function(){Player.showVoiceWindow()})();">选择音源</a>
 			<hr>
 			<label><input type="checkbox" checked onclick="Player.enableSMPlay = this.checked"/>编辑时奏音乐</label>
 			<hr>
@@ -94,6 +95,7 @@
 		视图
 		<div class="menu">
 			<label><input type="checkbox" onclick="document.body.className=( this.checked?'fensanalign':'');UI.layout();"/>对齐最后一行</label>
+			<label><input type="checkbox" onclick="UI.touchEnabled = this.checked"/>触摸启用选择</label>
 			<a onclick="UI.render()">重新渲染</a>
 		</div>
 	</div>
@@ -190,13 +192,15 @@
 <script>loadfile.innerHTML = "程序主逻辑"</script>
 <script src="js/Music.js"></script>
 <script>loadfile.innerHTML = "拼音数据"</script>
-<script src="js/PyData.js"></script>
+<script src="js/TinyPY.js"></script>
+<script>loadfile.innerHTML = "缓存库"</script>
+<script src="js/yux-storage.js"></script>
 <script>loadfile.innerHTML = "播放器"</script>
 <script src="js/Player.js"></script>
 <script>loadfile.innerHTML = "自动和弦器"</script>
 <script src="js/Chord.js"></script>
-<!--script>loadfile.innerHTML = "触摸兼容程序"</script>
-<script src="js/touchShim.js"></script-->
+<script>loadfile.innerHTML = "触摸兼容程序"</script>
+<script src="js/touchShim.js"></script>
 <script>
 	if(getComputedStyle( document.body,"::after").content != '"loaded"' ){
 		var request = new XMLHttpRequest();
@@ -217,6 +221,18 @@
 		<div class="windowtitle">手动输入和弦<button class="close"><b>×</b></button></div>
 		<div class="content">
 			<input id="chordinput" oninput="Chord(2)"/>
+		</div>
+	</div>
+	<div class="window on" id="voiceWindow">
+		<div class="windowtitle">加载音源文件<button class="close"><b>×</b></button></div>
+		<div class="content">
+		  <p>本程序使用袅袅中文音源，但不附带音源文件。你可以到<a href="https://dsailab.com/voice/">https://dsailab.com/voice/</a>下载</p>
+		  <hr>
+		  <button id="b_inf" onclick="f_inf.click()">选择inf.d文件</button>
+		  <button id="b_voi" onclick="f_voi.click()">选择voice.d文件</button>|
+		  <button id="b_app">应用</button>
+		  <input type="file" hidden id="f_inf"/>
+		  <input type="file" hidden id="f_voi"/>
 		</div>
 	</div>
 </body>

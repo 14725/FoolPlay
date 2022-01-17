@@ -183,8 +183,14 @@ Util.queries = function queryString() {
 	var str = location.href
 	/* 检查URL参数 https://zhuanlan.zhihu.com/p/257077535 */
 	var params = str.split('?')[1];
-	if(params == null)    return {};
-	var param = params.split('&');
+	if(params == null){
+	  str = str.replace('#','?');
+	  params = str.split('?')[1];
+	  if(!params){
+	    return {};
+	  }
+	}
+	var param = params.replace(/#.*/,'').split('&');
 	var obj = {};
 	for (var i = 0; i < param.length; i++) {
 		var paramsA = param[i].split('=');
@@ -1607,7 +1613,7 @@ UI.new = function ui_new(action){
 	var file = Util.queries().music;
 	if (action == "force"){
         localStorage.open = '{music:[]}';
-        window.open(location.href.split('?')[0],'_blank','toolbar=no');
+        window.open(location.href.split('?')[0].split('#')[0],'_blank','toolbar=no');
         return;
 	} else if (action == "view") {
         window.open(location.href.split('?')[0],'_blank','toolbar=no');
@@ -1650,10 +1656,11 @@ UI.new = function ui_new(action){
 UI.onContextMenu = function ui_onContextMenu(event){
 	var winwidth = window.innerWidth;
 	var winheight = window.innerHeight;
+	UI.contextMenu.style.display = "block";
+
 	var rect = UI.contextMenu.getBoundingClientRect();
 	UI.contextMenu.style.left = Math.min(innerWidth-(rect.right-rect.left),event.clientX)+"px"
 	UI.contextMenu.style.top = Math.min(innerHeight-(rect.bottom-rect.top),event.clientY)+"px"
-	UI.contextMenu.style.display = "block";
 	event.preventDefault();
 }
 UI.setEditor = function ui_setEditor(){
@@ -1819,8 +1826,10 @@ UI.main = function ui_main(){
 	
 	window.addEventListener("error",function(event){
 		PopupWindow.alert("程序出现错误，请保存文件并且查看控制台。")
-	})
-	
+	});
+	window.addEventListener('load',function(){
+	  UI.layout();
+	});
 	//All is inited；
 	//打开指定文件
 	var file = Util.queries().music
@@ -1860,4 +1869,5 @@ UI.main = function ui_main(){
 }
 
 UI.main();
+
 

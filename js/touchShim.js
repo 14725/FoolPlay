@@ -2,7 +2,7 @@ var touchTimerId = 0;
 var touchOnX,touchOnY;
 var allowFaking = false;
 function touchHandler(event){   
-	
+	if(!UI.touchEnabled)return;
 	var touches = event.changedTouches,
 		first = touches[0],
 		type = "";
