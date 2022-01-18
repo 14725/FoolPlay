@@ -1861,9 +1861,11 @@ UI.main = function ui_main(){
 		}
 	}
 	try{
-		navigator.serviceWorker.register('SerWork.js', {
-			scope: './'
-		});
+	  //不在局域网环境下注册。
+	  if(!(/(localhost|(\d{1,3}\.){3})/.test(location.host)))
+  		navigator.serviceWorker.register('SerWork.js', {
+  			scope: './'
+  		});
 	}catch(e){console.error(e);};
 	
 }
