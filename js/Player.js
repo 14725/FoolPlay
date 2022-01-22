@@ -148,7 +148,7 @@ var itemT = {
   data: null
   /* TODO:是什么呢 */
 };
-Player.manvoice = function pinyin_voice(sentense, detune, start, len, vol) {
+Player.manvoice = function pinyin_voice(sentense, detune, start, len, vol,raw) {
   //前置条件检测
   if(1){
   if (!Player.enableVoice)return;
@@ -177,7 +177,7 @@ Player.manvoice = function pinyin_voice(sentense, detune, start, len, vol) {
   
   
   //延长处理
-  if (len < extendLimit || sentense == '啦') {
+  if (!raw.isTooLong|| sentense == '啦') {
     l += extendLength * 44100;
   }
   if (sentense == '啦') {
@@ -208,10 +208,6 @@ Player.manvoice = function pinyin_voice(sentense, detune, start, len, vol) {
       ]
     ];
   }).flat();
-  if(detune.length > 1){
-    console.warn(Util.clone(freqList));
-    console.log(Util.clone(detune));
-  }
   var ffreq = Player.getF(freqList);
   var buf1 = Player.transform(Player.meta[pinyin][0], l, function(x) {
     return x;
@@ -508,7 +504,7 @@ Player.simplePlay = function player_simplePlay(tune ,octave) {
   if (!Player.enableSMPlay)	return;
   tune = Player.fMap[tune];
   var f = 440 * Math.pow(2, tune + octave+Music.arpeggio/12);
-  Player.start(Player.ctx.currentTime-Player.timeStart, f, 1, 1, false, 'h');
+  Player.start(Player.ctx.currentTime-Player.timeStart, f, 1, 1, false, null);
 
 };
 Player.queueHighLight = function fn() {
@@ -625,7 +621,7 @@ Player.sing = Player.play = function player_play() {
       if (cur.start < toTime) {
         //(sentense,detune,start,len,vol)
         voice.shift();
-        Player.tasking.push(Player.tick(Player.manvoice, 0, cur.word, cur.f, cur.start, cur.len, cur.vol));
+        Player.tasking.push(Player.tick(Player.manvoice, 0, cur.word, cur.f, cur.start, cur.len, cur.vol,cur));
       } else {
         return;
       }
@@ -777,6 +773,7 @@ Player.splitUp = function player_splitUp_outdated() {
   Player.music.sort(function(a, b) {
     return a.start - b.start;
   });
+  Player.voicePass2();
 };
 
 Player.showVoiceWindow = function() {
@@ -809,4 +806,36 @@ Player.showVoiceWindow = function() {
 
     }
   };
+};
+
+Player.voicePass2 = function(){
+  /*  对语音部分的二次处理  */
+  /* 0. 统计时长 */
+  var times = Player.voice.map(function(data){
+    return data.len;
+  }).map(function(_,i,a){
+    // 中值滤波
+    var tmp = [_];
+    tmp.push(a[i == 0?1:i-1]);
+    tmp.push(a[i == a.length-1?i-1:i+1]);
+    return tmp.sort()[1];
+  }).sort();
+  
+  /* 四分位*/
+  var q4pos = parseInt(times.length * 4 / 5);
+  for(;q4pos < times.length && times[q4pos]!==times[q4pos + 1];q4pos++);
+  
+  /* 1. 清除无效数据 */
+  Player.voice = Player.voice.filter(function(v){
+    if(!v.word){
+      return false;
+    }
+    if(v.word.trim() == ""){
+      return false;
+    }
+    return true;
+  }).map(function(v){
+    v.isTooLong = (v.len > times[tines.length - 1]);
+    return v;
+  });
 };

@@ -176,7 +176,7 @@
 <input type="file" id="openFile" onchange="UI.openListener(this)"/>
 </form>
 <script>
-	if(! "eruda" in window)
+	//if(! "eruda" in window)
 	window.onerror = function(message, source, lineno, colno, error) {
 		var ele = document.createElement("div");
 		ele.className = "error";
@@ -184,6 +184,9 @@
 		ele.innerHTML += message;
 		ele.innerHTML += "<br />在脚本文件 " + source + " 中<br /><br />";
 		ele.innerHTML += "<br />第 " + lineno + " 行，第 " + colno + " 列<br /><br />";
+		try{
+		  ele.innerHTML += error.stack;
+		}catch(e){};
 		ele.innerHTML += "<br />刚才您进行的操作已经停止。请尝试另存为文件，这有可能减少数据的损失。<br /><br />";
 		ele.innerHTML = '<input type="button" style="float:right" value="关闭" onclick="this.parentNode.parentNode.removeChild(this.parentNode)">' + ele.innerHTML;
 		document.body.appendChild(ele);
