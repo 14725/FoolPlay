@@ -835,7 +835,7 @@ Player.voicePass2 = function(){
     }
     return true;
   }).map(function(v){
-    v.isTooLong = (v.len > times[tines.length - 1]);
+    v.isTooLong = (v.len > times[times.length - 1]);
     return v;
   });
 };
