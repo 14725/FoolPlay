@@ -4,68 +4,6 @@ HTMLElement.prototype.matchesSelector = function () {
   var body = HTMLElement.prototype;
   return body.webkitMatchesSelector || body.msMatchesSelector || body.mozMatchesSelector || body.oMatchesSelector;
 }();
-/**
- * window.requestIdleCallback()
- * version 0.0.0
- * Browser Compatibility:
- * https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback#browser_compatibility
- */
-if (!window.requestIdleCallback) {
-  window.requestIdleCallback = function (callback, options) {
-    options = options || {};
-    var relaxation = 1;
-    var timeout = options.timeout || relaxation;
-    var start = performance.now();
-    return setTimeout(function () {
-      callback({
-        get didTimeout() {
-            return options.timeout ? false : (performance.now() - start) - relaxation > timeout;
-          },
-          timeRemaining: function () {
-            return Math.max(0, relaxation + (performance.now() - start));
-          },
-      });
-    }, relaxation);
-  };
-}
-
-/**
- * window.cancelIdleCallback()
- * version 0.0.0
- * Browser Compatibility:
- * https://developer.mozilla.org/en-US/docs/Web/API/Window/cancelIdleCallback#browser_compatibility
- */
-if (!window.cancelIdleCallback) {
-  window.cancelIdleCallback = function (id) {
-    clearTimeout(id);
-  };
-}
-
-/**
- * window.requestAnimationFrame()
- * version 0.0.0
- * Browser Compatibility:
- * https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame#browser_compatibility
- */
-if (!window.requestAnimationFrame) {
-  window.requestAnimationFrame = function (callback) {
-    return window.setTimeout(function () {
-      callback(Date.now());
-    }, 1000 / 60);
-  };
-}
-
-/**
- * window.cancelAnimationFrame()
- * version 0.0.0
- * Browser Compatibility:
- * https://developer.mozilla.org/en-US/docs/Web/API/Window/cancelAnimationFrame#browser_compatibility
- */
-if (!window.cancelAnimationFrame) {
-  window.cancelAnimationFrame = function (id) {
-    clearTimeout(id);
-  };
-}
 
 
 //Utils
@@ -230,7 +168,14 @@ Util.copy = function util_copy(e) {
   document.body.removeChild(transfer);
 
 }
-
+Util.t2h = function util_t2h(str){
+  var d = util_t2h.d;
+  if(!d){
+    d = util_t2h.d = document.createElement('div');
+  }
+  d.textContent = str;
+  return d.innerHTML;
+}
 
 var PopupWindow = {
   _windowDragging: null,
@@ -1666,7 +1611,7 @@ UI.saveAs = function ui_saveAs() {
     console.warn(e);
   }
   content = 
-"<!DOCTYPE html>\n<meta charset=\"utf-8\"/>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<style>\n*{\n  text-align: center;\n}\nbody{\n  max-width:500px;\n  margin:auto;\n  padding:5px;\n}\nh1{\n  font-weight: 300;\n}\na {\n  display:inline-block;\n  background: #3498db;\n  background-image: linear-gradient(to bottom, #3498db, #2980b9);\n  border-radius: 999px;\n  text-shadow: 1px 1px 3px #666666;\n  box-shadow: 0px 1px 3px #666666;\n  color: white;\n  font-size: 20px;\n  padding: 10px 20px 10px 20px;\n  border: solid #1f628d 2px;\n  text-decoration: none!important;\n}\na:hover {\n  background: #3cb0fd;\n  background-image: linear-gradient(to bottom, #3cb0fd, #3498db);\n}\nli{\n  font-size: small;\n  color:gray;\n  text-align: left;\n}\n</style>\n<p>本文件是“傻瓜弹曲”的歌谱文件，它记录着一首歌，名叫：</p>\n<h1>%title%</h1>\n<a href=\"%url%#data=%tdata%\">点击此处查看歌谱</a>\n<br>\n<br>\n<hr>\n<ol>\n  <li>如果弹出“打开方式”对话框，请选择浏览器。</li>\n  <li>如果上面的按钮不能正常工作，请换用“浏览器”、“HTML 查看器”等打开本文件，或者在傻瓜弹曲网站（%self%）中，文件 -> 打开。</li>\n</ol>\n<script>%data%</script>";  content = content.replace("%self%", location.href).replace(/%url%/g, a.href).replace("%data%", UI.outString()).replace("%title%",Music.title).replace("%tdata%", encodeURIComponent(UI.outString()));
+"<!DOCTYPE html>\n<meta charset=\"utf-8\"/>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<style>\n*{\n  text-align: center;\n}\nbody{\n  max-width:500px;\n  margin:auto;\n  padding:5px;\n}\nh1{\n  font-weight: 300;\n}\na {\n  display:inline-block;\n  background: #3498db;\n  background-image: linear-gradient(to bottom, #3498db, #2980b9);\n  border-radius: 999px;\n  text-shadow: 1px 1px 3px #666666;\n  box-shadow: 0px 1px 3px #666666;\n  color: white;\n  font-size: 20px;\n  padding: 10px 20px 10px 20px;\n  border: solid #1f628d 2px;\n  text-decoration: none!important;\n}\na:hover {\n  background: #3cb0fd;\n  background-image: linear-gradient(to bottom, #3cb0fd, #3498db);\n}\nli{\n  font-size: small;\n  color:gray;\n  text-align: left;\n}\n</style>\n<p>本文件是“傻瓜弹曲”的歌谱文件，它记录着一首歌，名叫：</p>\n<h1>%title%</h1>\n<a href=\"%url%#data=%tdata%\">点击此处查看歌谱</a>\n<br>\n<br>\n<hr>\n<ol>\n  <li>如果弹出“打开方式”对话框，请选择浏览器。</li>\n  <li>如果上面的按钮不能正常工作，请换用“浏览器”、“HTML 查看器”等打开本文件，或者在傻瓜弹曲网站（%url%）中，文件 -> 打开。</li>\n</ol>\n<script>%data%</script>";  content = content.replace(/%url%/g, a.href.split('#')[0].split('?')[0]).replace("%data%", UI.outString()).replace("%title%",Music.title).replace("%tdata%", encodeURIComponent(UI.outString()));
   var blob = new Blob([content], {
     type: 'text/html'
   });
@@ -1683,7 +1628,7 @@ UI.saveAs = function ui_saveAs() {
 UI.new = function ui_new(action) {
   var file = Util.queries().music;
   if (action == "force") {
-    localStorage.open = '{music:[]}';
+    localStorage.open = 'new';
     window.open(location.href.split('?')[0].split('#')[0], '_blank', 'toolbar=no');
     return;
   } else if (action == "view") {
@@ -1959,8 +1904,8 @@ UI.main = function ui_main() {
     //只要不是示例文件！
     try {
       if (localStorage.open != null) {
-        //alert(localStorage.open);
-        UI.openFile(localStorage.open);
+        if(localStorage.open != 'new')
+          UI.openFile(localStorage.open);
         localStorage.removeItem("open");
       } else if (q.data){
         UI.openFile(decodeURIComponent(q.data));
