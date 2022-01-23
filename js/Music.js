@@ -826,8 +826,8 @@ UI.getHTMLUnit = function ui_getHTMLUnit(classes, pitch, word, id) {
   var regp = /(，|。|？|：|！|“|”|、|；)/g
   return ('<div class="note $classes" data-id="$id"><div class="acnote"><div class="upo"></div><div class="yin">$pitch</div><div class="minusline"></div><div class="downo"></div></div><div class="geci">$word</div></div>')
     .split("$classes").join(classes)
-    .split("$pitch").join(pitch)
-    .split("$word").join(word.join("</div><div class=\"geci\">")
+    .split("$pitch").join(Util.t2h(pitch))
+    .split("$word").join(word.map(Util.t2h).join("</div><div class=\"geci\">")
       .replace(regp, "<span style='position:absolute;'>$1</span>")) //移除标点符号空间
     .split("$id").join(id);
 }
