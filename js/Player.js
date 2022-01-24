@@ -242,10 +242,19 @@ Player.load1 = async function() {
     Player.buffer = null;
 
     Player.buffer = await Player.storage.getItem('voice.d');
+    if(!Player.buffer){
+      Player.trace('加载音源：从网络下载音源...');
+      let buf = await (await fetch('data/voice.d')).arrayBuffer();
+      let inf = await (await fetch('data/inf.d')).text();
+      await Player.storage.setItem('voice.d',buf);
+      await Player.storage.setItem('inf.d',inf);
+      Player.buffer = await Player.storage.getItem('voice.d');
+
+    }
     await Player.load2();
   }catch(e) {
     console.error(e);
-    Player.trace(String(e))
+    Player.trace(String(e));
   }
 };
 Player.load2 = function() {
