@@ -192,6 +192,9 @@
 		document.body.appendChild(ele);
 	}
 </script>
+<script>loadfile.innerHTML = "调试器"</script>
+<script src="js/eruda.js"></script>
+<script>eruda.init();setTimeout("document.querySelectorAll('c-toggler').forEach((a)=>{a.style.display = 'none';});",1000)</script>
 <script>loadfile.innerHTML = "程序主逻辑"</script>
 <script src="js/Music.js"></script>
 <script>loadfile.innerHTML = "拼音数据"</script>
@@ -215,7 +218,14 @@
 		}
 		request.send();
 	}
-	PopupWindow.close(document.querySelector(".loading"))
+	var classlist = ['Music','Player','yuxStorage','Chord','Pinyin'];
+	classlist.forEach(function(a){
+	  if(!(a in window)){
+	    alert(`${a} 没有正常加载。`);
+	    location.reload(true);
+	  }
+	})
+	PopupWindow.close(document.querySelector(".loading"));
 </script>
 	<div class="window about on">
 		<div class="windowtitle">关于...<button class="close"><b>×</b></button></div>

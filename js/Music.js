@@ -1,3 +1,5 @@
+// jshint maxerr:9999
+
 //Errors ->Move into "edit.htm"
 //Shim
 HTMLElement.prototype.matchesSelector = function () {
@@ -161,13 +163,13 @@ Util.copy = function util_copy(e) {
   transfer.focus();
   transfer.select();
   if (!document.execCommand('copy')) {
-    PopupWindow.alert("错误：不能复制文本。")
+    PopupWindow.alert("错误：不能复制文本。");
   }
   transfer.blur();
   console.log('复制成功');
   document.body.removeChild(transfer);
 
-}
+};
 Util.t2h = function util_t2h(str){
   var d = util_t2h.d;
   if(!d){
@@ -175,7 +177,7 @@ Util.t2h = function util_t2h(str){
   }
   d.textContent = str;
   return d.innerHTML;
-}
+};
 
 var PopupWindow = {
   _windowDragging: null,
@@ -287,7 +289,7 @@ Music.indexNoteInSection = function music_indexNoteInSection(id) {
   if (Music.sections[i - 1][0].id <= id)
     ans = i - 1;
   return ans;
-}
+};
 Music.split = function music_splitIntoMeasures() {
   //功能：把连续的音符序列分解为节拍
   //使用已刷新的数据
@@ -420,9 +422,9 @@ Music.flatBar = function music_flat() {
   console.warn("展开歌谱失败。");
   console.log("Dump: ");
   console.log(UI.outString());
-  PopupWindow.alert("无法识别歌谱的反复记号：将忽略反复。")
+  PopupWindow.alert("无法识别歌谱的反复记号：将忽略反复。");
   return Util.clone(Music.sections);
-}
+};
 Music.flat = function () {
   var res = [];
   var bars = Music.flatBar();
@@ -433,7 +435,7 @@ Music.flat = function () {
     });
   });
   return res;
-}
+};
 Music.flatOneBar = function (bar, line) {
     var rtn = Util.clone(bar);
     rtn.forEach(function (n) {
@@ -444,7 +446,7 @@ Music.flatOneBar = function (bar, line) {
       n.note.word = tmp;
     });
     return rtn;
-  }
+  };
   //UI
 var UI = {
   container: document.querySelector(".container"),
@@ -497,11 +499,11 @@ var UI = {
   openFailedCount: 0,
   _oldSelStart: 0,
   get oldSelStart() {
-    console.warn("oldSelStart 已经停用. 请使用UI.from 或者 UI.author.")
+    console.warn("oldSelStart 已经停用. 请使用UI.from 或者 UI.author.");
     return _oldSelStart;
   },
   set oldSelStart(v) {
-    console.warn("oldSelStart 已经停用. 请使用UI.from 或者 UI.author.")
+    console.warn("oldSelStart 已经停用. 请使用UI.from 或者 UI.author.");
     _oldSelStart = v;
   },
   lastClickedNotePos: null,
@@ -565,14 +567,14 @@ UI.render = Util.throttle(function ui_render() {
       //处理反复记号显示
       if (item.attr) {
         (["do", "loop", "ds", "dc", "coda", "segno"]).forEach(function (n) {
-          if (item.attr[n]) className.push(n)
+          if (item.attr[n]) className.push(n);
         });
       }
       //添加类名，并且拼接HTML
       startHTML = startHTML.replace("%CLASS%",
         className.join(" "));
       return startHTML + thisSectionHTML.join("") + endHTML;
-    })
+    });
     //TODO: 部分替换，并测量性能
   html.push(sectionsHTML.join(" "));
   UI.container.innerHTML = html.join("");
@@ -588,19 +590,19 @@ UI.layout = function ui_layout() {
   //功能：读取浏览器对歌谱的布局，
   //重绘光标
   [].slice.call(UI.coverOn.querySelectorAll(".cline")).forEach(function (a) {
-    a.parentNode.removeChild(a)
+    a.parentNode.removeChild(a);
   });
   //定位
   //	获取全部的DOM元素列表
   var list = UI.domList = Array.prototype.slice.call(document.querySelectorAll(".note"));
   var rect;
   UI.domsAreas = [];
-  UI.dom = []
+  UI.dom = [];
   list.forEach(function (dom) {
       //去除选择态
       var id = parseInt(dom.dataset.id);
       //获取对应的ID
-      if (!UI.dom[id]) UI.dom[id] = dom
+      if (!UI.dom[id]) UI.dom[id] = dom;
       if (!UI.domsAreas[id]) {
         //不存在：添加这个音符的区域
         UI.domsAreas[id] = {
@@ -613,29 +615,29 @@ UI.layout = function ui_layout() {
         }
       } else {
         //存在：与上一个合并
-        UI.domsAreas[id].width = dom.offsetLeft + dom.offsetWidth - UI.domsAreas[id].x
+        UI.domsAreas[id].width = dom.offsetLeft + dom.offsetWidth - UI.domsAreas[id].x;
       }
-    })
+    });
     //获取音符实际占用的高度
   if (UI.yinheight == 0 && UI.domList[0]) UI.yinheight = parseFloat(getComputedStyle(UI.domList[0].querySelector(".acnote")).height);
   //获取歌词区域的高度
   if ((UI.ciheight == 0 || isNaN(UI.ciheight)) && UI.domList[0]) UI.ciheight = parseFloat(getComputedStyle(UI.domList[0].querySelector(".geci")).height);
 
   // ??
-  UI.redraw()
+  UI.redraw();
     //特殊标记
   Music.music.forEach(function (note, id) {
       if (id == 0) return;
-      if (note.fx.extend) UI.appendCLine(id - 1, id) //延音线
-      if (note.fx.triplets && id < Music.music.length - 2) UI.appendCLine(id, id + 2, "3") //三连音符号
-    })
+      if (note.fx.extend) UI.appendCLine(id - 1, id); //延音线
+      if (note.fx.triplets && id < Music.music.length - 2) UI.appendCLine(id, id + 2, "3"); //三连音符号
+    });
     //房子的绘制
   Music.sections.forEach(function (item) {
     if (item.attr && "house" in item.attr) {
-      UI.appendCLine(item[0].id, item[item.length - 1].id, item.attr.house.join(","), true)
+      UI.appendCLine(item[0].id, item[item.length - 1].id, item.attr.house.join(","), true);
     }
-  })
-}
+  });
+};
 UI.throttledLayout = UI.layout;
 UI.redraw = function ui_redraw() {
   var temp, isreved = false;
@@ -643,8 +645,8 @@ UI.redraw = function ui_redraw() {
   var yinheight, ciheight;
   //清除选择态
   Array.prototype.slice.call(document.querySelectorAll(".selected")).forEach(function (dom) {
-      dom.className = dom.className.replace("selected", "").replace("  ", " ")
-    })
+      dom.className = dom.className.replace("selected", "").replace("  ", " ");
+    });
     //限制选区范围到合理位置：
     // *** 旧代码 ***
     //setStart	: 选取开始的音符的左边，约定-1为没有选区;
@@ -665,7 +667,7 @@ UI.redraw = function ui_redraw() {
       var id = parseInt(dom.dataset.id);
       if (id >= UI.selStart && id < UI.selEnd) {
         if (UI.editingLynicLine == -1) {
-          dom.className += " selected"
+          dom.className += " selected";
         } else {
           if (dom.children.length > UI.editingLynicLine + 1)
             dom.children[UI.editingLynicLine + 1].className += " selected";
@@ -685,9 +687,9 @@ UI.redraw = function ui_redraw() {
     ciheight = UI.ciheight;
     UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = "0";
     if (UI.author != UI.domsAreas.length) {
-      UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = UI.domsAreas[UI.author].x + "px"
+      UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = UI.domsAreas[UI.author].x + "px";
     } else {
-      UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = UI.domsAreas[UI.author - 1].x + UI.domsAreas[UI.author - 1].width + "px"
+      UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = UI.domsAreas[UI.author - 1].x + UI.domsAreas[UI.author - 1].width + "px";
     }
     if (UI.editingLynicLine == -1) {
       //在音符级别
@@ -703,12 +705,12 @@ UI.redraw = function ui_redraw() {
     }
   }
   if (UI.shouldScroll) UI.autoScroll();
-}
+};
 UI.autoScroll = function ui_autoScroll() {
   //Scroll
   var containerTop = UI.container.offsetTop - window.pageYOffset;
   var statusbarTop = UI.statusbar.getBoundingClientRect().top;
-  var author = Math.min(UI.author, Music.music.length - 1)
+  var author = Math.min(UI.author, Music.music.length - 1);
   if (Music.music.length) {
     if (UI.domsAreas[author].y == 0) {
       window.scroll(0, 0);
@@ -751,19 +753,19 @@ UI.appendCLine = function ui_appendCLine(pid, nid, word, ishouse) {
     clinedom.style.top = (parea.y) + "px";
     clinedom.style.width = (parea.width) + "px";
     if (!ishouse)
-      clinedom.style.borderRadius = "10px 0 0 0"
+      clinedom.style.borderRadius = "10px 0 0 0";
     UI.coverOn.appendChild(clinedom);
     if (ishouse) return;
     clinedom = document.createElement("div");
     clinedom.className = "cline";
     clinedom.style.left = (narea.midX - 5) + "px";
     clinedom.style.top = (narea.y) + "px";
-    clinedom.style.width = "5px"
-    clinedom.style.borderRadius = "0 10px 0 0"
+    clinedom.style.width = "5px";
+    clinedom.style.borderRadius = "0 10px 0 0";
     UI.coverOn.appendChild(clinedom);
   }
 
-}
+};
 UI.getHTMLforNote = function ui_getHTMLforNote(note, id) {
   var html = "";
   var className = "";
@@ -772,7 +774,7 @@ UI.getHTMLforNote = function ui_getHTMLforNote(note, id) {
   if (note.pitch == null)
     note.pitch = 1;
   text = (note.pitch = Math.max(Math.min(note.pitch, 7), 0)).toString();
-  var addTimeLine = note.pitch == "0" ? "0" : "–"
+  var addTimeLine = note.pitch == "0" ? "0" : "–";
   switch (note.length) {
   case 2:
     className += "f16";
@@ -821,16 +823,16 @@ UI.getHTMLforNote = function ui_getHTMLforNote(note, id) {
   }
   html = UI.getHTMLUnit(className, note.pitch, note.word, id) + appendedHTML;
   return html;
-}
+};
 UI.getHTMLUnit = function ui_getHTMLUnit(classes, pitch, word, id) {
-  var regp = /(，|。|？|：|！|“|”|、|；)/g
+  var regp = /(，|。|？|：|！|“|”|、|；)/g;
   return ('<div class="note $classes" data-id="$id"><div class="acnote"><div class="upo"></div><div class="yin">$pitch</div><div class="minusline"></div><div class="downo"></div></div><div class="geci">$word</div></div>')
     .split("$classes").join(classes)
     .split("$pitch").join(Util.t2h(pitch))
     .split("$word").join(word.map(Util.t2h).join("</div><div class=\"geci\">")
       .replace(regp, "<span style='position:absolute;'>$1</span>")) //移除标点符号空间
     .split("$id").join(id);
-}
+};
 UI.switchLine = function ui_switchLine(up) {
   if (UI.author >= Music.music.length) {
     UI.author = Music.music.length - 1;
@@ -838,7 +840,7 @@ UI.switchLine = function ui_switchLine(up) {
     UI.author = Music.music.length;
     UI.redraw();
     return;
-  };
+  }
   var oldscrPos = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
   var oldelePos = UI.dom[UI.author].getBoundingClientRect().top;
   var changed = false;
@@ -888,9 +890,9 @@ UI.switchLine = function ui_switchLine(up) {
   var elePos = UI.dom[UI.author].getBoundingClientRect().top;
   if (true) {
     window.scrollTo(0, oldscrPos);
-    window.scrollBy(0, -oldelePos + elePos)
+    window.scrollBy(0, -oldelePos + elePos);
   }
-}
+};
 UI.onKeyDown = function ui_onKeyDown(event) {
     // TODO: Fix the Keyboard after UI.insertEdit([]);
     var cancel = true;
@@ -917,7 +919,7 @@ UI.onKeyDown = function ui_onKeyDown(event) {
       if (UI.from == UI.author) {
         UI.from = ++UI.author;
 
-      }
+      };
 
       // No break, let it fall down;
     case 8: //Backspace
@@ -1061,7 +1063,7 @@ UI.onKeyDown = function ui_onKeyDown(event) {
       UI.refreshIME("");
       if (Music.music.length == 0) return;
 
-      rect = UI.domsAreas[Math.min(UI.author, Music.music.length - 1)]
+      rect = UI.domsAreas[Math.min(UI.author, Music.music.length - 1)];
       UI.author = UI.getClosestNoteIn(rect.midX, rect.midY + window.innerHeight - 100);
       if (!event.shiftKey) {
         UI.from = UI.author;
@@ -1122,16 +1124,16 @@ UI.onGlobalKeyDown = function (event) {
       UI.new();
     else
       cancel = false;
-    break
+    break;
   case 79: //(Ctrl+)O
     if (event.ctrlKey)
-      UI.open()
+      UI.open();
     else
       cancel = false;
     break;
   case 83: //(Ctrl+)S
     if (event.ctrlKey)
-      UI.saveAs()
+      UI.saveAs();
     else
       cancel = false;
     break;
@@ -1146,11 +1148,11 @@ UI.onGlobalKeyDown = function (event) {
     event.stopImmediatePropagation();
     event.stopPropagation();
   }
-}
+};
 UI.refreshIME = function ui_refresh_IME(value) {
   if (value != null) UI.editbox.value = value;
   UI.IMETip.innerText = UI.editbox.value;
-}
+};
 
 UI.onInput = function (event) {
   //歌谱的输入方法
@@ -1192,7 +1194,7 @@ UI.onInput = function (event) {
       "=": shortenTable,
       ".": postTable,
       "。": postTable
-    }
+    };
   }
   var note;
   content = content.split("……").join("…").split("'").join("").toLowerCase().split("");
@@ -1333,7 +1335,7 @@ UI.onInput = function (event) {
         dc: "dc",
         co: "coda",
         se: "segno"
-      }
+      };
       if (sid == -1) sid = 0;
       cmd = cmd.toLowerCase();
       if (map[cmd] != null) {
@@ -1351,7 +1353,7 @@ UI.onInput = function (event) {
       var reg = /\|-(\d).*/;
       var lopId = reg.exec(content.join(""));
       if (lopId == null) return;
-      lopId = lopId[1]
+      lopId = lopId[1];
       if (lopId == null) return;
       var sid = Music.indexNoteInSection(UI.selEnd - 1);
       if (sid == -1) sid = 0;
@@ -1383,7 +1385,7 @@ UI.onInput = function (event) {
   }
   event.target.value = event.target.value.replace(/[^ds|\-0-9]/g, "");
   UI.refreshIME();
-}
+};
 UI.onChangeListener = function ui_onChangeListener(event) {
   //TODO: Check this after spliceWord
   var content = event.target.value;
@@ -1402,17 +1404,17 @@ UI.onChangeListener = function ui_onChangeListener(event) {
   else howmany = end - start,
     index = start;
   if (UI.editingLynicLine == -1) UI.editingLynicLine = 0;
-  UI.spliceWord(index, howmany, content)
+  UI.spliceWord(index, howmany, content);
   UI.selStart = UI.selEnd = content.length + start;
   UI.refreshIME("");
   UI.render();
-}
+};
 
 UI.insertEdit = function ui_insertEdit(notes) {
   notes = notes.slice();
   Music.music = [].concat(Music.music.slice(0, UI.selStart), notes, Music.music.slice(UI.selEnd));
   UI.render();
-}
+};
 UI.spliceWord = function ui_spliceWord(index, howmany, str) {
   var items = [];
   var pushingSymbol = "";
@@ -1441,19 +1443,19 @@ UI.spliceWord = function ui_spliceWord(index, howmany, str) {
     items.push(Music.music[i].word[UI.editingLynicLine]);
   }
   for (i = 0; i < Music.music.length - index && i < items.length; i++) {
-    Music.music[i + index].word[UI.editingLynicLine] = items[i]
+    Music.music[i + index].word[UI.editingLynicLine] = items[i];
   }
 
   for (i += index + items.length; i < Music.music.length; i++) {
     Music.music[i].word[UI.editingLynicLine] = "";
   }
-}
+};
 UI.getClosestNote = function ui_getClosestNote(clientX, clientY, over) {
   var containerRect = UI.container.getBoundingClientRect();
   clientX -= containerRect.left;
   clientY -= containerRect.top;
-  return UI.getClosestNoteIn(clientX, clientY, over)
-}
+  return UI.getClosestNoteIn(clientX, clientY, over);
+};
 UI.getClosestNoteIn = function ui_getClosestNoteIn(x, y, over) /*:ID*/ {
   var minid = 0;
   var minDis = 99999999999999;
@@ -1468,7 +1470,7 @@ UI.getClosestNoteIn = function ui_getClosestNoteIn(x, y, over) /*:ID*/ {
       }
     });
 
-    rect = UI.domsAreas[UI.domsAreas.length - 1]
+    rect = UI.domsAreas[UI.domsAreas.length - 1];
     tempDis = Math.abs(rect.x + rect.width - x) + Math.abs(rect.midY - y) * 100000;
     if (tempDis < minDis) {
       minid = UI.domsAreas.length;
@@ -1483,27 +1485,27 @@ UI.getClosestNoteIn = function ui_getClosestNoteIn(x, y, over) /*:ID*/ {
     });
   }
   return minid;
-}
+};
 UI.cut = function ui_cut() {
   UI.copy();
   UI.insertEdit([]);
-}
+};
 UI.copy = function ui_copy() {
   var isreved;
   if (UI.selStart == -1) {
     return;
   }
-  UI.clipboard = Util.clone(Music.music.slice(UI.selStart, UI.selEnd))
+  UI.clipboard = Util.clone(Music.music.slice(UI.selStart, UI.selEnd));
   if (isreved) {
     temp = UI.selStart;
     UI.selStart = UI.selEnd;
     UI.selEnd = temp;
   }
-}
+};
 UI.paste = function ui_paste() {
   if (UI.clipboard.length == 0) return;
-  UI.insertEdit(Util.clone(UI.clipboard))
-}
+  UI.insertEdit(Util.clone(UI.clipboard));
+};
 UI.open = function ui_open() {
   UI.openBox.parentNode.reset();
   var file = Util.queries().music;
@@ -1515,43 +1517,42 @@ UI.open = function ui_open() {
   }
 
 
-}
+};
 UI.openListener = function ui_openListener(me) {
   if (!me.files) {
     throw "您的浏览器不支持打开本地文件。";
-    return;
   }
   if (me.files && me.files[0]) {
     var reader = new FileReader();
     reader.readAsText(me.files[0]);
     reader.onload = function () {
       UI.openFile(reader.result);
-    }
+    };
     openFailedCount = 0;
   } else {
     if (++openFailedCount > 1) {
       PopupWindow.alert("您已经连续两次没有选择文件，如果你无法打开，或许你该换个浏览器。");
     }
   }
-}
+};
 UI.openFile = function ui_openFile(datastr) {
   try {
     if (datastr.indexOf("<script>") > 0) {
       datastr = datastr.split("<script>")[1].split("</script>")[0];
     }
     var data = JSON.parse(datastr);
-    if (data['music'] == null) {
+    if (data.music == null) {
       PopupWindow.alert("这个文件里存的东西我用不了，抱歉。");
       return;
     }
     data.music = data.music.map(function (item) {
       if (typeof item.word == "string") {
-        item.word = item.word.split("")
+        item.word = item.word.split("");
       }
       return item;
-    })
+    });
     for (var i in data) {
-      Music[i] = data[i]
+      Music[i] = data[i];
     }
     UI.render();
     UI.authorArea.value = Music.author;
@@ -1562,11 +1563,11 @@ UI.openFile = function ui_openFile(datastr) {
     UI.tempo1Box.value = Music.tempo[1];
     UI.speedBox.value = Music.speed;
   } catch (e) {
-    PopupWindow.alert("这个文件里存的东西我用不了，抱歉。")
+    PopupWindow.alert("这个文件里存的东西我用不了，抱歉。");
       //throw e;
   }
 
-}
+};
 UI.outString = function ui_tostring() {
   var temp = {
     title: "",
@@ -1577,7 +1578,7 @@ UI.outString = function ui_tostring() {
     arpeggio: 0,
     setting: {},
     loops: [],
-  }
+  };
   if (Music.title.replace(/\s/g, "") == "") Music.title = "未命名歌曲";
   var content = Util.templateClone(Music, temp);
   /* 在保存之前清理多余的属性 */
@@ -1588,18 +1589,18 @@ UI.outString = function ui_tostring() {
       if(!a.word[a.word.length-1]){
         a.word.pop();
       }else if(a.word[a.word.length-1].trim() == ''){
-        a.word.pop()
+        a.word.pop();
       }else{
         break;
       }
     }
   });
   return JSON.stringify(content);
-}
+};
 UI.saveAs = function ui_saveAs() {
   if (Music.title.replace(/\s/g, "") == "") Music.title = "未命名歌曲";
   var a = document.createElement("a");
-  a.style.display = "none"
+  a.style.display = "none";
   a.download = Music.title + ".htm";
   a.href = location.href;
   //a.href = "./caller.htm";
@@ -1675,24 +1676,24 @@ UI.onContextMenu = function ui_onContextMenu(event) {
   UI.contextMenu.style.display = "block";
 
   var rect = UI.contextMenu.getBoundingClientRect();
-  UI.contextMenu.style.left = Math.min(innerWidth - (rect.right - rect.left), event.clientX) + "px"
-  UI.contextMenu.style.top = Math.min(innerHeight - (rect.bottom - rect.top), event.clientY) + "px"
+  UI.contextMenu.style.left = Math.min(innerWidth - (rect.right - rect.left), event.clientX) + "px";
+  UI.contextMenu.style.top = Math.min(innerHeight - (rect.bottom - rect.top), event.clientY) + "px";
   event.preventDefault();
-}
+};
 UI.setEditor = function ui_setEditor() {
   document.addEventListener("keydown", function (event) {
-    UI.isShiftDown = event.shiftKey
-  })
+    UI.isShiftDown = event.shiftKey;
+  });
   document.addEventListener("keyup", function (event) {
-    UI.isShiftDown = event.shiftKey
-  })
+    UI.isShiftDown = event.shiftKey;
+  });
   document.addEventListener("mousedown", function ui_capture_mouse(event) {
     if (event.button == 0) UI.isSelectMouseDown = true;
-  })
+  });
   document.addEventListener("mouseup",
     function ui_release_mouse() {
       UI.isSelectMouseDown = false;
-    })
+    });
   document.addEventListener("mousedown",
     function ui_mousedown_to_(event) {
       if (Music.music.length == 0) {
@@ -1727,7 +1728,7 @@ UI.setEditor = function ui_setEditor() {
       UI.editbox.value = "";
       UI.refreshIME();
       //setTimeout(function(){ UI.redraw()},0);
-    })
+    });
   document.addEventListener("mousemove",
     function ui_selecter(event) {
       if (!UI.container.contains(event.target) && event.target != document.documentElement && event.target != document.body) {
@@ -1738,21 +1739,21 @@ UI.setEditor = function ui_setEditor() {
         //debugger;
         UI.author = myid;
         if (event.clientY < 10) {
-          window.scrollBy(0, -10)
+          window.scrollBy(0, -10);
         }
         if (event.clientY > UI.statusbar.getBoundingClientRect().top - 10) {
-          window.scrollBy(0, 10)
+          window.scrollBy(0, 10);
         }
         UI.redraw();
       }
-    })
+    });
   document.addEventListener("click",
     function ui_click_focus_textbox(event) {
       if (!UI.container.contains(event.target) && event.target != document.documentElement && event.target != document.body) {
         return;
       }
       UI.editbox.focus();
-    })
+    });
   document.addEventListener("mouseup",
     function ui_move_caret(event) {
       if (UI.lastClickedNotePos == null) return;
@@ -1772,18 +1773,18 @@ UI.setEditor = function ui_setEditor() {
         UI.from = UI.oldSelStart;
       }
       UI.redraw();
-    })
+    });
   UI.container.addEventListener("contextmenu",
-    UI.onContextMenu)
+    UI.onContextMenu);
   document.addEventListener("click",
     function ui_click_to_hide_menu() {
       setTimeout(function () {
-        UI.contextMenu.style.display = "none"
-      }, 1)
-    })
+        UI.contextMenu.style.display = "none";
+      }, 1);
+    });
   document.oncontextmenu = function ui_to_disable_native_menu() {
     return event.target.matchesSelector("input,textarea");
-  }
+  };
   UI.editbox.addEventListener("keydown",
     UI.onKeyDown);
   document.addEventListener("keydown",
@@ -1793,15 +1794,15 @@ UI.setEditor = function ui_setEditor() {
   UI.editbox.addEventListener("focus",
     function show_caret() {
       UI.caretStyle.innerHTML = "";
-    })
+    });
   UI.editbox.addEventListener("blur",
     function show_caret() {
       UI.caretStyle.innerHTML = "#caret{display:none!important}";
-    })
+    });
   Util.onCJKInput(UI.editbox,
     function input_lynic(e) {
       if (UI.editingLynicLine > -1) {
-        UI.onChangeListener(e)
+        UI.onChangeListener(e);
       }
     });
 
@@ -1809,7 +1810,7 @@ UI.setEditor = function ui_setEditor() {
   //FUCK~~~
   //FIXME
   //setInterval(function(){UI.refreshIME();},100);
-}
+};
 UI.writeBack = function ui_write_back() {
   /* 把音乐的基本参数从对话框写到Music对象里面 */
   UI.titleBox.value = Music.title;
@@ -1841,7 +1842,7 @@ UI.writeBack = function ui_write_back() {
   }
   document.querySelector(".tempo0").value = Music.tempo[0];
   document.querySelector(".tempo1").value = Music.tempo[1];
-}
+};
 
 UI.main = function ui_main() {
   window.addEventListener("beforeprint",
@@ -1853,7 +1854,7 @@ UI.main = function ui_main() {
     });
   window.addEventListener("afterprint",
     function print_relayout(event) {
-      document.body.className = document.body.className.replace("print", "").replace("  ", " ")
+      document.body.className = document.body.className.replace("print", "").replace("  ", " ");
       UI.container.getBoundingClientRect();
       UI.layout();
       UI.container.getBoundingClientRect();
@@ -1878,9 +1879,9 @@ UI.main = function ui_main() {
     UI.setEditor();
   UI.render();
 
-  window.addEventListener("error", function (event) {
-    PopupWindow.alert("程序出现错误，请保存文件并且查看控制台。")
-  });
+  /*window.addEventListener("error", function (event) {
+    PopupWindow.alert("程序出现错误，请保存文件并且查看控制台。");
+  });*/
   window.addEventListener('load', function fn() {
     /*.TODO: 查找bug的真正原因 */
     try{UI.layout();}catch(e){
@@ -1893,12 +1894,12 @@ UI.main = function ui_main() {
   var file = q.music;
   if (file && file.length > 0) {
     //网络示例文件专属！
-    var factFile = "music/" + file + ".json"
+    var factFile = "music/" + file + ".json";
     var request = new XMLHttpRequest();
     request.open('GET', factFile, true);
     request.onload = function () {
       UI.openFile(request.responseText);
-    }
+    };
     request.send();
   } else {
     //只要不是示例文件！
@@ -1915,9 +1916,11 @@ UI.main = function ui_main() {
       setInterval(function autosave() {
         var content = UI.outString();
         localStorage.saved = content;
-      }, 1000)
+      }, 1000);
     } catch (e) {
-      console.warn("貌似Edge浏览器的安全限制阻止了本地储存的使用。这会导致自动保存功能失效。")
+      console.warn("本地储存不能工作，为使程序运行，已创建假本地储存。");
+      window.localStorage = {};
+      localStorage.setItem = localStorage.removeItem = function(){};
     }
   }
   try {
@@ -1928,8 +1931,8 @@ UI.main = function ui_main() {
       });
   } catch (e) {
     console.error(e);
-  };
+  }
 
-}
+};
 
 UI.main();

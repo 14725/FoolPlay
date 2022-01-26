@@ -78,7 +78,7 @@ if (!('scrollingElement' in document)) (function() {
     // If `body` is itself scrollable, it is not the `scrollingElement`.
     return body && isScrollable(body) ? null: body;
   };
-  document.scrollingElement = scrollingElement;
+  document.scrollingElement = scrollingElement();
   if (Object.defineProperty) {
     // Support modern browsers that lack a native implementation.
     Object.defineProperty(document, 'scrollingElement', {
@@ -96,18 +96,25 @@ if (!('scrollingElement' in document)) (function() {
         value: function r() {
             var t = isNaN(arguments[0]) ? 1 : Number(arguments[0]);
             return t ? Array.prototype.reduce.call(this, function(a, e) {
-                return Array.isArray(e) ? a.push.apply(a, r.call(e, t - 1)) : a.push(e), a
-            }, []) : Array.prototype.slice.call(this)
+                return Array.isArray(e) ? a.push.apply(a, r.call(e, t - 1)) : a.push(e), a;
+            }, []) : Array.prototype.slice.call(this);
         },
         writable: !0
     }), Array.prototype.flatMap || Object.defineProperty(Array.prototype, "flatMap", {
         configurable: !0,
         value: function(r) {
-            return Array.prototype.map.apply(this, arguments).flat()
+            return Array.prototype.map.apply(this, arguments).flat();
         },
         writable: !0
-    })
+    });
 })();
+/* Chainable Array ForEach */
+Object.defineProperty(Array.prototype,'chainableForEach',{
+  value:function(...rest){
+    this.forEach.apply(this,rest);
+    return this;
+  }
+});
 
 var Player = {
   ctx: null,
@@ -169,7 +176,7 @@ Player.manvoice = function pinyin_voice(sentense, detune, start, len, vol,raw) {
   }
   
   const extendLimit = 0.4; // 延长的上限
-  const extendLength = 0.01;
+  const extendLength = 0.1;
   var l = len * 44100;
   var advance = 0.01;
   var maxGap = Math.min(len * 0.4,(len - detune[detune.length - 1].time)/8); // 最长的滑音
@@ -177,8 +184,10 @@ Player.manvoice = function pinyin_voice(sentense, detune, start, len, vol,raw) {
   
   
   //延长处理
+  console.log(sentense);
   if (!raw.isTooLong|| sentense == '啦') {
     l += extendLength * 44100;
+    console.log('处理');
   }
   if (sentense == '啦') {
     l += 0.3 * 44100;
@@ -479,6 +488,7 @@ Player.start = function player_start(startTime, tune, len, vol, isChord, word) {
 
   var osc;
   if (!Player.pianoSample) {
+    vol *= 0.2;
     gain.gain.value = 0.001;
     gain.gain.exponentialRampToValueAtTime(vol, Player.timeStart+startTime+0.05);
     gain.gain.exponentialRampToValueAtTime(vol*0.2, Player.timeStart+startTime+len*0.6);
@@ -571,7 +581,7 @@ Player.tick = function player_tick(func, time) {
     } else {
       clearTimeout(tid);
     }
-  }
+  };
 };
 
 Player.stop = function player_stop() {
@@ -582,7 +592,7 @@ Player.stop = function player_stop() {
   Player.tasking = [];
   clearInterval(Player.musicTId);
   clearInterval(Player.voiceTId);
-}
+};
 
 Player.sing = Player.play = function player_play() {
   Player.timeStart = Player.ctx.currentTime + 0.5;
@@ -655,8 +665,34 @@ Player.trace = function player_train(log) {
     UI.statusbar.querySelector("div").innerHTML = log;
   }
   console.log(log);
-}
+};
+
 Player.main();
+
+/*
+  in: the whole Music.
+  out:{
+    // Represent a bar
+    [
+      {
+        instument:{
+          
+        },
+        voice:{
+          
+        },
+        chords:{
+          
+        }
+      }
+    ]
+  }
+  May be helpful to more analysis.
+*/
+Player.tagSection = function player_tagSection(Music){
+
+};
+
 Player.splitUp = function player_splitUp_outdated() {
   Music.getLenSectionTempo();
   var sp32b = Music.speedS;
@@ -704,7 +740,7 @@ Player.splitUp = function player_splitUp_outdated() {
           newItem.f[0].f = 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12));
           newItem.word = music[i].word[0];
           newItem.vol /= 2.5;
-          Player.music.push(newItem)
+          Player.music.push(newItem);
           newItem = Util.clone(newItem);
           //newItem.f[0].f /= 4;
           //Player.music.push(newItem)
@@ -724,15 +760,15 @@ Player.splitUp = function player_splitUp_outdated() {
             voicelast.f.push({
               time: -voicelast.start + curTime,
               f: 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12))
-            })
+            });
           }
         } else {
           var newItem = Util.clone(Player.soundItem);
           newItem.len = time;
-          newItem.start = curTime
-          newItem.f[0].f = 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12))
+          newItem.start = curTime;
+          newItem.f[0].f = 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12));
           newItem.word = music[i].word[0];
-          Player.voice.push(newItem)
+          Player.voice.push(newItem);
         }
       }
 
@@ -740,12 +776,12 @@ Player.splitUp = function player_splitUp_outdated() {
     } else {
       var newItem = Util.clone(Player.soundItem);
       newItem.len = time;
-      newItem.start = curTime
-      newItem.f[0].f = 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12))
+      newItem.start = curTime;
+      newItem.f[0].f = 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12));
       newItem.word = music[i].word[0];
       newItem.vol /= 2.5;
       Player.music.push(newItem);
-      Player.voice.push(newItem)
+      Player.voice.push(newItem);
       newItem = Util.clone(newItem);
       //newItem.f[0].f /= 4;
       //Player.music.push(newItem)
@@ -768,7 +804,7 @@ Player.splitUp = function player_splitUp_outdated() {
         newItem.len = (ttlen + extend) * sp32b;
         newItem.start = sttime * sp32b + 0.1;
         newItem.vol = newItem.vol * volBoost /6;
-        newItem.f[0].f = 440*Math.pow(2, (Player.fMap[note]-1+Music.arpeggio/12))
+        newItem.f[0].f = 440*Math.pow(2, (Player.fMap[note]-1+Music.arpeggio/12));
         newItem.isChord = true;
         Player.music.push(newItem);
       });
@@ -783,6 +819,10 @@ Player.splitUp = function player_splitUp_outdated() {
     return a.start - b.start;
   });
   Player.voicePass2();
+};
+
+Player.schChord = function(){
+  
 };
 
 Player.showVoiceWindow = function() {
@@ -831,10 +871,10 @@ Player.voicePass2 = function(){
   }).sort();
   
   /* 四分位*/
-  var q4pos = parseInt(times.length * 4 / 5);
-  for(;q4pos < times.length && times[q4pos]!==times[q4pos + 1];q4pos++);
-  
-  /* 1. 清除无效数据 */
+  var q4pos = parseInt(times.length * 3/4);
+  for(;q4pos < times.length && times[q4pos]==times[q4pos + 1];q4pos++);
+  q4pos = Math.min(times.length-1,q4pos+1);
+
   Player.voice = Player.voice.filter(function(v){
     if(!v.word){
       return false;
@@ -843,8 +883,21 @@ Player.voicePass2 = function(){
       return false;
     }
     return true;
-  }).map(function(v){
-    v.isTooLong = (v.len > times[times.length - 1]);
-    return v;
+  }).chainableForEach(function(v,i,ary){
+    if(i < ary.length - 1){
+      if(v.word.length-1){
+        v.isTooLong = true;
+      }else if(v.len + v.start + 0.001 < ary[i+1].start){
+        v.isTooLong = true;
+      }else{
+        v.isTooLong = (v.len > times[q4pos]);
+      }
+    }else{
+      v.isTooLong = true;
+    }
+  }).chainableForEach(function(t,i,a){
+    if(i < a.length-1 && a[i+1].isTooLong == true){
+      t.isTooLong = false;
+    }
   });
 };
