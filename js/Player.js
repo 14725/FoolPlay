@@ -299,7 +299,9 @@ Player.load2 = function() {
     Player.trace('加载音源：完成。');
 
   })().catch((e) => {
-    console.error(e)});
+    console.error(e);
+    throw e;
+  });
 };
 Player.convertBuffer = function player_convertBuffer(buffer) {
   var ctx = Player.ctx;
@@ -396,7 +398,7 @@ Player.transform = function transform(data, length, fPos, fFreq) {
     pos += t;
   }
   return wave;
-}
+};
 
 
 Player.soundItem = {
@@ -898,6 +900,21 @@ Player.voicePass2 = function(){
   }).chainableForEach(function(t,i,a){
     if(i < a.length-1 && a[i+1].isTooLong == true){
       t.isTooLong = false;
+    }
+  }).chainableForEach(function(t,i,a){
+    var m = a[i-1];
+    if(i > 0&&!m.isTooLong){
+      t.f.unshift({
+        /* 上一个音调的中间 */
+        time:((m.start + m.len) + (m.start + m.f[m.f.length-1].time))/2 - t.start,
+        f:m.f[m.f.length-1].f
+      });
+    }else{
+      /* 音头上拉 */
+      t.f.unshift({
+        time:-0.3,
+        f:t.f[0].f/2
+      });
     }
   });
 };
