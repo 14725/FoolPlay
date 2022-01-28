@@ -751,6 +751,9 @@ Player.splitUp = function player_splitUp_outdated() {
           newItem.start = curTime;
           newItem.f[0].f = 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12));
           newItem.word = music[i].word[0];
+          if(newItem.word && newItem.word.trim() == ''){
+            newItem.word = Player.music[Player.music.length-1].word;
+          }
           newItem.vol /= 2.5;
           Player.music.push(newItem);
           newItem = Util.clone(newItem);

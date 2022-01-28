@@ -13,6 +13,9 @@ async function NetworkFirst(request){
 	var fet = fetch(request);
 	var response,ret;
 	var cloner;
+	if(!checkNeed(request,{ok:true})){
+	 return response;
+	}
 	try{
 	  response = await fet;
 	}catch(e){
