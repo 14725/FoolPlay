@@ -257,12 +257,9 @@ Player.load1 = async function() {
     Player.buffer = await Player.storage.getItem('voice.d');
     if(!Player.buffer){
       Player.trace('加载音源：从网络下载音源...');
-      let buf = await (await fetch('data/voice.d')).arrayBuffer();
-      let inf = await (await fetch('data/inf.d')).text();
-      await Player.storage.setItem('voice.d',buf);
-      await Player.storage.setItem('inf.d',inf);
+      await Player.downloadVoice();
       Player.buffer = await Player.storage.getItem('voice.d');
-
+      return;
     }
     await Player.load2();
   }catch(e) {
@@ -932,3 +929,58 @@ Player.voicePass2 = function(){
     }
   });
 };
+
+Player.downloadVoice = async function(){
+  var html = `
+  <div class="window on destroy" id="voiceDownloadWindow">
+		<div class="windowtitle">加载音源文件
+		</div>
+		<div class="content">
+		  正在下载音源数据：<span id="s_progress">N/A / N/A</span>
+		  <br>
+		  <progress id="p_load" style="width:300px"></progress>
+		  <hr>
+		  <div style="text-align:right">
+		    <button class="close" id="b_cancel">取消</button>
+		  </div>
+		</div>
+	</div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend',html);
+  PopupWindow.open(voiceDownloadWindow);
+  let inf = await (await fetch('data/inf.d')).text();
+  await Player.storage.setItem('inf.d',inf);
+  return new Promise(function(ok,fail){
+    var xhr = new XMLHttpRequest();
+    xhr.onerror = xhr.onabort = fail;
+    b_cancel.onclick = function(){
+      xhr.abort();
+      voiceDownloadWindow.remove();
+      Player.showVoiceWindow();
+    };
+    xhr.onprogress = function(event){
+      if(event.lengthComputable){
+        p_load.value = event.loaded;
+        p_load.max = event.total;
+        s_progress.innerText = `${p_load.value} / ${p_load.max}`;
+      }else{
+        s_progress.innerText = `${event.loaded}`;
+      }
+    };
+    xhr.onload = function(){
+      if(xhr.status > 300){
+        Player.trace('加载失败');
+      }
+      voiceDownloadWindow.remove();
+      Player.storage.setItem('voice.d',xhr.response)
+      .then(function(){
+        Player.load1();
+      }).catch(fail);
+    };
+    xhr.responseType = "arraybuffer";
+    xhr.open('GET','data/voice.d',true);
+    xhr.send();
+  });
+};
+
