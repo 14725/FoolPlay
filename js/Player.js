@@ -164,6 +164,10 @@ Player.manvoice = function pinyin_voice(sentense, detune, start, len, vol,raw) {
     Player.trace('音源尚未加载。');
     return;
   }
+  if (Player.timeStart + start - Player.ctx.currentTime < -1){
+    // 计时器延误，丢弃。
+    return;
+  }
   
   sentense = sentense[0];
   pinyin = sentense.split("").map(function(a) {
@@ -174,9 +178,9 @@ Player.manvoice = function pinyin_voice(sentense, detune, start, len, vol,raw) {
     return;
   }
   }
-  
-  const extendLimit = 0.4; // 延长的上限
-  const extendLength = 0.1;
+  vol *= 1.4;
+  var extendLimit = 0.4; // 延长的上限
+  var extendLength = 0.1;
   var l = len * 44100;
   var advance = 0.01;
   var maxGap = Math.min(len * 0.4,(len - detune[detune.length - 1].time)/8); // 最长的滑音
@@ -226,11 +230,11 @@ Player.manvoice = function pinyin_voice(sentense, detune, start, len, vol,raw) {
   var g = ctx.createGain();
   var st = start;
   g.gain.value = vol;
-  if (len < extendLimit) {
-    g.gain.linearRampToValueAtTime(0, vol);
-    g.gain.linearRampToValueAtTime(start + len, vol);
-    g.gain.linearRampToValueAtTime(start + len + extendLength, 0.0001);
-  }
+  g.gain.linearRampToValueAtTime(0, vol);
+  g.gain.linearRampToValueAtTime(start-advance, 0);
+  g.gain.linearRampToValueAtTime(start, vol);
+  g.gain.linearRampToValueAtTime(start + len, vol);
+  g.gain.linearRampToValueAtTime(start + len + extendLength, 0.0001);
   n.buffer = Player.convertBuffer(buf1);
   n.connect(g);
   g.connect(Player.target);
@@ -402,7 +406,7 @@ Player.transform = function transform(data, length, fPos, fFreq) {
 
 
 Player.soundItem = {
-  vol: 0.7,
+  vol: 0.5,
   //0~1
   len: 1,
   //sec
@@ -445,7 +449,8 @@ Player.main = function player_main() {
   Player.DC.connect(Player.ctx.destination);
   Player.voiceNode = Player.ctx.createGain();
   Player.voiceNode.gain.value = 1;
-  Player.target = Player.DC;
+  Player.target = Player.ctx.destination;
+  //Player.target = Player.DC;
   var real = new Float32Array(11);
   var imag = new Float32Array(11);
   var ac = Player.ctx;
@@ -481,6 +486,11 @@ Player.start = function player_start(startTime, tune, len, vol, isChord, word) {
   if ((!Player.enableMusic) && (!isChord))return;
   if ((Player.enableVoice && word) && (!isChord))return;
   if ((!Player.enableChord) && (isChord))return;
+  if (Player.timeStart + startTime - Player.ctx.currentTime < -0.1){
+  // 计时器延误，丢弃。
+    return;
+  }
+
   Player.ctx.resume();
 
   vol = vol * 0.3;
@@ -816,10 +826,11 @@ Player.splitUp = function player_splitUp_outdated() {
     }
 
   });
-
+  
   Player.music.sort(function(a, b) {
     return a.start - b.start;
   });
+  Player.voice = Util.clone(Player.voice);
   Player.voicePass2();
 };
 
@@ -912,8 +923,8 @@ Player.voicePass2 = function(){
     }else{
       /* 音头上拉 */
       t.f.unshift({
-        time:-0.3,
-        f:t.f[0].f/2
+        time:-3.3,
+        f:t.f[0].f/5*4
       });
     }
   });

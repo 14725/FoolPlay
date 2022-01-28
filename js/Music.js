@@ -1432,7 +1432,11 @@ UI.spliceWord = function ui_spliceWord(index, howmany, str) {
       if (isPushing) {
         pushingSymbol += char;
       } else {
+        if(items[items.length - 1] == null){
+          items[items.length - 1] = '';
+        }
         items[items.length - 1] += char;
+        
       }
     } else {
       isPushing = false;
@@ -1441,6 +1445,10 @@ UI.spliceWord = function ui_spliceWord(index, howmany, str) {
   }
   for (i = index + howmany; i < Music.music.length; i++) {
     items.push(Music.music[i].word[UI.editingLynicLine]);
+    if(items[items.length - 1] == null){
+      items[items.length - 1] = '';
+    }
+
   }
   for (i = 0; i < Music.music.length - index && i < items.length; i++) {
     Music.music[i + index].word[UI.editingLynicLine] = items[i];

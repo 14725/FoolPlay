@@ -190,6 +190,7 @@
 		ele.innerHTML += "<br />刚才您进行的操作已经停止。请尝试另存为文件，这有可能减少数据的损失。<br /><br />";
 		ele.innerHTML = '<input type="button" style="float:right" value="关闭" onclick="this.parentNode.parentNode.removeChild(this.parentNode)">' + ele.innerHTML;
 		document.body.appendChild(ele);
+		ele.scrollIntoView();
 	}
 </script>
 <script>loadfile.innerHTML = "调试器"</script>
