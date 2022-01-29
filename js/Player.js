@@ -818,7 +818,8 @@ Player.splitUp = function player_splitUp_outdated() {
         newItem.vol = newItem.vol * volBoost /6;
         newItem.f[0].f = 440*Math.pow(2, (Player.fMap[note]-1+Music.arpeggio/12));
         newItem.isChord = true;
-        Player.music.push(newItem);
+        if(id != 0 || String(Music.music[0].pitch) != '0')
+          Player.music.push(newItem);
       });
       volBoost = 1;
       sttime += lenTempo;
@@ -941,7 +942,7 @@ Player.downloadVoice = async function(){
 		  <progress id="p_load" style="width:300px"></progress>
 		  <hr>
 		  <div style="text-align:right">
-		    <button class="close" id="b_cancel">取消</button>
+		    <button class="close" id="b_cancel" onclick="voiceDownloadWindow.remove();">取消</button>
 		  </div>
 		</div>
 	</div>
