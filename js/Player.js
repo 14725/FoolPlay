@@ -403,7 +403,7 @@ Player.transform = function transform(data, length, fPos, fFreq) {
 
 
 Player.soundItem = {
-  vol: 0.5,
+  vol: 0.3,
   //0~1
   len: 1,
   //sec
@@ -447,7 +447,7 @@ Player.main = function player_main() {
   Player.voiceNode = Player.ctx.createGain();
   Player.voiceNode.gain.value = 1;
   Player.target = Player.ctx.destination;
-  //Player.target = Player.DC;
+  Player.target = Player.DC;
   var real = new Float32Array(11);
   var imag = new Float32Array(11);
   var ac = Player.ctx;
