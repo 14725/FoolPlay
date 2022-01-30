@@ -481,7 +481,7 @@ Player.fMap = {};
 Player.start = function player_start(startTime, tune, len, vol, isChord, word) {
   if (!Player.ctx)return;
   if ((!Player.enableMusic) && (!isChord))return;
-  if ((Player.enableVoice && word) && (!isChord) && Player.buffer && Player.buffer.length > 2048)return;
+  if ((Player.enableVoice && word) && (!isChord) && Player.buffer && Player.buffer.byteLength > 2048)return;
   if ((!Player.enableChord) && (isChord))return;
   if (Player.timeStart + startTime - Player.ctx.currentTime < -0.1){
   // 计时器延误，丢弃。
