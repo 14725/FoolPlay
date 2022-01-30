@@ -188,10 +188,10 @@ Player.manvoice = function pinyin_voice(sentense, detune, start, len, vol,raw) {
   
   
   //延长处理
-  console.log(sentense);
+  //console.log(sentense);
   if (!raw.isTooLong|| sentense == '啦') {
     l += extendLength * 44100;
-    console.log('处理');
+    //console.log('处理');
   }
   if (sentense == '啦') {
     l += 0.3 * 44100;
@@ -481,13 +481,12 @@ Player.fMap = {};
 Player.start = function player_start(startTime, tune, len, vol, isChord, word) {
   if (!Player.ctx)return;
   if ((!Player.enableMusic) && (!isChord))return;
-  if ((Player.enableVoice && word) && (!isChord))return;
+  if ((Player.enableVoice && word) && (!isChord) && Player.buffer && Player.buffer.length > 2048)return;
   if ((!Player.enableChord) && (isChord))return;
   if (Player.timeStart + startTime - Player.ctx.currentTime < -0.1){
   // 计时器延误，丢弃。
     return;
   }
-
   Player.ctx.resume();
 
   vol = vol * 0.3;
@@ -954,19 +953,21 @@ Player.downloadVoice = async function(){
   await Player.storage.setItem('inf.d',inf);
   return new Promise(function(ok,fail){
     var xhr = new XMLHttpRequest();
-    xhr.onerror = xhr.onabort = fail;
-    b_cancel.onclick = function(){
-      xhr.abort();
+    xhr.onerror = xhr.onabort = function(event){
       voiceDownloadWindow.remove();
       Player.showVoiceWindow();
+      fail(new Error('Fetch failed: '+event.type));
+    };
+    b_cancel.onclick = function(){
+      xhr.abort();
     };
     xhr.onprogress = function(event){
       if(event.lengthComputable){
         p_load.value = event.loaded;
         p_load.max = event.total;
-        s_progress.innerText = `${p_load.value} / ${p_load.max}`;
+        s_progress.innerText = `${(p_load.value/1048576).toFixed(3)}MB / ${(p_load.max/1048576).toFixed(3)}MB`;
       }else{
-        s_progress.innerText = `${event.loaded}`;
+        s_progress.innerText = `${(event.loaded/1048576).toFixed(3)}MB / 未知(约20MB)`;
       }
     };
     xhr.onload = function(){
