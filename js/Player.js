@@ -178,7 +178,7 @@ Player.manvoice = function pinyin_voice(sentense, detune, start, len, vol,raw) {
     return;
   }
   }
-  vol *= 1.4;
+  vol *= 1.2;
   var extendLimit = 0.4; // 延长的上限
   var extendLength = 0.1;
   var l = len * 44100;
