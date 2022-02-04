@@ -155,7 +155,7 @@ var itemT = {
   data: null
   /* TODO:是什么呢 */
 };
-Player.manvoice = function pinyin_voice(sentense, detune, start, len, vol,raw) {
+Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw) {
   //前置条件检测
   if(1){
   if (!Player.enableVoice)return;
@@ -229,12 +229,12 @@ Player.manvoice = function pinyin_voice(sentense, detune, start, len, vol,raw) {
   var n = ctx.createBufferSource();
   var g = ctx.createGain();
   var st = start;
-  g.gain.value = vol;
-  g.gain.linearRampToValueAtTime(0, vol);
-  g.gain.linearRampToValueAtTime(start-advance, 0);
-  g.gain.linearRampToValueAtTime(start, vol);
-  g.gain.linearRampToValueAtTime(start + len, vol);
-  g.gain.linearRampToValueAtTime(start + len + extendLength, 0.0001);
+  //g.gain.value = vol;
+  g.gain.linearRampToValueAtTime(0.0001,Player.timeStart +0);
+  g.gain.linearRampToValueAtTime(0.0001,Player.timeStart +start - advance);
+  g.gain.linearRampToValueAtTime(vol,Player.timeStart +start);
+  g.gain.linearRampToValueAtTime(vol,Player.timeStart +start + len);
+  g.gain.linearRampToValueAtTime(0.0001,Player.timeStart +start + len + extendLength);
   n.buffer = Player.convertBuffer(buf1);
   n.connect(g);
   g.connect(Player.target);
@@ -747,6 +747,9 @@ Player.splitUp = function player_splitUp_outdated() {
           newItem.start = curTime;
           newItem.f[0].f = 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12));
           newItem.word = music[i].word[0];
+          if(!newItem.word){
+            newItem.word = '';
+          }
           if(newItem.word && newItem.word.trim() == ''){
             newItem.word = Player.music[Player.music.length-1].word;
           }
