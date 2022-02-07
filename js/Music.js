@@ -1887,6 +1887,11 @@ UI.main = function ui_main() {
     UI.setEditor();
   UI.render();
 
+  /* 提升菜单栏触摸效果的Hack */
+  Array.from(document.querySelectorAll('.line > .item')).forEach(function(ele){
+    ele.onclick = function(){};
+  });
+
   /*window.addEventListener("error", function (event) {
     PopupWindow.alert("程序出现错误，请保存文件并且查看控制台。");
   });*/
