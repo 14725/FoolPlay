@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 <title>傻瓜弹曲</title>
 <link rel="stylesheet" href="style.css" />
@@ -27,20 +27,12 @@
 			<a href="javascript:UI.open();">打开...</a>
 			<a href="javascript:UI.saveAs();">另存为...</a>
 			<hr>
-			<div class="item">
-				导出
-				<div class="menu">
-					<a href="javascript:alert('没有实现。');">导出音频...</a>
-				</div>
-			</div>
 			<a href="javascript:window.print();">打印...</a>
 		</div>
 	</div>
 	<div class="item">
 		编辑
 		<div class="menu">
-			<a href="javascript:;">撤销</a>
-			<hr>
 			<a href="javascript:UI.cut();">剪切</a>
 			<a href="javascript:UI.copy();">复制</a>
 			<a href="javascript:UI.paste();">粘贴</a>
@@ -52,20 +44,8 @@
 					<label><input onclick="UI.defaultLength = parseInt(this.value)" type="radio" selected value="8" name="eightorfore"/>输入默认四分音符</label>
 				</div>
 			</div>
-			<hr>
-			<a href="javascript:;">自动定调...</a>
-			<a href="javascript:;">拼音...</a>
-			<hr>
 			<div class="item">
 				音符操作
-				<div class="menu">
-					<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.min(Music.music[i].octave+1,1)};UI.render();}())">升高八度</a>
-					<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.max(Music.music[i].octave-1,-1)};UI.render();})()">降低八度</a>
-					<a href="javascript:(function(){if(UI.selStart == -1){UI.selStart = UI.senEnd};Music.music[UI.selEnd].fx.triplets = true;UI.render()})();">制作三连音...</a>
-				</div>
-			</div>
-			<div class="item">
-				段落操作
 				<div class="menu">
 					<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.min(Music.music[i].octave+1,1)};UI.render();}())">升高八度</a>
 					<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.max(Music.music[i].octave-1,-1)};UI.render();})()">降低八度</a>
@@ -87,8 +67,6 @@
 			<label><input type="checkbox" checked onclick="Player.enableVoice = this.checked"/>唱人声</label>
 			<label><input type="checkbox" checked onclick="Player.enableChord = this.checked"/>奏伴奏</label>
 
-			<hr>
-			<label><input type="checkbox"/>使用节拍器</label>
 		</div>
 	</div>
 	<div class="item">
@@ -102,12 +80,10 @@
 	<div class="item">
 		帮助
 		<div class="menu">
-			<a href="help/index.htm" onclick="PopupWindow.alert('暂不提供帮助...<br>查看关于以获得帮助。');var win = true/*window.open(this.href,this.target,'toolbar=no,width=640,height=480')*/;if(win!=null){return false;}" target="help">帮助主题...</a>
-			<hr>
 			<a href="./" >关于...</a>
 		</div>
 	</div>
-	<div class="item" hidden>和弦
+	<div class="item" style="display:none;">和弦
 		<div class="menu">
 			<a onclick="PopupWindow.open(chordWindow)" target="help">手动输入</a>
 			<a onclick="和弦标注(1)">新机械</a>
@@ -156,7 +132,6 @@
 	<span id="imetip" ></span>
 </div>
 <div class="container">
-	正在加载中，请稍后...
 </div>
 <div class="status">
   <div>就绪</div>
@@ -209,21 +184,10 @@
 <script>loadfile.innerHTML = "触摸兼容程序"</script>
 <script src="js/touchShim.js"></script>
 <script>
-	if(getComputedStyle( document.body,"::after").content != '"loaded"' ){
-		var request = new XMLHttpRequest();
-		request.open('GET', "style.css", true);
-		request.onload = function(){
-			var dom = document.createElement("style");
-			dom.innerHTML = request.responseText;
-			document.body.appendChild(dom)
-		}
-		request.send();
-	}
 	var classlist = ['Music','Player','yuxStorage','Chord','Pinyin'];
 	classlist.forEach(function(a){
 	  if(!(a in window)){
-	    alert(`${a} 没有正常加载。`);
-	    location.reload(true);
+	    confirm(`${a} 没有正常加载。`) && location.reload(true);
 	  }
 	})
 	PopupWindow.close(document.querySelector(".loading"));
@@ -245,8 +209,8 @@
 		  <button id="b_inf" onclick="f_inf.click()">选择inf.d文件</button>
 		  <button id="b_voi" onclick="f_voi.click()">选择voice.d文件</button>|
 		  <button id="b_app">应用</button>
-		  <input type="file" hidden id="f_inf"/>
-		  <input type="file" hidden id="f_voi"/>
+		  <input type="file" hidden onchange="(this.files[0].name.toLowerCase().indexOf('inf')==-1) && alert('您选择的文件名是' + this.files[0].name + '，这应该是你想要加载的 inf.d 文件吧？')" id="f_inf"/>
+		  <input type="file" hidden onchange="(this.files[0].name.toLowerCase().indexOf('voice')==-1) && alert('您选择的文件名是' + this.files[0].name + '，这应该是你想要加载的 voice.d 文件吧？')" id="f_voi"/>
 		</div>
 	</div>
 </body>

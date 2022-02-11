@@ -1638,7 +1638,7 @@ UI.new = function ui_new(action) {
   var file = Util.queries().music;
   if (action == "force") {
     localStorage.open = 'new';
-    window.open(location.href.split('?')[0].split('#')[0], '_blank', 'toolbar=no');
+    window.open(location.href.split('?')[0].split('#')[0], '_self', 'toolbar=no');
     return;
   } else if (action == "view") {
     window.open(location.href.split('?')[0].split('#')[0], '_blank', 'toolbar=no');
@@ -1675,9 +1675,9 @@ UI.new = function ui_new(action) {
     document.body.appendChild(dom);
     PopupWindow.open(dom);
   } else {
-    UI.new("force");
+    confirm('确认放弃未保存的修改并清空文档？') && UI.new("force");
   }
-}
+};
 UI.onContextMenu = function ui_onContextMenu(event) {
   var winwidth = window.innerWidth;
   var winheight = window.innerHeight;

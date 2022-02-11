@@ -394,7 +394,7 @@ label {
   }
 }
 
-@-webkit-keyframes caretflash /* Safari �� Chrome */
+@-webkit-keyframes caretflash /* Safari & Chrome */
 {
   from {
     border-color: black;
@@ -409,8 +409,8 @@ label {
 .caret,#caret {
   position: absolute;
   border: 1px solid;
-  animation: caretflashcubic-bezier(1,0,0,1)  1s;
-  -webkit-animation: caretflashcubic-bezier(1,0,0,1)  1s;
+  animation: caretflash cubic-bezier(1,0,0,1)  1s;
+  -webkit-animation: caretflash cubic-bezier(1,0,0,1)  1s;
   /* Safari �� Chrome */
   animation-iteration-count: infinite;
   -webkit-animation-iteration-count: infinite;

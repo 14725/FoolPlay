@@ -96,8 +96,8 @@ function checkNeed(request,response){
 }
 
 async function responseCloner(response){
-  var blob = await response.blob();
+  var res = response.clone();
   return function(){
-    return new Response(blob);
+    return res.clone();
   };
 }
