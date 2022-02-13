@@ -740,6 +740,7 @@ Player.splitUp = function player_splitUp_outdated() {
       if (i >= 1) {
         if (music[i].pitch +music[i].octave * 13 == music[i-1].pitch +music[i-1].octave * 13) {
           Player.music[Player.music.length-1].len += time;
+          Player.voice[Player.voice.length-1].len += time;
           //Player.music[Player.music.length-2].len += time;
         } else {
           var newItem = Util.clone(Player.soundItem);
@@ -782,7 +783,7 @@ Player.splitUp = function player_splitUp_outdated() {
           newItem.start = curTime;
           newItem.f[0].f = 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12));
           newItem.word = music[i].word[0];
-          Player.voice.push(newItem);
+          Player.voice.push(Util.clone(newItem));
         }
       }
 
@@ -794,8 +795,8 @@ Player.splitUp = function player_splitUp_outdated() {
       newItem.f[0].f = 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12));
       newItem.word = music[i].word[0];
       newItem.vol /= 2.5;
-      Player.music.push(newItem);
-      Player.voice.push(newItem);
+      Player.music.push(Util.clone(newItem));
+      Player.voice.push(Util.clone(newItem));
       newItem = Util.clone(newItem);
       //newItem.f[0].f /= 4;
       //Player.music.push(newItem)
