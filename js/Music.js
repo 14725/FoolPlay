@@ -1494,25 +1494,57 @@ UI.getClosestNoteIn = function ui_getClosestNoteIn(x, y, over) /*:ID*/ {
   }
   return minid;
 };
+UI.delete = function ui_delete(){
+  if(UI.editingLynicLine == -1){
+    UI.insertEdit([]);
+  }else{
+    UI.spliceWord(UI.selStart,UI.selEnd - UI.selStart ,'');
+    UI.render();
+  }
+};
 UI.cut = function ui_cut() {
   UI.copy();
-  UI.insertEdit([]);
+  UI.delete();
 };
 UI.copy = function ui_copy() {
-  var isreved;
-  if (UI.selStart == -1) {
-    return;
-  }
-  UI.clipboard = Util.clone(Music.music.slice(UI.selStart, UI.selEnd));
-  if (isreved) {
-    temp = UI.selStart;
-    UI.selStart = UI.selEnd;
-    UI.selEnd = temp;
+  if(UI.editingLynicLine == -1){
+    UI.clipboard = Util.clone(Music.music.slice(UI.selStart, UI.selEnd));
+  }else{
+    var list = Music.music.slice(UI.selStart,UI.selEnd);
+    list = list.map(function(a){
+      if(a.pitch == 0){
+        return '\n';
+      }
+      return a.word[UI.editingLynicLine] || '';
+    }).join('').split(' ').join('');
+    Util.copy(list);
   }
 };
 UI.paste = function ui_paste() {
-  if (UI.clipboard.length == 0) return;
-  UI.insertEdit(Util.clone(UI.clipboard));
+  if(UI.editingLynicLine == -1){
+    if (UI.clipboard.length == 0) return;
+    UI.insertEdit(Util.clone(UI.clipboard));
+  }else{
+    if(navigator.clipboard && navigator.clipboard.readText){
+      navigator.clipboard.readText().then(function(str){
+        return str;
+      },function(err){
+        return prompt('请在此处粘贴您的内容并点击确认。');
+      }).then(function(str){
+        if(str){
+          UI.spliceWord(UI.selStart,UI.selEnd - UI.selStart - 1,str);
+          UI.render();
+        }
+      });
+    }else{
+      var str = prompt('您要在这里插入？');
+      if(str){
+        UI.spliceWord(UI.selStart,UI.selEnd - UI.selStart - 1,str);
+        UI.render();
+      }
+    }
+    
+  }
 };
 UI.open = function ui_open() {
   UI.openBox.parentNode.reset();
