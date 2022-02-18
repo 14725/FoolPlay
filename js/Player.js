@@ -180,7 +180,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
   }
   vol *= 1.2;
   var extendLimit = 0.4; // 延长的上限
-  var extendLength = 0.1;
+  var extendLength = 0.2;
   var l = len * 44100;
   var advance = 0.01;
   var maxGap = Math.min(len * 0.4,(len - detune[detune.length - 1].time)/8); // 最长的滑音
@@ -697,8 +697,19 @@ Player.main();
   }
   May be helpful to more analysis.
 */
-Player.tagSection = function player_tagSection(Music){
 
+Player.flatAndTag = function player_flatAndTag(){
+  var bars = Util.clone(Music.flatBar());
+  
+  /* 平小节 */
+  var res = [];
+  bars.forEach(function (bar) {
+    bar.forEach(function (note) {
+      note.note.rawIndex = note.id;
+      res.push(note.note);
+    });
+  });
+  return res;
 };
 
 Player.splitUp = function player_splitUp_outdated() {
@@ -709,7 +720,7 @@ Player.splitUp = function player_splitUp_outdated() {
   Player.highLight = [];
   var curLen = 0;
   var curTime = 0;
-  var music = Music.flat();
+  var music = Player.flatAndTag();
   var lenTempo = Music.lenTempo;
   var lenSection = Music.lenSection;
   var time;
@@ -778,7 +789,7 @@ Player.splitUp = function player_splitUp_outdated() {
             });
           }
         } else {
-          var newItem = Util.clone(Player.soundItem);
+          newItem = Util.clone(Player.soundItem);
           newItem.len = time;
           newItem.start = curTime;
           newItem.f[0].f = 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12));
@@ -789,7 +800,7 @@ Player.splitUp = function player_splitUp_outdated() {
 
 
     } else {
-      var newItem = Util.clone(Player.soundItem);
+      newItem = Util.clone(Player.soundItem);
       newItem.len = time;
       newItem.start = curTime;
       newItem.f[0].f = 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12));

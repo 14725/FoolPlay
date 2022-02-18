@@ -327,7 +327,7 @@ Music.split = function music_splitIntoMeasures() {
     sections.push(thisSection);
 
 };
-Music.flatBar = function music_flat() {
+Music.flatBar = function music_flatbar() {
   //功能：返回去除反复记号的乐谱
   // Just Dummy now... TODO
 
@@ -425,7 +425,7 @@ Music.flatBar = function music_flat() {
   PopupWindow.alert("无法识别歌谱的反复记号：将忽略反复。");
   return Util.clone(Music.sections);
 };
-Music.flat = function () {
+Music.flat = function music_flat() {
   var res = [];
   var bars = Music.flatBar();
   bars.forEach(function (bar) {
@@ -1973,7 +1973,7 @@ UI.main = function ui_main() {
     if ( (!(/(localhost|(\d{1,3}\.){3})/.test(location.host)))  ||  location.href.indexOf('test') >0)
       navigator.serviceWorker.register('SerWork.js', {
         scope: './'
-      });
+      }).then(function(r){r.update()});
   } catch (e) {
     console.error(e);
   }
