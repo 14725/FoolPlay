@@ -10,6 +10,7 @@ self.addEventListener("fetch", function(evt){
 
 async function NetworkFirst(request){
 	var cache;
+	request.url = request.url.split('?')[0];
 	var fet = fetch(request);
 	var response,ret;
 	var cloner;
@@ -97,7 +98,7 @@ function errorPage(error){
 }
 
 function checkNeed(request,response){
-  if(request.url.split('?')[0].toLowerCase().indexOf('.d') > 0){
+  if(request.url.split('?')[0].toLowerCase().indexOf('.d') > 0 || request.url.split('?')[0].toLowerCase().indexOf('voice.png') >= 0){
     // Niao Source
     return false;
   }

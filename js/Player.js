@@ -996,7 +996,7 @@ Player.downloadVoice = async function(){
       }).catch(fail);
     };
     xhr.responseType = "arraybuffer";
-    xhr.open('GET','data/voice.d',true);
+    xhr.open('GET','data/voice.png',true);
     xhr.send();
   });
 };
