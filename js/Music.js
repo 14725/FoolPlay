@@ -100,9 +100,9 @@ Util.die = function util_die(eventName, parent, selector, listener) {
 };
 Util.templateClone = function util_templateClone(raw, template) {
   //目前浅复制
-  var ans = {};
+  var ans = Util.clone(template)
   for (var i in template) {
-    ans[i] = raw[i];
+    if(i in raw) ans[i] = raw[i];
   }
   return ans;
 };

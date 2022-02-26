@@ -403,7 +403,7 @@ Player.transform = function transform(data, length, fPos, fFreq) {
 
 
 Player.soundItem = {
-  vol: 0.3,
+  vol: 1,
   //0~1
   len: 1,
   //sec
@@ -701,6 +701,57 @@ Player.main();
 Player.flatAndTag = function player_flatAndTag(){
   var bars = Util.clone(Music.flatBar());
   
+  /* 猜测强音 */
+  bars.forEach(function(bar,h){
+    var last;
+    if(h>0){
+      last = bars[h-1];
+      last = last[last.length - 1].note;
+    }
+    bar.forEach(function(note,i){
+      note = note.note;
+      if(note.fx.triplets){
+        bar[i+2].note.length = note.length = bar[i+1].note.length = note.length * 2 / 3;
+        note.fx.triplets =false;
+      }
+    });
+    var start = 0;
+    bar.forEach(function(note,i){
+      note =note.note;
+      note.level = 1;
+      if(start % Music.lenTempo == 0){
+        note.level = 2;
+      }
+      /* 正规节奏 */
+      if(Music.tempo[1] % 6 == 0){
+        /* 三复拍子的次强拍 */
+        if(start % (Music.lenSection * 3 /  Music.tempo[1]) == 0){
+          note.level = 3;
+        }
+      }else if(Music.tempo[1] % 4 == 0){
+        /* 二复拍子的次强拍 */
+        if(start %(Music.lenSection * 2 /  Music.tempo[1]) == 0){
+          note.level = 3;
+        }
+      }
+      if(start == 0){
+        /* 首拍应该是强拍 */
+        note.level = 4;
+      }
+      
+      /* 非正规节奏 */
+      /* 我不太看得懂强弱规则，默认不能整除自己的拍子为非正规 */
+      if((note.length % 1 == 0) && (start % note.length != 0)){
+        note.level = 4;
+      }
+      start += note.length;
+      /* 三连音走浮点运算，会有精度问题， */
+      if(Math.abs(start - Math.round(start)) < 0.001){
+        start = Math.round(start);
+      }
+    });
+  });
+  
   /* 平小节 */
   var res = [];
   bars.forEach(function (bar) {
@@ -712,106 +763,128 @@ Player.flatAndTag = function player_flatAndTag(){
   return res;
 };
 
-Player.splitUp = function player_splitUp_outdated() {
-  Music.getLenSectionTempo();
-  var sp32b = Music.speedS;
+Player.splitUp = function player_splitUp() {
+  /* 清空数据 */
   Player.music = [];
   Player.voice = [];
   Player.highLight = [];
+
+  /* 计算音乐信息 */
+  Music.getLenSectionTempo();
+  var sp32b = Music.speedS;
   var curLen = 0;
   var curTime = 0;
   var music = Player.flatAndTag();
   var lenTempo = Music.lenTempo;
   var lenSection = Music.lenSection;
+
+  function jian2p(i){
+    if(i == 0) return NaN;
+    return [0,2,4,5,7,9,11][i-1];
+  }
+
   var time;
   var cItem;
+  var f;
+  var last;
+
+  /* 光标！ */
   for (var i = 0; i < music.length; i++) {
     curLen += music[i].length;
-    if (i >= 2 && music[i-2].fx.triplets) {
-      curLen -= music[i].length;
-    }
-    if (music[i].fx.triplets || (i >= 1 && music[i-1].fx.triplets) || (i >= 2 && music[i-2].fx.triplets)) {
-      time = sp32b * 2 * music[i].length / 3;
-    } else {
-      time = sp32b * music[i].length;
-    }
-    if ((i >= 1 && music[i-1].fx.triplets) || (i >= 2 && music[i-2].fx.triplets)) {
-      curTime += time;
-    } else {
-      curTime = (curLen- music[i].length)* sp32b + 0.1;
-    }
+    time = sp32b * music[i].length;
+    curTime = (curLen- music[i].length)* sp32b + 0.1;
     // 光标！
     // 光标！
     cItem = Util.clone(Player.highLightItem);
     cItem.time = curTime;
     cItem.eleId = music[i].rawIndex;
     Player.highLight.push(cItem);
+  }
 
-    if (music[i].fx.extend) {
-      if (i >= 1) {
-        if (music[i].pitch +music[i].octave * 13 == music[i-1].pitch +music[i-1].octave * 13) {
-          Player.music[Player.music.length-1].len += time;
-          Player.voice[Player.voice.length-1].len += time;
-          //Player.music[Player.music.length-2].len += time;
-        } else {
-          var newItem = Util.clone(Player.soundItem);
-          newItem.len = time;
-          newItem.start = curTime;
-          newItem.f[0].f = 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12));
-          newItem.word = music[i].word[0];
-          if(!newItem.word){
-            newItem.word = ' ';
-          }
-          if(newItem.word && newItem.word.trim() == ''){
-            newItem.word = Player.music[Player.music.length-1].word;
-          }
-          newItem.vol /= 2.5;
-          Player.music.push(newItem);
-          newItem = Util.clone(newItem);
-          //newItem.f[0].f /= 4;
-          //Player.music.push(newItem)
+  curLen = curTime = 0;
+  /* 乐器旋律 */
+  for (i = 0; i < music.length; i++) {
+    curLen += music[i].length;
+    time = sp32b * music[i].length;
+    curTime = (curLen- music[i].length)* sp32b + 0.1;
+    /* {vol,len:秒,start:秒,
+      f: [{time,f: 440,}],fx: [],
+      word: "",isChord: false
+     }*/
+     music[i].word && (music[i].word = music[i].word[0]);
+     f = jian2p(music[i].pitch) + 12 * music[i].octave + (+Music.arpeggio) - jian2p(6);
+     if(isNaN(f)) continue;
+     f = 440 * Math.pow(2,f / 12);
+    cItem = Util.templateClone({
+      vol: music[i].level / 4,
+      len: music[i].length * sp32b ,
+      start: curTime , 
+      f: [{time:0, f: f}],
+      word: music[i].word || '',
+      isChord: false, 
+    },Player.soundItem);
+    if(music[i].fx.extend){
+      /* 如果延长？ */
+      last = Player.music[Player.music.length-1];
+      /* 1. 是延长线 */
+      console.log(Math.abs(cItem.f - last.f))
+      if(Math.abs(cItem.f[0].f - last.f[0].f) < 0.0001){
+        last.len += cItem.len;
+        last.vol = Math.max(last.vol, cItem.vol);
+      } /* 2. 是圆滑线 */ else {
+        last.vol = Math.max(last.vol, cItem.vol);
+        last.len += cItem.len / 10;
+        if(!cItem.word.trim()){
+          cItem.word = last.word;
         }
-        music[i].word = music[i].word.map(function(item) {
-          if (item) {
-            return item.replace(/\s/g, "");
-          } else {
-            return "";
-          }});
-        if (music[i].word[0] == "" || music[i].word[0] == null) {
-
-          if (music[i].pitch +music[i].octave * 13 == music[i-1].pitch +music[i-1].octave * 13) {} else {
-
-            var voicelast = Player.voice[Player.voice.length-1];
-            voicelast.len += time;
-            voicelast.f.push({
-              time: -voicelast.start + curTime,
-              f: 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12))
-            });
-          }
-        } else {
-          newItem = Util.clone(Player.soundItem);
-          newItem.len = time;
-          newItem.start = curTime;
-          newItem.f[0].f = 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12));
-          newItem.word = music[i].word[0];
-          Player.voice.push(Util.clone(newItem));
-        }
+        Player.music.push(cItem);
       }
-
-
-    } else {
-      newItem = Util.clone(Player.soundItem);
-      newItem.len = time;
-      newItem.start = curTime;
-      newItem.f[0].f = 440*Math.pow(2, (Player.fMap[music[i].pitch]+music[i].octave+Music.arpeggio/12));
-      newItem.word = music[i].word[0];
-      newItem.vol /= 2.5;
-      Player.music.push(Util.clone(newItem));
-      Player.voice.push(Util.clone(newItem));
-      newItem = Util.clone(newItem);
-      //newItem.f[0].f /= 4;
-      //Player.music.push(newItem)
-
+    }else{
+      Player.music.push(cItem);
+    }
+  }
+  
+  
+  curLen = curTime = 0;
+  /* 人声 */
+  for (i = 0; i < music.length; i++) {
+    curLen += music[i].length;
+    time = sp32b * music[i].length;
+    curTime = (curLen- music[i].length)* sp32b + 0.1;
+    /* {vol,len:秒,start:秒,
+      f: [{time,f: 440,}],fx: [],
+      word: "",isChord: false
+     }*/
+     music[i].word && (music[i].word = music[i].word[0]);
+     f = jian2p(music[i].pitch) + 12 * music[i].octave + (+Music.arpeggio) - jian2p(6);
+     if(isNaN(f)) continue;
+     f = 440 * Math.pow(2,f / 12);
+    cItem = Util.templateClone({
+      vol: music[i].level / 4,
+      len: music[i].length * sp32b ,
+      start: curTime , 
+      f: [{time:0, f: f}],
+      word: (music[i].word || '').trim(),
+      isChord: false, 
+    },Player.soundItem);
+    if(music[i].fx.extend && !cItem.word){
+      /* 如果延长？ 如果有歌词就不算延长*/
+      last = Player.voice[Player.voice.length-1];
+      /* 1. 是延长线 */
+      console.log(Math.abs(cItem.f - last.f))
+      if(Math.abs(cItem.f[0].f - last.f[last.f.length-1].f) < 0.0000001){
+        last.len += cItem.len;
+        last.vol = Math.max(last.vol, cItem.vol);
+      } /* 2. 是圆滑线 */ else {
+        last.len += cItem.len;
+        last.vol = Math.max(last.vol, cItem.vol);
+        last.f.push({
+          time:cItem.start - last.start,
+          f:cItem.f[0].f
+        });
+      }
+    }else{
+      Player.voice.push(cItem);
     }
   }
 
@@ -829,7 +902,7 @@ Player.splitUp = function player_splitUp_outdated() {
         var newItem = Util.clone(Player.soundItem);
         newItem.len = (ttlen + extend) * sp32b;
         newItem.start = sttime * sp32b + 0.1;
-        newItem.vol = newItem.vol * volBoost /6;
+        newItem.vol = newItem.vol * volBoost /3;
         newItem.f[0].f = 440*Math.pow(2, (Player.fMap[note]-1+Music.arpeggio/12));
         newItem.isChord = true;
         if(id != 0 || String(Music.music[0].pitch) != '0')
@@ -841,14 +914,14 @@ Player.splitUp = function player_splitUp_outdated() {
     }
 
   });
-  
-  Player.music.sort(function(a, b) {
+
+  Player.music.sort(function(a,
+    b) {
     return a.start - b.start;
   });
   Player.voice = Util.clone(Player.voice);
   Player.voicePass2();
 };
-
 Player.schChord = function(){
   
 };
