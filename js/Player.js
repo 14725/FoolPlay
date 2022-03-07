@@ -222,6 +222,9 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
     ];
   }).flat();
   var ffreq = Player.getF(freqList);
+  /* 时间缩放 */
+  var tAry = [];
+  
   var buf1 = Player.transform(Player.meta[pinyin][0], l, function(x) {
     return x;
   }, function(x){return Math.exp(ffreq(x))});
@@ -282,11 +285,10 @@ Player.load2 = function() {
       atob(line).trim().split(/\s+/g)
     ));
     /* 转换为对象 */
-    table.forEach((a) => (a[0] = a[0].split('_')[0]));
+    table.forEach((a) => (a[0] = a[0].split('_')[0].replace(/\d/ig,'')));
     table.forEach(function(line) {
-      if (!(line[0] in meta)) {
-        meta[line[0]] = [];
-      }
+      //console.log(line[0])
+      
       var item = Object.assign({}, itemT);
       Object.seal(item);
 
@@ -294,7 +296,12 @@ Player.load2 = function() {
         item[key] = parseFloat(line[i+1]);
       });
       item.data = new Int16Array(Player.buffer, item.fileStart, item.length / 2);
-      meta[line[0]].push(item);
+      if(item.data.length > 44100 / item.freq){
+        if (!(line[0] in meta)) {
+          meta[line[0]] = [];
+        }
+        meta[line[0]].push(item);
+      }
     });
     Player.meta = meta;
     Player.trace('加载音源：完成。');
@@ -761,8 +768,10 @@ Player.flatAndTag = function player_flatAndTag(){
     });
   });
   return res;
-};
-
+};  
+Player.level2vol = function player_level2vol(level){
+  return level / 6;
+}
 Player.splitUp = function player_splitUp() {
   /* 清空数据 */
   Player.music = [];
@@ -782,7 +791,6 @@ Player.splitUp = function player_splitUp() {
     if(i == 0) return NaN;
     return [0,2,4,5,7,9,11][i-1];
   }
-
   var time;
   var cItem;
   var f;
@@ -816,7 +824,7 @@ Player.splitUp = function player_splitUp() {
      if(isNaN(f)) continue;
      f = 440 * Math.pow(2,f / 12);
     cItem = Util.templateClone({
-      vol: music[i].level / 4,
+      vol: Player.level2vol(music[i].level),
       len: music[i].length * sp32b ,
       start: curTime , 
       f: [{time:0, f: f}],
@@ -860,7 +868,7 @@ Player.splitUp = function player_splitUp() {
      if(isNaN(f)) continue;
      f = 440 * Math.pow(2,f / 12);
     cItem = Util.templateClone({
-      vol: music[i].level / 4,
+      vol: Player.level2vol(music[i].level),
       len: music[i].length * sp32b ,
       start: curTime , 
       f: [{time:0, f: f}],

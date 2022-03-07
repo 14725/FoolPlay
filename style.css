@@ -55,6 +55,10 @@ html {
   user-select: none;
   background: #DDD;
 }
+html,body{
+  overflow-x: hidden;
+  touch-action: pan-y;
+}
 body {
   margin: auto;
   width: 21cm;
@@ -206,6 +210,10 @@ input::-ms-clear {
   display: flex;
   justify-content: space-between;
   margin-bottom: 5px;
+}
+.measure{
+  flex-wrap: wrap;
+  max-width: 101%;
 }
 .sectionLine {
   height: 40px;
