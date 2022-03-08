@@ -168,6 +168,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
     // 计时器延误，丢弃。
     return;
   }
+
   
   sentense = sentense[0];
   pinyin = sentense.split("").map(function(a) {
@@ -178,26 +179,51 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
     return;
   }
   }
-  vol *= 1.2;
-  var extendLimit = 0.4; // 延长的上限
-  var extendLength = 0.2;
+  var shouldC = false;
   var l = len * 44100;
   var advance = 0.01;
   var maxGap = Math.min(len * 0.4,(len - detune[detune.length - 1].time)/8); // 最长的滑音
+  var bestVoice = null;
+  var bestFreq = +9999;
+  var avgFreq = 0;
   var freqList = []; //频率滑动表
+  var fTime = function(x){return x};
   
-  
+  /* 平均频率 */
+  detune.forEach(function(f,i,a){
+    if(f.time<0)return;
+    var nextT = a[i+1]?a[i+1].time:len;
+    avgFreq += f.f * (nextT - f.time);
+  });
+  Player.meta[pinyin].forEach(function(a){
+    if(Math.abs(a.freq - avgFreq) < bestFreq){
+      bestVoice = a;
+      bestFreq = Math.abs(a.freq - avgFreq);
+    }
+  });
+  avgFreq /= len;
   //延长处理
   //console.log(sentense);
   if (!raw.isTooLong|| sentense == '啦') {
-    l += extendLength * 44100;
-    //console.log('处理');
+    shouldC = true;
   }
-  if (sentense == '啦') {
-    l += 0.3 * 44100;
-  }
-  advance = l/44100 * (Player.meta[pinyin][0].consonant / Player.meta[pinyin][0].length * 2);
+  //advance = l/44100 * (bestVoice.consonant / bestVoice.length * 2);
   
+  advance = bestVoice.consonant / 44100;
+  var late = (bestVoice.length/2 - bestVoice.vowel) / 44100;
+  
+  l += advance * 44100;
+  if(!raw.isTooLong)l += late * 44100;
+  console.log('adv',advance);
+  console.log('bestVoice',bestVoice);
+  console.log('consonant',bestVoice.consonant);
+  // 计算时间变形
+  var fTime = Player.getF(/*console.log*/([
+    [0,0],
+    [advance * 44100, l * (bestVoice.consonant / bestVoice.length * 2)],
+    [l -late * 44100, l * ((bestVoice.vowel )/ bestVoice.length * 2)],
+    [l,l]
+  ]));
   // 计算频率函数
   for(let i = detune.length - 1;i >=1;i--){
     maxGap = Math.min(maxGap,(detune[i].time - detune[i-1].time) / 8 - 0.005);
@@ -222,12 +248,9 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
     ];
   }).flat();
   var ffreq = Player.getF(freqList);
-  /* 时间缩放 */
-  var tAry = [];
+
   
-  var buf1 = Player.transform(Player.meta[pinyin][0], l, function(x) {
-    return x;
-  }, function(x){return Math.exp(ffreq(x))});
+  var buf1 = Player.transform(bestVoice, l, fTime, function(x){return Math.exp(ffreq(x))});
   var ctx = Player.ctx;
   var n = ctx.createBufferSource();
   var g = ctx.createGain();
@@ -237,10 +260,12 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
   g.gain.linearRampToValueAtTime(0.0001,Player.timeStart +start - advance);
   g.gain.linearRampToValueAtTime(vol,Player.timeStart +start);
   g.gain.linearRampToValueAtTime(vol,Player.timeStart +start + len);
-  g.gain.linearRampToValueAtTime(0.0001,Player.timeStart +start + len + extendLength);
+  g.gain.linearRampToValueAtTime(0.0001,Player.timeStart +start + len + 0);
+  
   n.buffer = Player.convertBuffer(buf1);
   n.connect(g);
   g.connect(Player.target);
+  //n.connect(Player.target)
   n.start(Player.timeStart + Math.max(0, start - advance));
   return (function() {
     g.disconnect(Player.target);
@@ -910,7 +935,7 @@ Player.splitUp = function player_splitUp() {
         var newItem = Util.clone(Player.soundItem);
         newItem.len = (ttlen + extend) * sp32b;
         newItem.start = sttime * sp32b + 0.1;
-        newItem.vol = newItem.vol * volBoost /3;
+        newItem.vol = Player.level2vol(volBoost>0?4:1) / 5;
         newItem.f[0].f = 440*Math.pow(2, (Player.fMap[note]-1+Music.arpeggio/12));
         newItem.isChord = true;
         if(id != 0 || String(Music.music[0].pitch) != '0')
@@ -1081,4 +1106,7 @@ Player.downloadVoice = async function(){
     xhr.send();
   });
 };
+
+
+
 
