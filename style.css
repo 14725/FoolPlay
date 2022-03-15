@@ -613,6 +613,7 @@ input[type=number] {
   height: 18px;
   padding: 0;
 }
+
 .window button {
   border: solid 1px 2px 2px 1px;
   border-color: #FFF rgb(134,138,142) rgb(134,138,142) #FFF;
@@ -620,6 +621,7 @@ input[type=number] {
 .window button:active {
   border-color: rgb(134,138,142) #FFF #FFF rgb(134,138,142);
 }
+
 .window .content {
   background: #fff;
   padding: 3px;

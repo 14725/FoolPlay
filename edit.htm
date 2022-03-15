@@ -236,9 +236,9 @@
 		<div class="content">
 		  <p>本程序使用袅袅中文音源，但不附带音源文件。你可以到<a href="https://dsailab.com/voice/">https://dsailab.com/voice/</a>下载</p>
 		  <hr>
-		  <button id="b_inf" onclick="f_inf.click()">选择inf.d文件</button>
-		  <button id="b_voi" onclick="f_voi.click()">选择voice.d文件</button>|
-		  <button id="b_app">应用</button>
+		  <button id="b_inf" onclick="f_inf.click()">inf.d?</button>
+		  <button id="b_voi" onclick="f_voi.click()">voice.d?</button>|
+		  <label><input type="checkbox" id="c_man" style="vertical-align:middle" />我是男生</label>|<button id="b_app">应用</button>
 		  <input type="file" hidden onchange="(this.files[0].name.toLowerCase().indexOf('inf')==-1) && alert('您选择的文件名是' + this.files[0].name + '，这应该是你想要加载的 inf.d 文件吧？')" id="f_inf"/>
 		  <input type="file" hidden onchange="(this.files[0].name.toLowerCase().indexOf('voice')==-1) && alert('您选择的文件名是' + this.files[0].name + '，这应该是你想要加载的 voice.d 文件吧？')" id="f_voi"/>
 		</div>

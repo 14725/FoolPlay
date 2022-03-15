@@ -130,6 +130,9 @@ var Player = {
   wave: null,
   pyTable: {},
   pianoSample: null,
+  isMan: false,
+  data: null,
+  meta: null,
 
   enableSMPlay: true,
   enableVoice: true,
@@ -247,6 +250,15 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
       ]
     ];
   }).flat();
+  if(Player.isMan){
+    console.group(sentense);
+
+    freqList.forEach(function(a){
+        a[1] -= Math.log(2);
+        console.log(a);
+    });
+    console.groupEnd(sentense)
+  }
   var ffreq = Player.getF(freqList);
 
   
@@ -255,12 +267,12 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
   var n = ctx.createBufferSource();
   var g = ctx.createGain();
   var st = start;
-  //g.gain.value = vol;
+  g.gain.value = vol;
   g.gain.linearRampToValueAtTime(0.0001,Player.timeStart +0);
-  g.gain.linearRampToValueAtTime(0.0001,Player.timeStart +start - advance);
+  g.gain.linearRampToValueAtTime(0.1,Player.timeStart +start - advance);
   g.gain.linearRampToValueAtTime(vol,Player.timeStart +start);
-  g.gain.linearRampToValueAtTime(vol,Player.timeStart +start + len);
-  g.gain.linearRampToValueAtTime(0.0001,Player.timeStart +start + len + 0);
+  g.gain.linearRampToValueAtTime(vol,Player.timeStart +start - advance + (l-bestVoice.consonant )/ 44100-0.1 );
+  g.gain.linearRampToValueAtTime(0.0001,Player.timeStart +start - advance + l / 44100);
   
   n.buffer = Player.convertBuffer(buf1);
   n.connect(g);
@@ -302,6 +314,7 @@ Player.load2 = function() {
 
     var text = await Player.storage.getItem('inf.d');
     var table = text.split('\n');
+    Player.isMan = (table[0].slice(0,3) =='man');
     /* 去除版本号和一些信息 */
     table.shift();
     table.shift();
@@ -353,6 +366,7 @@ Player.convertBuffer = function player_convertBuffer(buffer) {
 /* 线性插值，用点列表生成连续函数 */
 Player.getF = function getF(points) {
   //if(points.length >1)console.log(points)
+  points = Util.clone(points);
   return function(x) {
     if (x < points[0][0]) {
       return points[0][1];
@@ -400,7 +414,7 @@ Player.sample = function player_sample(data, total, now) {
   return example;
 };
 
-Player.transform = function transform(data, length, fPos, fFreq) {
+Player.transform = function player_transform(data, length, fPos, fFreq) {
   var wave = new Int16Array(length);
   //alert(sample(data,99999,40000));//return [];
   /* 原始周期 */
@@ -795,7 +809,7 @@ Player.flatAndTag = function player_flatAndTag(){
   return res;
 };  
 Player.level2vol = function player_level2vol(level){
-  return level / 6;
+  return level / 8 + 0.25;
 }
 Player.splitUp = function player_splitUp() {
   /* 清空数据 */
@@ -961,6 +975,7 @@ Player.schChord = function(){
 
 Player.showVoiceWindow = function() {
   PopupWindow.open(voiceWindow);
+  c_man.checked = false;
   b_app.onclick = async function() {
     try {
       b_app.disabled = true;
@@ -975,6 +990,9 @@ Player.showVoiceWindow = function() {
       }
       var inf = await new Response(f_inf.files[0]).text();
       var voi = await new Response(f_voi.files[0]).arrayBuffer();
+      if(c_man.checked){
+        inf = 'man'+inf;
+      }
       await Player.storage.setItem('inf.d', inf);
       await Player.storage.setItem('voice.d', voi);
       f_inf.value = '';
