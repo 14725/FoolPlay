@@ -185,7 +185,6 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
   var shouldC = false;
   var l = len * 44100;
   var advance = 0.01;
-  var maxGap = Math.min(len * 0.4,(len - detune[detune.length - 1].time)/8); // 最长的滑音
   var bestVoice = null;
   var bestFreq = +9999;
   var avgFreq = 0;
@@ -206,7 +205,6 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
   });
   avgFreq /= len;
   //延长处理
-  //console.log(sentense);
   if (!raw.isTooLong|| sentense == '啦') {
     shouldC = true;
   }
@@ -216,10 +214,9 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
   var late = (bestVoice.length/2 - bestVoice.vowel) / 44100;
   
   l += advance * 44100;
-  if(!raw.isTooLong)l += late * 44100;
-  console.log('adv',advance);
-  console.log('bestVoice',bestVoice);
-  console.log('consonant',bestVoice.consonant);
+  if(shouldC)l += late * 44100;
+  else       l -= Math.min(late * 44100,(len - detune[detune.length-1].time)/2)
+  
   // 计算时间变形
   var fTime = Player.getF(/*console.log*/([
     [0,0],
@@ -228,12 +225,9 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
     [l,l]
   ]));
   // 计算频率函数
-  for(let i = detune.length - 1;i >=1;i--){
-    maxGap = Math.min(maxGap,(detune[i].time - detune[i-1].time) / 8 - 0.005);
-  }
   //maxGap = 0.001;
-  freqList = detune.map(function(d,id){
-    
+  freqList = detune.map(function(d,id,ary){
+    var gap;
     if(id == 0 ){
       return [
         [
@@ -241,23 +235,21 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
         ]
       ];
     }
-    
+    gap = Math.min(ary[id].time - ary[id-1].time,(ary[id+1] == null ? len : ary[id+1].time ) - ary[id].time) / 8;
+    if(gap < 0.05) gap *= 2;
     return [
       [
-        (d.time +advance- maxGap) * 44100, Math.log(detune[id-1].f)
+        (d.time +advance- gap) * 44100, Math.log(detune[id-1].f)
       ],[
-        (d.time +advance+ maxGap) * 44100, Math.log(d.f)
+        (d.time +advance+ gap) * 44100, Math.log(d.f)
       ]
     ];
   }).flat();
   if(Player.isMan){
-    console.group(sentense);
 
     freqList.forEach(function(a){
         a[1] -= Math.log(2);
-        console.log(a);
     });
-    console.groupEnd(sentense)
   }
   var ffreq = Player.getF(freqList);
 
@@ -325,8 +317,7 @@ Player.load2 = function() {
     /* 转换为对象 */
     table.forEach((a) => (a[0] = a[0].split('_')[0].replace(/\d/ig,'')));
     table.forEach(function(line) {
-      //console.log(line[0])
-      
+
       var item = Object.assign({}, itemT);
       Object.seal(item);
 
@@ -365,7 +356,6 @@ Player.convertBuffer = function player_convertBuffer(buffer) {
 
 /* 线性插值，用点列表生成连续函数 */
 Player.getF = function getF(points) {
-  //if(points.length >1)console.log(points)
   points = Util.clone(points);
   return function(x) {
     if (x < points[0][0]) {
@@ -605,13 +595,11 @@ Player.queueHighLight = function fn() {
   document.body.style.scrollBehavior = 'auto';
   document.body.parentNode.style.scrollBehavior = 'auto';
 
-  //console.log(document.querySelectorAll(".yin")[cur.eleId].outerHTML)
   var time = Math.round(Player.ctx.currentTime * 1000);
   while (Player.highLight.length && (Player.highLightStamp+cur.time*1000-time) < -50) {
     cur = Player.highLight.shift();
   }
   setTimeout(fn, Math.max(0, (Player.highLightStamp+cur.time*1000-time)|0));
-  //console.log(Player.highLight[0].time)
 };
 
 
@@ -874,7 +862,6 @@ Player.splitUp = function player_splitUp() {
       /* 如果延长？ */
       last = Player.music[Player.music.length-1];
       /* 1. 是延长线 */
-      console.log(Math.abs(cItem.f - last.f))
       if(Math.abs(cItem.f[0].f - last.f[0].f) < 0.0001){
         last.len += cItem.len;
         last.vol = Math.max(last.vol, cItem.vol);
@@ -902,7 +889,7 @@ Player.splitUp = function player_splitUp() {
       f: [{time,f: 440,}],fx: [],
       word: "",isChord: false
      }*/
-     music[i].word && (music[i].word = music[i].word[0]);
+     Array.isArray(music[i].word) && (music[i].word = music[i].word[0]);
      f = jian2p(music[i].pitch) + 12 * music[i].octave + (+Music.arpeggio) - jian2p(6);
      if(isNaN(f)) continue;
      f = 440 * Math.pow(2,f / 12);
@@ -918,7 +905,6 @@ Player.splitUp = function player_splitUp() {
       /* 如果延长？ 如果有歌词就不算延长*/
       last = Player.voice[Player.voice.length-1];
       /* 1. 是延长线 */
-      console.log(Math.abs(cItem.f - last.f))
       if(Math.abs(cItem.f[0].f - last.f[last.f.length-1].f) < 0.0000001){
         last.len += cItem.len;
         last.vol = Math.max(last.vol, cItem.vol);
@@ -1053,6 +1039,7 @@ Player.voicePass2 = function(){
     }
   }).chainableForEach(function(t,i,a){
     var m = a[i-1];
+    var n = a[i+1];
     if(i > 0&&!m.isTooLong){
       t.f.unshift({
         /* 上一个音调的中间 */
@@ -1064,6 +1051,16 @@ Player.voicePass2 = function(){
       t.f.unshift({
         time:-3.3,
         f:t.f[0].f/5*4
+      });
+    }
+    if(!t.isTooLong && n){
+      t.f.push({
+        time:t.len -0.065,
+        f:t.f[t.f.length-1].f
+      });
+      t.f.push({
+        time:n.start - t.start,
+        f:n.f[0].f
       });
     }
   });
