@@ -235,7 +235,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
         ]
       ];
     }
-    gap = Math.min(ary[id].time - ary[id-1].time,(ary[id+1] == null ? len : ary[id+1].time ) - ary[id].time) / 8;
+    gap = Math.min(ary[id].time - ary[id-1].time,(ary[id+1] == null ? 999 : ary[id+1].time ) - ary[id].time) / 8;
     if(gap < 0.05) gap *= 2;
     return [
       [
@@ -1041,9 +1041,14 @@ Player.voicePass2 = function(){
     var m = a[i-1];
     var n = a[i+1];
     if(i > 0&&!m.isTooLong){
+      t.f[0].time = 0.2;
+      if(t.f[1] && t.f[1].time / 1.2 > t.f[0].time){
+        t.f[0].time = t.f[1].time / 1.2;
+      }
       t.f.unshift({
         /* 上一个音调的中间 */
-        time:((m.start + m.len) + (m.start + m.f[m.f.length-1].time))/2 - t.start,
+        //time:((m.start + m.len) + (m.start + m.f[m.f.length-1].time))/2 - t.start,
+        time:-0.2,
         f:m.f[m.f.length-1].f
       });
     }else{
@@ -1055,7 +1060,7 @@ Player.voicePass2 = function(){
     }
     if(!t.isTooLong && n){
       t.f.push({
-        time:t.len -0.065,
+        time:Math.max(t.len -0.2,t.f[t.f.length-1].time + 0.05),
         f:t.f[t.f.length-1].f
       });
       t.f.push({
@@ -1124,4 +1129,153 @@ Player.downloadVoice = async function(){
 
 
 
+
+/* Hacking file - render offline*/
+
+
+
+
+
+Player.saveWav = async function player_play() {
+  var dom;
+  dom = PopupWindow.alert('渲染人声中...');
+  Player.splitUp();
+  Player._oldctx = Player.ctx;
+  Player._oldtar = Player.target;
+  Player.ctx = new OfflineAudioContext(1, 44100 * (Player.music[Player.music.length - 1].start+5), 44100);
+  Player.target = Player.ctx.destination;
+  Player.ctx.resume = function(){}
+  Player.timeStart = Player.ctx.currentTime + 0.5;
+  Player.stop();
+  var voice = Util.clone(Player.voice);
+  var music = Util.clone(Player.music);
+  var timeAhead = player_play.timeAhead || 3;
+
+  function taskMusic() {
+    var passedTime = Player.ctx.currentTime - Player.timeStart;
+    var toTime = passedTime + timeAhead;
+    var i = 0;
+    var cur;
+    while (music.length) {
+      cur = music[0];
+      if (!cur.f[0] || isNaN(cur.f[0].f)) {
+        music.shift();
+        return;
+      }
+      //(startTime,tune,len,vol,isChord)
+      music.shift();
+      Player.start(cur.start, cur.f[0].f, cur.len, cur.vol, cur.isChord, (cur.word && cur.word.trim() != ''));
+    }
+  }
+  async function taskVoice() {
+    var passedTime = Player.ctx.currentTime - Player.timeStart;
+    var toTime = passedTime + timeAhead;
+    var i = 0;
+    var cur;
+    while (voice.length) {
+      dom.remove();
+      dom = PopupWindow.alert('合成人声中：剩余' + voice.length + '项。');
+      await Util.tick();
+      cur = voice[0];
+      if (!cur.f[0] || isNaN(cur.f[0].f)) {
+        voice.shift();
+        return;
+      }
+      //(sentense,detune,start,len,vol)
+      voice.shift();
+      Player.manvoice(cur.word, cur.f, cur.start, cur.len, cur.vol, cur);
+    }
+  }
+
+  // voice
+  taskMusic()
+  await taskVoice();
+  window.data = null;
+  (async function(ctx){
+    while(!window.data){
+      await Util.tick(100);
+      dom.remove();
+      dom = PopupWindow.alert('正在连接：'+(ctx.currentTime / ctx.length * 44100 * 100).toFixed(2) + '%');
+    }
+    try{dom.remove()}catch(e){}
+
+  })(Player.ctx);
+  var pro = Player.ctx.startRendering();
+  Player.ctx = Player._oldctx;
+  Player.target = Player._oldtar;
+  Player.target = Player._oldtar;
+  window.data =await pro;
+  Util.saveAs(Player.bufferToWave(window.data),'audio/wav', Music.title +'.wav')
+};
+Player.bufferToWave = function bufferToWave(abuffer, len) {
+  var numOfChan = abuffer.numberOfChannels,
+  length = abuffer.length * numOfChan * 2 + 44,
+  buffer = new ArrayBuffer(length),
+  view = new DataView(buffer),
+  channels = [],
+  i,
+  sample,
+  offset = 0,
+  pos = 0;
+
+  // write WAVE header
+  // "RIFF"
+  setUint32(0x46464952);
+  // file length - 8
+  setUint32(length - 8);
+  // "WAVE"
+  setUint32(0x45564157);
+  // "fmt " chunk
+  setUint32(0x20746d66);
+  // length = 16
+  setUint32(16);
+  // PCM (uncompressed)
+  setUint16(1);
+  setUint16(numOfChan);
+  setUint32(abuffer.sampleRate);
+  // avg. bytes/sec
+  setUint32(abuffer.sampleRate * 2 * numOfChan);
+  // block-align
+  setUint16(numOfChan * 2);
+  // 16-bit (hardcoded in this demo)
+  setUint16(16);
+  // "data" - chunk
+  setUint32(0x61746164);
+  // chunk length
+  setUint32(length - pos - 4);
+
+  // write interleaved data
+  for (i = 0; i < abuffer.numberOfChannels; i++)
+    channels.push(abuffer.getChannelData(i));
+
+  while (pos < length) {
+    // interleave channels
+    for (i = 0; i < numOfChan; i++) {
+      // clamp
+      sample = Math.max(-1, Math.min(1, channels[i][offset]));
+      // scale to 16-bit signed int
+      sample = (0.5 + sample < 0 ? sample * 32768: sample * 32767)|0;
+      // write 16-bit sample
+      view.setInt16(pos, sample, true);
+      pos += 2;
+    }
+    // next source sample
+    offset++
+  }
+
+  // create Blob
+  return new Blob([buffer], {
+    type: "audio/wav"
+  });
+
+  function setUint16(data) {
+    view.setUint16(pos, data, true);
+    pos += 2;
+  }
+
+  function setUint32(data) {
+    view.setUint32(pos, data, true);
+    pos += 4;
+  }
+}
 

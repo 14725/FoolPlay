@@ -13,18 +13,26 @@ Util = {
   _orglisteners: [],
   _patchedlisteners: [],
 };
+Util.tick = function(time = 0){
+  return new Promise(function(ok){
+    setTimeout(ok,time);
+  });
+}
 Util.clone = function util_clone(a) {
   //深复制对象
   //我不想管那一堆对象，当然，环我也不管，省事。:)
   var b;
-  if (a.constructor == Array) {
+  if (Array.isArray(a)) {
     b = [];
   } else {
     b = {};
   }
   for (var i in a) {
     if (a[i] == null) break;
-    if (a[i].constructor == Object || a[i].constructor == Array) {
+    /* 原型攻击防护 */
+    if(i in {}) continue;
+    if(Array.isArray(a) && i in {}) continue;
+    if (a[i].constructor == Object || Array.isArray(a[i])) {
       b[i] = Util.clone(a[i]);
     } else {
       b[i] = a[i];
@@ -178,7 +186,35 @@ Util.t2h = function util_t2h(str){
   d.textContent = str;
   return d.innerHTML;
 };
-
+Util.saveAs = function util_saveAs(content,mine,fileName){
+  if(Math.min(screen.width, screen.height) < 630){
+    if(!confirm('您似乎在使用手机访问本程序，文件保存功能可能可能不能正常工作：手机把临时地址当做网络地址下载。\n\n如果必要，尝试手机自带浏览器或 Ungoogled Chromium、Chrome等浏览器。\n\n继续？'))return;
+  }
+  var url;
+  var blob;
+  try{
+    blob = new File([content],fileName,{type:mine});
+  }catch(e){
+    alert(e)
+    blob = new Blob([content],{type:mine});
+  }
+  url = URL.createObjectURL(blob);
+  setTimeout(function(){
+    URL.revokeObjectURL(url)
+  },40*1000);
+  if(blob){
+    if ('msSaveOrOpenBlob' in navigator) {
+      window.navigator.msSaveOrOpenBlob(blob, fileName);
+      return;
+    }
+  }
+  var link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 var PopupWindow = {
   _windowDragging: null,
   _windowDraggingY: null,
@@ -204,6 +240,7 @@ PopupWindow.alert = function popupWindow_alert(msg) {
   dom.querySelector(".msg").innerHTML = msg.split("\n").join("<br>");
   document.body.appendChild(dom);
   PopupWindow.open(dom);
+  return dom;
 };
 PopupWindow.main = function popupWindow_main() {
   Util.live("mousedown", document, ".window .windowtitle", function set_flags(event) {
@@ -1653,18 +1690,7 @@ UI.saveAs = function ui_saveAs() {
   }
   content = 
 "<!DOCTYPE html>\n<meta charset=\"utf-8\"/>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<style>\n*{\n  text-align: center;\n}\nbody{\n  max-width:500px;\n  margin:auto;\n  padding:5px;\n}\nh1{\n  font-weight: 300;\n}\na {\n  display:inline-block;\n  background: #3498db;\n  background-image: linear-gradient(to bottom, #3498db, #2980b9);\n  border-radius: 999px;\n  text-shadow: 1px 1px 3px #666666;\n  box-shadow: 0px 1px 3px #666666;\n  color: white;\n  font-size: 20px;\n  padding: 10px 20px 10px 20px;\n  border: solid #1f628d 2px;\n  text-decoration: none!important;\n}\na:hover {\n  background: #3cb0fd;\n  background-image: linear-gradient(to bottom, #3cb0fd, #3498db);\n}\nli{\n  font-size: small;\n  color:gray;\n  text-align: left;\n}\n</style>\n<p>本文件是“傻瓜弹曲”的歌谱文件，它记录着一首歌，名叫：</p>\n<h1>%title%</h1>\n<a href=\"%url%#data=%tdata%\">点击此处查看歌谱</a>\n<br>\n<br>\n<hr>\n<ol>\n  <li>如果弹出“打开方式”对话框，请选择浏览器。</li>\n  <li>如果上面的按钮不能正常工作，请换用“浏览器”、“HTML 查看器”等打开本文件，或者在傻瓜弹曲网站（%url%）中，文件 -> 打开。</li>\n</ol>\n<script>%data%</script>";  content = content.replace(/%url%/g, a.href.split('#')[0].split('?')[0]).replace("%data%", UI.outString()).replace("%title%",Music.title).replace("%tdata%", encodeURIComponent(UI.outString()));
-  var blob = new Blob([content], {
-    type: 'text/html'
-  });
-  if ('msSaveOrOpenBlob' in navigator) {
-    window.navigator.msSaveOrOpenBlob(blob, a.download);
-  } else {
-    var url = window.URL.createObjectURL(blob);
-    a.href = url;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
+  Util.saveAs(content,'text/html',a.download);
 };
 UI.new = function ui_new(action) {
   var file = Util.queries().music;
