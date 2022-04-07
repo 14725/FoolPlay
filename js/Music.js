@@ -188,14 +188,18 @@ Util.t2h = function util_t2h(str){
 };
 Util.saveAs = function util_saveAs(content,mine,fileName){
   if(Math.min(screen.width, screen.height) < 630){
-    if(!confirm('您似乎在使用手机访问本程序，文件保存功能可能可能不能正常工作：手机把临时地址当做网络地址下载。\n\n如果必要，尝试手机自带浏览器或 Ungoogled Chromium、Chrome等浏览器。\n\n继续？'))return;
+    if(!confirm('您似乎在使用手机访问本程序，文件保存功能可能可能不能正常工作：手机把临时地址当做网络地址下载。\n\n如果必要，尝试手机自带浏览器或 Ungoogled Chromium、Edge等浏览器。\n\n继续？'))return;
   }
   var url;
   var blob;
-  try{
+  /* 不使用文件本身的 MIME 以防触发浏览器特殊机制（如Chrome 会把网页 “打包”为MHTML 并破坏追加的脚本区域） */
+  if(mine.indexOf('html') > -1){
+    mine = 'application/octet-stream';
+  }
+  try {
     blob = new File([content],fileName,{type:mine});
   }catch(e){
-    alert(e)
+    blob = new Blob([content],{type:mine});
     blob = new Blob([content],{type:mine});
   }
   url = URL.createObjectURL(blob);
@@ -587,6 +591,11 @@ UI.render = Util.throttle(function ui_render() {
       var endHTML = "<div class=\"sectionLine\"></div></div>";
       var className = [];
       //对每一个音符拼接HTML，并统计时间长度，以便宽松按节拍添加空格
+      Music.music.forEach(function(a){
+        if(String(a.pitch) == '0'){
+          a.octave = 0;
+        }
+      });
       for (i = 0; i < item.length; i++) {
         thisSectionHTML.push(UI.getHTMLforNote(item[i].note, item[i].id));
         curLen += item[i].note.length;

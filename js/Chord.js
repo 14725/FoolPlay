@@ -1,88 +1,381 @@
-/* 自动和弦程序 */
-function Chord(id, level) {
-  //UI.render.atOnce();
-  Music.getLenSectionTempo();
-  if (id == 1) oldChord();
-  if (id == 2) 和弦标注(level);
-  UI.layout();
-}
-
-var WeightAddOnStarts = 4; //对第一拍的音的附加权值
-
-var 限时 = 50000; //单位：毫秒
-
-var 环境容量 = 100;
-var 生育迭代次数 = 100;
-var 变异迭代次数 = 50;
-var 和弦表 = "CDEFGAB".split("");
-
-function 和弦标注(todo) {
-  var 结果;
-
-  if (todo != 1) {
-    结果 = 和弦计算();
-    document.querySelectorAll(".status").forEach(function (a) {
-      a.remove();
-    });
-    document.querySelectorAll(".chord_it").forEach(function (a) {
-      a.remove();
-    });
-  } else {
-    var data = 确定每小节();
-
-    if (data[data.length - 1][1] > data[data.length - 1][6]) {
-      vec = vecw;
-    } else if (data[data.length - 1][1] < data[data.length - 1][6]) {
-      vec = vecw;
-    } else {
-      vec = vecw;
+var Chord = {};
+/* 打过补丁的 感知器 + HMM(忽略起始矩阵) */
+/* TODO: 训练它而非胡诌数据 */
+Chord.vec = {
+  noteToChord: {
+    C: [0.1, 1, 0, 1, 0, 1, 0, 0],
+    D: [0.1, 0, 1, 0, 1, 0, 1, 0],
+    E: [0.1, 0, 0, 1, 0, 1, 0, 1],
+    F: [0.1, 1, 0, 0, 1, 0, 1, 0],
+    G: [0.1, 0, 1, 0, 0, 1, 0, 1],
+    A: [0.1, 1, 0, 1, 0, 0, 1, 0],
+    B: [0.1, 0, 1, 0, 1, 0, 0, 1]
+  },
+  chordToChord: {
+    C: {
+      C: 0.211917124,
+      D: 0.112338266,
+      E: 0.077596617,
+      F: 0.20553742,
+      G: 0.222942916,
+      A: 0.1221852,
+      B: 0.025033404
+    },
+    D: {
+      C: 0.169779376,
+      D: 0.13284592,
+      E: 0.083601312,
+      F: 0.119389545,
+      G: 0.390091738,
+      A: 0.08646437,
+      B: 0.029632657
+    },
+    E: {
+      C: 0.101129702,
+      D: 0.139826275,
+      E: 0.113097715,
+      F: 0.163961766,
+      G: 0.087565955,
+      A: 0.363827569,
+      B: 0.041888042
+    },
+    F: {
+      C: 0.327259777,
+      D: 0.106730018,
+      E: 0.071609456,
+      F: 0.112659463,
+      G: 0.297840605,
+      A: 0.068758761,
+      B: 0.031357644
+    },
+    G: {
+      C: 0.400843926,
+      D: 0.061270188,
+      E: 0.076128626,
+      F: 0.137732711,
+      G: 0.151422508,
+      A: 0.142908122,
+      B: 0.032638479
+    },
+    A: {
+      C: 0.158233693,
+      D: 0.247451897,
+      E: 0.109546403,
+      F: 0.166264586,
+      G: 0.139411287,
+      A: 0.154594694,
+      B: 0.028233609
+    },
+    B: {
+      C: 0.191762403,
+      D: 0.081280003,
+      E: 0.149418928,
+      F: 0.149905635,
+      G: 0.141144916,
+      A: 0.127517131,
+      B: 0.147958808
     }
+  },
+  chordToChordBetween: {
+    C: {
+      C: 0.211917124,
+      D: 0.112338266,
+      E: 0.077596617,
+      F: 0.20553742,
+      G: 0.222942916,
+      A: 0.1221852,
+      B: 0.025033404
+    },
+    D: {
+      C: 0.169779376,
+      D: 0.13284592,
+      E: 0.083601312,
+      F: 0.119389545,
+      G: 0.390091738,
+      A: 0.08646437,
+      B: 0.029632657
+    },
+    E: {
+      C: 0.101129702,
+      D: 0.139826275,
+      E: 0.113097715,
+      F: 0.163961766,
+      G: 0.087565955,
+      A: 0.363827569,
+      B: 0.041888042
+    },
+    F: {
+      C: 0.327259777,
+      D: 0.106730018,
+      E: 0.071609456,
+      F: 0.112659463,
+      G: 0.297840605,
+      A: 0.068758761,
+      B: 0.031357644
+    },
+    G: {
+      C: 0.400843926,
+      D: 0.061270188,
+      E: 0.076128626,
+      F: 0.137732711,
+      G: 0.151422508,
+      A: 0.142908122,
+      B: 0.032638479
+    },
+    A: {
+      C: 0.158233693,
+      D: 0.247451897,
+      E: 0.109546403,
+      F: 0.166264586,
+      G: 0.139411287,
+      A: 0.154594694,
+      B: 0.028233609
+    },
+    B: {
+      C: 0.191762403,
+      D: 0.081280003,
+      E: 0.149418928,
+      F: 0.149905635,
+      G: 0.141144916,
+      A: 0.127517131,
+      B: 0.147958808
+    }
+  }
+};
 
-    结果 = compute(确定每小节());
-  } //var 结果 = compute(确定每小节());
-
-
-  var doms = document.querySelectorAll('.measure');
-  var ele;
-  结果.forEach(function (it, id) {
-    ele = document.createElement('div');
-    ele.style.position = 'absolute';
-    ele.style.marginTop = '-0.8em';
-    ele.innerText = it;
-    ele.className = "chord_it";
-    doms[id].insertBefore(ele, doms[id].firstChild.nextSibling);
-  });
-  ele.parentNode.scrollIntoViewIfNeeded(true);
+/* 在没有能用的模型时候的经验补丁 */
+/* “平滑”减少多余的转移 */
+for(let i in Chord.vec.chordToChord){
+  let sum = 0;
+  for(let j in Chord.vec.chordToChord[i]){
+    Chord.vec.chordToChord[i][j] += 0.6;
+    sum += Chord.vec.chordToChord[i][j];
+  }
+  for(let j in Chord.vec.chordToChord[i]){
+    Chord.vec.chordToChord[i][j] /= sum;
+  }
+}
+for(let i in Chord.vec.chordToChordBetween){
+  let sum = 0;
+  Chord.vec.chordToChordBetween[i][i] += 0.4;
+  for(let j in Chord.vec.chordToChordBetween[i]){
+    Chord.vec.chordToChordBetween[i][j] += 1;
+    sum += Chord.vec.chordToChordBetween[i][j];
+  }
+  for(let j in Chord.vec.chordToChordBetween[i]){
+    Chord.vec.chordToChordBetween[i][j] /= sum;
+  }
 }
 
-function 确定每小节() {
-  var tmp = []; //和弦列表
-
-  Music.flatBar().forEach(function (bar, idbar) {
-    tmp[idbar] = [0, 0, 0, 0, 0, 0, 0, 0];
-    var clen = 0;
-    bar.forEach(function (noteWarp) {
-      var note = noteWarp.note,
-          present = tmp[idbar],
-          len = note.length;
-
-      if (clen < Music.lenTempo) {
-        present[note.pitch] += WeightAddOnStarts;
-      }
-
-      clen += len;
-      present[note.pitch] += note.length;
+Chord.getVector = function chord_getVector(da) {
+  var data = Util.clone(da);
+  data = data.map(function (a) {
+    /* 形状 */
+    return a.map(function (b) {
+      return b.note;
     });
   });
-  return tmp;
-}
+  Music.getLenSectionTempo();
+  var processLength = Music.lenSection;
+  switch (Music.tempo.join("/")) {
+    case "4/4":
+    case "8/6":
+      processLength /= 2;
+  }
+  data = data.map(function (bar) {
+    var temp = { vec: [0, 0, 0, 0, 0, 0, 0, 0], len: processLength };
+    var ary = [];
+    /* 检查是否有特别长的音：如果是，那么不宜切开 */
+    var shouldContinue = false;
+    var i;
+    for (i = bar.length - 1; i >= 0; i--) {
+      if (bar[i].length > processLength) {
+        temp.len = Music.lenSection;
+        break;
+      }
+    }
+    /* 准备数组 */
+    for (i = Music.lenSection / temp.len - 1; i >= 0; i--) {
+      ary.push(Util.clone(temp));
+    }
+    var last;
+    var left;
+    for (i = 0; i < ary.length; i++) {
+      left = ary[i].len;
+      if (last) {
+        ary[i].vec[+last.pitch] += last.length;
+      }
+      while (left > 0) {
+        last = bar.shift();
+        if (!last) break;
+        if (last.length <= left) {
+          ary[i].vec[+last.pitch] += last.length;
+          left -= last.length;
+          last = null;
+        } else {
+          last.length -= left;
+          left = 0;
+        }
+      }
+    }
+    return ary;
+  });
+  return data;
+};
+Chord.chordList = {
+  C: [1, 3, 5],
+  D: [2, 4, 6],
+  E: [3, 5, 7],
+  F: [4, 6, 1],
+  G: [5, 7, 2],
+  A: [6, 1, 3],
+  B: [7, 2, 4]
+};
 
-function 和弦计算() {
-  var sec = chordinput.value.toUpperCase().replace(/[^A-G]/g, "").replace(/[A-G]/g, " $&").replace(/\s+/g, " ").trim();
-  sec = sec.split(" ").slice(0, Music.sections.length);
-  chordinput.value = sec.join(" ");
-  return sec;
-}
+Chord.imme = function (lis,alter) {
+  if(!alter){
+    alter = {}
+  }
+  /* 1. 换算为比例 */
+  var list = lis.map(function (sg) {
+    var sum = sg.reduce(function (a, cur) {
+      return a + cur;
+    });
+    return sg.map(function (val) {
+      return val / sum;
+    });
+  });
+
+  /* 2. 打分 */
+  var tmpObj = Util.clone(Chord.chordList);
+  var i, j, k;
+  var node = { score: 0, prev: "C" };
+  for (i in tmpObj) {
+    tmpObj[i] = Util.clone(node);
+  }
+  var imme = list.map(function () {
+    return Util.clone(tmpObj);
+  });
+  /* 单小节打分 */
+  var sum;
+  for (i in imme) {
+    for (j in imme[i]) {
+      for (k in Chord.vec.noteToChord[j]) {
+        imme[i][j].score += list[i][k] * Chord.vec.noteToChord[j][k];
+      }
+    }
+    sum = 0;
+    for (j in imme[i]) {
+      sum += imme[i][j].score;
+    }
+    for (j in imme[i]) {
+      imme[i][j].score = Math.log(imme[i][j].score / sum);
+    }
+  }
+  /* 相邻关系打分 */
+  var maxItem, maxScore, tmpScore;
+  var crdary;
+  for (i = 2; i < imme.length; i++) {
+    crdary = alter[i] ? Chord.vec.chordToChordBetween : Chord.vec.chordToChord ;
+    for (j in imme[i]) {
+      maxItem = "C";
+      maxScore = -Infinity;
+      for (k in imme[i]) {
+        tmpScore =
+          imme[i][j].score +
+          imme[i - 1][k].score +
+          Math.log(crdary[k][j]);
+
+        if (tmpScore > maxScore) {
+          maxItem = k;
+          maxScore = tmpScore;
+        }
+      }
+      imme[i][j].prev = maxItem;
+      imme[i][j].score = maxScore;
+    }
+  }
+  return imme;
+};
+Chord.match = function (lis,alter) {
+  var imme = Chord.imme(Util.clone(lis),alter);
+  var tmp = "";
+  var maxVal = -Infinity;
+  var i;
+  /* 尝试猜测最后一个和弦 1. 结尾音*/
+  for (i = lis.length - 1; i >= 0; i--) {
+    if (lis[i][6] > lis[i][1]) {
+      tmp = "A";
+    } else if (lis[i][1] > lis[i][6]) {
+      tmp = "C";
+    } else {
+      continue;
+    }
+    break;
+  }
+  /* 猜测和弦... 2. 最大分数 */
+  if (tmp == "") {
+    for (i in imme[imme.length - 1]) {
+      if (imme[imme.length - 1][i].score > maxVal) {
+        maxVal = imme[imme.length - 1][i].score;
+        tmp = i;
+      }
+    }
+  }
+  var res = [];
+  for (i = imme.length - 1; i >= 0; i--) {
+    res.unshift(tmp);
+    tmp = imme[i][tmp].prev;
+  }
+  return res;
+};
+Chord.keyToPitch = function (key) {};
+Chord.getChord = function (bars) {
+  bars = Music.flatBar();
+  var barVecs = Chord.getVector(bars);
+  var lists = barVecs.flat().map(function (a) {
+    return a.vec;
+  });
+  
+  var alter = {};
+  barVecs.forEach(function(a){
+    for(var i = 1; i< a.length; i++){
+      a._alter = true;
+    }
+  });
+  barVecs.flat().forEach(function(a,i){
+    if(a._alter ){
+      alter[i] = true;
+    }
+  })
+  var chordlist = Chord.match(lists,alter);
+  barVecs.forEach(function (list) {
+    list.forEach(function (onecd) {
+      onecd.chord = chordlist.shift();
+      onecd.chordnotes = Chord.chordList[onecd.chord];
+    });
+  });
+  var result = barVecs.map(function (a) {
+    var tmp = a.map(function (b) {
+      return {
+        chord: b.chord,
+        chordnotes: b.chordnotes,
+        len: b.len
+      };
+    });
+    for (var i = 1; i < tmp.length; i++) {
+      if (tmp[i - 1].chord == tmp[i].chord) {
+        tmp[i - 1].len += tmp[i].len;
+        tmp.splice(i--, 1);
+      }
+    }
+    return tmp;
+  });
+  /*chordlist = result.flat().map(function(a){
+    return a.chordnotes;
+  });*/
+  return result;
+};
 
 function 转换为C调() {
   var list = "CDEFGAB".split("");
@@ -93,392 +386,27 @@ function 转换为C调() {
     return list[(list.indexOf(item) - d + list.length) % list.length];
   });
   chordinput.value = sec.join(" ");
-  Chord(2);
 }
 
-var funDownload = function funDownload(content, filename) {
-  // 创建隐藏的可下载链接
-  var eleLink = document.createElement('a');
-  eleLink.download = filename;
-  eleLink.style.display = 'none'; // 字符内容转变成blob地址
-
-  var blob = new Blob([content]);
-  eleLink.href = URL.createObjectURL(blob); // 触发点击
-
-  document.body.appendChild(eleLink);
-  eleLink.click(); // 然后移除
-
-  document.body.removeChild(eleLink);
-};
-
-function 输出() {
-  var c = 和弦计算();
-  var b = 确定每小节();
-  var texts = [],
-      text = "";
-  texts.push(c.length);
-
-  for (var i = 0; i < c.length; i++) {
-    b[i].unshift(c[i]);
-    texts.push(b[i].join(" "));
-  }
-
-  text = texts.map(function (a) {
-    return "" + a + "\r\n";
-  }).join("");
-  funDownload(text, Music.title + ".in");
-} //小调
-
-
-var vecm = {
-  "noteToChord": {
-    "C": [0.06682162427696613, 0.15987846440782924, 0.22670919623433183, 0.8884765591519372, 0.022832682798348693, 0.9841988612835452, 0.39912290278665863, 0.2526665664853643],
-    "D": [0.7056067314970312, 0.3159252477961235, 0.6692271320389316, 0.6764998743853997, 0.9579843169436604, 0.7123790212863748, 0.30188171974846306, 0.1434307049801028],
-    "E": [0.689443313497475, 0.6788847269635282, 0.43676565738680906, 0.9772843009955979, 0.021551613360160354, 0.9929168411355744, 0.7857430279260578, 0.5548755732645165],
-    "F": [0.0901877386904878, 0.900441496477114, 0.9915849917360332, 0.6527870154464497, 0.3501815749345145, 0.44330329077448033, 0.9999089906579344, 0.1661917198205599],
-    "G": [0.2090502925928198, 0.008112187663012508, 0.7125382821911306, 0.659690802159336, 0.5348141202611831, 0.38588669787499286, 0.7677022895901996, 0.46199380061018847],
-    "A": [0.8408764739610418, 0.8577611775613289, 0.18351015637138982, 0.6693838881894207, 0.6585108997099656, 0.014969490005902059, 0.9261078007309411, 0.015010330208816626],
-    "B": [0.10077982596665445, 0.8030263757624367, 0.4798817058200284, 0.3587900609105543, 0.035351544223797195, 0.6058297686348869, 0.3118211436881417, 0.39186967256180977]
-  },
-  "chordToChord": {
-    "C": {
-      "C": 0.8382415296257175,
-      "D": 0.49264787599829263,
-      "E": 0.0597526679881413,
-      "F": 0.4984289607827105,
-      "G": 0.6196185302724712,
-      "A": 0.6902761060980428,
-      "B": 0.9555596340296794
-    },
-    "D": {
-      "C": 0.7000563005110902,
-      "D": 0.6857780069289114,
-      "E": 0.8204323671031399,
-      "F": 0.5791606395284219,
-      "G": 0.2029394836020558,
-      "A": 0.9002486938285073,
-      "B": 0.6235907923045594
-    },
-    "E": {
-      "C": 0.33588739671478984,
-      "D": 0.5109043504245382,
-      "E": 0.7137913480436433,
-      "F": 0.2400106093371556,
-      "G": 0.48225792382331306,
-      "A": 0.6056336933326376,
-      "B": 0.6739167882773276
-    },
-    "F": {
-      "C": 0.6287371608637333,
-      "D": 0.20788426514141478,
-      "E": 0.9183829749231772,
-      "F": 0.2984964865153508,
-      "G": 0.5005973182408086,
-      "A": 0.5916983541889836,
-      "B": 0.26403367554607504
-    },
-    "G": {
-      "C": 0.8831385162990065,
-      "D": 0.8492816957170534,
-      "E": 0.13161643831369296,
-      "F": 0.46057153608052187,
-      "G": 0.6859596289698667,
-      "A": 0.6054483822385615,
-      "B": 0.3819305389705797
-    },
-    "A": {
-      "C": 0.9151520084152482,
-      "D": 0.7336556131308907,
-      "E": 0.8046180682567647,
-      "F": 0.23401443594462668,
-      "G": 0.9403133252914864,
-      "A": 0.9385956924342043,
-      "B": 0.6098185227957257
-    },
-    "B": {
-      "C": 0.5404343791985033,
-      "D": 0.030892568550605477,
-      "E": 0.8563889713395172,
-      "F": 0.23126926099329068,
-      "G": 0.27399554747968397,
-      "A": 0.32555479152217925,
-      "B": 0.5454267715931557
-    }
-  }
-}; //大调
-
-var vecM = {
-  "noteToChord": {
-    "C": [0.533778500399656, 0.7315164961129517, 0.40955377419137673, 0.8130194097590477, 0.2376514578983846, 0.5153625903071146, 0.16153577251956808, 0.4151919043070582],
-    "D": [0.334338377129676, 0.5009809896809293, 0.7955654725992779, 0.6410816450659881, 0.9573690245006664, 0.1233168912219759, 0.4359143422733917, 0.07626925344477015],
-    "E": [0.23039339528423117, 0.20185250683067046, 0.35389079240767735, 0.11359020390338563, 0.23307158921389862, 0.5312348896685904, 0.7030048386649397, 0.07348549278807837],
-    "F": [0.6449767433505329, 0.1318322148009068, 0.37813290627277624, 0.7020344467908111, 0.9861209899147108, 0.5158657488722271, 0.9520378101790329, 0.9000670493574867],
-    "G": [0.35949355289914936, 0.12901372987235807, 0.8961641532803956, 0.13100977205344422, 0.8365163274621302, 0.5812184934468668, 0.278315458013896, 0.8121451884990853],
-    "A": [0.4567491231778168, 0.5144894680205766, 0.13164049740831682, 0.43594598863618594, 0.737890626501837, 0.019884186516696437, 0.9924912749417406, 0.037165327319947705],
-    "B": [0.18515247264620613, 0.06930355496412537, 0.9825140283228598, 0.17763103741292915, 0.4415837285565801, 0.15168782335603717, 0.1096931535584187, 0.21334061178262273]
-  },
-  "chordToChord": {
-    "C": {
-      "C": 0.8745424675677527,
-      "D": 0.8677394432100112,
-      "E": 0.9638963064290332,
-      "F": 0.37653009719198877,
-      "G": 0.9006414843913223,
-      "A": 0.9619468942947698,
-      "B": 0.21588091214272492
-    },
-    "D": {
-      "C": 0.5496843786012777,
-      "D": 0.6712864036002664,
-      "E": 0.9422578926670379,
-      "F": 0.3867356749289795,
-      "G": 0.934928704933065,
-      "A": 0.8290292887079788,
-      "B": 0.5459807675369562
-    },
-    "E": {
-      "C": 0.2864680071465246,
-      "D": 0.9039345598750403,
-      "E": 0.6729889328085769,
-      "F": 0.33817188130673537,
-      "G": 0.45955724324782254,
-      "A": 0.3256554242618389,
-      "B": 0.589218753533059
-    },
-    "F": {
-      "C": 0.2129051497605393,
-      "D": 0.22901263859821355,
-      "E": 0.8084954238679756,
-      "F": 0.7572106939620307,
-      "G": 0.6831547516575245,
-      "A": 0.8053810756901034,
-      "B": 0.8410554251014908
-    },
-    "G": {
-      "C": 0.9573228756155804,
-      "D": 0.47118559247863323,
-      "E": 0.5679842214961524,
-      "F": 0.3271317408171027,
-      "G": 0.8683425353774102,
-      "A": 0.6266961427801953,
-      "B": 0.6885989224603677
-    },
-    "A": {
-      "C": 0.8167684703756019,
-      "D": 0.879756249682945,
-      "E": 0.550639876439573,
-      "F": 0.7865251685188956,
-      "G": 0.9474739528056066,
-      "A": 0.03514074184747007,
-      "B": 0.07424461644193779
-    },
-    "B": {
-      "C": 0.3698664428990315,
-      "D": 0.9587693751347723,
-      "E": 0.9020691335604665,
-      "F": 0.9330376231865428,
-      "G": 0.0736929511603932,
-      "A": 0.2155919532584745,
-      "B": 0.10495662797735436
-    }
-  }
-}; //万能
-
-var vecw = {
-  noteToChord: {
-    C: [0, 1, 0, 1, 0, 1, 0, 0],
-    D: [0, 0, 1, 0, 1, 0, 1, 0],
-    E: [0, 0, 0, 1, 0, 1, 0, 1],
-    F: [0, 1, 0, 0, 1, 0, 1, 0],
-    G: [0, 0, 1, 0, 0, 1, 0, 1],
-    A: [0, 1, 0, 1, 0, 0, 1, 0],
-    B: [0, 0, 1, 0, 1, 0, 0, 1]
-  },
-  chordToChord: {
-    C: {
-      C: 0.9117787894846079,
-      D: 0.0382383687582345,
-      E: 0.6767487284648094,
-      F: 0.5250415680972348,
-      G: 0.9143671686094578,
-      A: 0.7914710059250949,
-      B: 0.07975015314103984
-    },
-    D: {
-      C: 0.8114496388019052,
-      D: 0.8081559359265341,
-      E: 0.8400155064418713,
-      F: 0.5412932263173675,
-      G: 0.8938640070648131,
-      A: 0.7898143684930086,
-      B: 0.12340434263058286
-    },
-    E: {
-      C: 0.27794228299937057,
-      D: 0.6911620499353022,
-      E: 0.8094942754705181,
-      F: 0.6164758479132048,
-      G: 0.6225427303176126,
-      A: 0.3317074902751536,
-      B: 0.045998163968236874
-    },
-    F: {
-      C: 0.8855335343218353,
-      D: 0.905184533953884,
-      E: 0.5849875398415363,
-      F: 0.6155992673233941,
-      G: 0.9860161697743457,
-      A: 0.7431808724363902,
-      B: 0.8145680015789807
-    },
-    G: {
-      C: 0.9163930363375381,
-      D: 0.3431192241951286,
-      E: 0.8593546406966358,
-      F: 0.6274618320723613,
-      G: 0.8040026366863117,
-      A: 0.7806662809242505,
-      B: 0.618720958517009
-    },
-    A: {
-      C: 0.4778298673227063,
-      D: 0.7703557151876366,
-      E: 0.9593646420743888,
-      F: 0.8958285881020552,
-      G: 0.7003931606556157,
-      A: 0.9259135909783132,
-      B: 0.8782943100860323
-    },
-    B: {
-      C: 0,
-      D: 0.32056900601502597,
-      E: 0.21262657037927343,
-      F: 0.24113015764962006,
-      G: 0.3020558510426497,
-      A: 0.04005999941212325,
-      B: 0.3592573714296745
-    }
-  }
-};
-var vec = vecw;
-
-function compute(obj) {
-  var bars = obj;
-  var tmp = [];
-
-  for (var i in bars) {
-    tmp[i] = {
-      "prev": {},
-      "C": 0,
-      "D": 0,
-      "E": 0,
-      "F": 0,
-      "G": 0,
-      "A": 0,
-      "B": 0
-    };
-  }
-
-  ;
-
-  for (var _i = 0; _i < tmp.length; _i++) {
-    for (var j in 和弦表) {
-      j = 和弦表[j];
-
-      for (var k = 0; k < bars[_i].length; k++) {
-        try {
-          tmp[_i][j] += vec.noteToChord[j][k] * bars[_i][k];
-        } catch (e) {
-          cerr("i:", _i)("j:", j)("k:", k)("vec.noteToChord:", vec.noteToChord);
-          throw e;
-        }
-      }
-    }
-  } // Make Connections
-
-
-  for (var _i2 = 1; _i2 < tmp.length; _i2++) {
-    for (var _k in 和弦表) {
-      _k = 和弦表[_k];
-      var _maxval = 0;
-
-      for (var _j in 和弦表) {
-        _j = 和弦表[_j]; // j      k
-        // G  ->  C
-
-        var tmpval = tmp[_i2 - 1][_j] + tmp[_i2][_k] * vec.chordToChord[_j][_k];
-
-        if (tmpval > _maxval) {
-          _maxval = tmpval;
-          tmp[_i2].prev[_k] = _j;
-        }
-      }
-
-      tmp[_i2][_k] = _maxval;
-    }
-  } // Go back to see the result
-
-
-  var maxback,
-      maxval = 0,
-      res = [];
-
-  for (var _k2 in 和弦表) {
-    _k2 = 和弦表[_k2]; //作弊！！
-
-    if (bars[bars.length - 1][1] > bars[bars.length - 1][6]) {
-      _k2 = "C"; // 1比6多用大调
-    } else if (bars[bars.length - 1][1] < bars[bars.length - 1][6]) {
-      K = "A";
-    }
-
-    if (tmp[tmp.length - 1][_k2] > maxval) {
-      maxback = _k2;
-      maxval = tmp[tmp.length - 1][_k2];
-    }
-  }
-
-  for (var _i3 = tmp.length - 1; _i3 >= 0; _i3--) {
-    res.unshift(maxback);
-    maxback = tmp[_i3].prev[maxback];
-  }
-
-  return res;
-} //var Chord = {};
-
-
-Chord.getChord = function () {
-  var barlist = 确定每小节(); // 选择大小调模式
-
-  if (barlist[barlist.length - 1][1] > barlist[barlist.length - 1][6]) {
-    vec = vecw; // 1比6多用大调
-  } else if (barlist[barlist.length - 1][1] < barlist[barlist.length - 1][6]) {
-    vec = vecw;
-  } else {
-    vec = vecw; // 不明音乐。如果是民族音乐呢？（常见5结尾）
-  }
-
-  var tmp = compute(barlist);
-  var chords = {
-    C: [1, 3, 5],
-    D: [2, 4, 6],
-    E: [3, 5, 7],
-    F: [1, 4, 6],
-    G: [2, 5, 7],
-    A: [1, 3, 6],
-    B: [2, 4, 7]
-  };
-  var res = [];
-  tmp.forEach(function (chordkey, position) {
-    res[position] = Util.clone(chords[chordkey]);
-    var maxval = 0,
-        maxpos = -1;
-    res[position].forEach(function (note, index) {
-      if (barlist[position][note] > maxval) {
-        maxval = barlist[position][note];
-        maxpos = index;
-      }
-    }); //if(maxpos != -1)        res[position].splice(maxpos,1);
+function 标注(结果){
+  document.querySelectorAll(".chord_it").forEach(function (a) {
+      a.remove();
+    });
+    var doms = document.querySelectorAll('.measure');
+  var ele;
+  结果.forEach(function (it, id) {
+    ele = document.createElement('div');
+    ele.style.position = 'absolute';
+    ele.style.marginTop = '-0.8em';
+    ele.innerText = it;
+    ele.className = "chord_it";
+    doms[id].insertBefore(ele, doms[id].firstChild.nextSibling);
   });
-  return res;
-};
+}
+function tagCur(){
+  var res = Chord.getChord();
+  res = res.map(function(a){
+    return a.map((b) => (b.chord)).join('/')
+  });
+  标注(res)
+}

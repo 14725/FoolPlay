@@ -21,10 +21,14 @@
 /* H */
 .error {
   -webkit-user-select: text;
+  -webkit-user-select: all;
   -moz-user-select: text;
+  -moz-user-select: all;
   -ms-user-select: text;
+  -ms-user-select: all;
   -o-user-select: text;
   user-select: text;
+  user-select: all;
   border: dashed;
   color: red;
   padding: 3px;

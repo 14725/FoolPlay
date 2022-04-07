@@ -18,6 +18,51 @@
   <p style="color:red">
     警告：有大量浏览器不能正确保存文件。如果您用手机编辑乐谱，请先测试保存功能能否正常工作，以防数据丢失。
   </p>
+  <details>
+    <summary>其实能否正常保存，试试便知：</summary>
+    <p><a href="FAIL.htm" onclick='util_saveAs("下载测试通过","text/plain","下载测试通过.txt"); return false;'>测试网页脚本生成文件下载</a></p>
+    <script>
+function util_saveAs(content,mine,fileName){
+  if(Math.min(screen.width, screen.height) < 630){
+    if(!confirm('您似乎在使用手机访问本程序，文件保存功能可能可能不能正常工作：手机把临时地址当做网络地址下载。\n\n如果必要，尝试手机自带浏览器或 Ungoogled Chromium、Edge等浏览器。\n\n继续？'))return;
+  }
+  var url;
+  var blob;
+  /* 不使用文件本身的 MIME 以防触发浏览器特殊机制（如Chrome 会把网页 “打包”为MHTML 并破坏追加的脚本区域） */
+  if(mine.indexOf('html') > -1){
+    mine = 'application/octet-stream';
+  }
+  try {
+    blob = new File([content],fileName,{type:mine});
+  }catch(e){
+    blob = new Blob([content],{type:mine});
+    blob = new Blob([content],{type:mine});
+  }
+  url = URL.createObjectURL(blob);
+  setTimeout(function(){
+    URL.revokeObjectURL(url)
+  },40*1000);
+  if(blob){
+    if ('msSaveOrOpenBlob' in navigator) {
+      window.navigator.msSaveOrOpenBlob(blob, fileName);
+      return;
+    }
+  }
+  var link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+    </script>
+    <p>点击上面链接后：</p>
+    <ol>
+      <li>应该提示下载文件而非打开新页面；</li>
+      <li>下载应马上开始而不会有超过 1s 的延迟；</li>
+      <li>您应该可以打开下载后的文件，它应该是个文档，内含“下载测试通过”字样；</li>
+    </ol>
+  </details>
   <p>
     <a href="edit.htm#music=xy">《心愿》</a> |
     <a href="edit.htm#music=tl">《踏浪》</a> |

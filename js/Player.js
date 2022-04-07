@@ -534,9 +534,9 @@ Player.start = function player_start(startTime, tune, len, vol, isChord, word) {
   if (!Player.pianoSample) {
     vol *= 0.2;
     gain.gain.value = 0.001;
-    gain.gain.exponentialRampToValueAtTime(vol, Player.timeStart+startTime+0.05);
-    gain.gain.exponentialRampToValueAtTime(vol*0.2, Player.timeStart+startTime+len*0.6);
-    gain.gain.exponentialRampToValueAtTime(0.001, Player.timeStart+startTime+len);
+    gain.gain.exponentialRampToValueAtTime(vol, Player.timeStart+startTime+0.02);
+    gain.gain.exponentialRampToValueAtTime(vol*0.2, Player.timeStart+startTime+len*0.8);
+    gain.gain.linearRampToValueAtTime(0.001, Player.timeStart+startTime+len);
     osc = Player.ctx.createOscillator();
     //osc.type = "sine";
     osc.setPeriodicWave(Player.wave);
@@ -921,14 +921,17 @@ Player.splitUp = function player_splitUp() {
     }
   }
 
-  var chordNotes = Chord.getChord();
+  var chordNotes = Chord.getChord().flat();
+  console.log('chordNotes',chordNotes)
+  var sttime = 0;
   chordNotes.forEach(function (noteary, id) {
-    var sttime = lenSection * id;
-    var ttlen = lenSection;
+    var ttlen = noteary.len;;
+    console.log(noteary)
+    noteary = noteary.chordnotes
     var extend = 1;
-    if (id < chordNotes.length-1 && noteary.toString() == chordNotes[id+1].toString()) {
+    /*if (id < chordNotes.length-1 && noteary.toString() == chordNotes[id+1].toString()) {
       extend = 4;
-    }
+    }*/
     var volBoost = 1.2;
     while (ttlen > 0) {
       noteary.forEach(function (note) {
@@ -945,7 +948,7 @@ Player.splitUp = function player_splitUp() {
       sttime += lenTempo;
       ttlen -= lenTempo;
     }
-
+    sttime += ttlen;
   });
 
   Player.music.sort(function(a,
@@ -1137,6 +1140,7 @@ Player.downloadVoice = async function(){
 
 
 Player.saveWav = async function player_play() {
+  Player.stop();
   var dom;
   dom = PopupWindow.alert('渲染人声中...');
   Player.splitUp();
@@ -1175,7 +1179,7 @@ Player.saveWav = async function player_play() {
     while (voice.length) {
       dom.remove();
       dom = PopupWindow.alert('合成人声中：剩余' + voice.length + '项。');
-      await Util.tick();
+      (Math.random() > 0.7) && await Util.tick();
       cur = voice[0];
       if (!cur.f[0] || isNaN(cur.f[0].f)) {
         voice.shift();

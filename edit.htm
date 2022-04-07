@@ -85,12 +85,13 @@
 			<a href="./" >关于...</a>
 		</div>
 	</div>
-	<div class="item" style="display:none;">和弦
+	<div class="item">和弦
 		<div class="menu">
 			<a onclick="PopupWindow.open(chordWindow)" target="help">手动输入</a>
-			<a onclick="和弦标注(1)">新机械</a>
+			<a onclick="Music.music = Music.flat();Music.loops = [];UI.render()" target="help">展开循环</a>
 			<a onclick="转换为C调()" target="help">转换为C调</a>
 			<a onclick="输出()" target="help">输出</a>
+			<a onclick="tagCur()" target="help">机械结果</a>
 		</div>
 	</div>
 </div>
@@ -185,8 +186,12 @@
 <script>
 	//if(! "eruda" in window)
 	window.onerror = function(message, source, lineno, colno, error) {
-		var ele = document.createElement("div");
-		ele.className = "error";
+		var ele2 = document.createElement("div");
+		var ele = document.createElement("pre");
+		ele2.appendChild(ele);
+		ele2.className = "error";
+		ele.style.overflow = "auto"
+		ele.style.clear = "both"
 		ele.innerHTML += "程序内部错误：<br />"+error+"<br />";
 		ele.innerHTML += message;
 		ele.innerHTML += "<br />在脚本文件 " + source + " 中<br /><br />";
@@ -194,9 +199,8 @@
 		try{
 		  ele.innerHTML += error.stack;
 		}catch(e){};
-		ele.innerHTML += "<br />刚才您进行的操作已经停止。请尝试另存为文件，这有可能减少数据的损失。<br /><br />";
-		ele.innerHTML = '<input type="button" style="float:right" value="关闭" onclick="this.parentNode.parentNode.removeChild(this.parentNode)">' + ele.innerHTML;
-		document.body.appendChild(ele);
+		ele2.innerHTML = '错误<div style="float:right;" ><input type="button" value="关闭全部" onclick="var a;while(a = document.querySelector(`.error`))a.remove();"><input type="button" value="关闭" onclick="this.parentNode.parentNode.remove()"></div>' + ele2.innerHTML;
+		document.body.appendChild(ele2);
 		ele.scrollIntoView();
 	}
 </script>
@@ -230,7 +234,7 @@
 	<div class="window on" id="chordWindow">
 		<div class="windowtitle">手动输入和弦<button class="close"><b>×</b></button></div>
 		<div class="content">
-			<input id="chordinput" oninput="Chord(2)"/>
+			<input id="chordinput" oninput=""/>
 		</div>
 	</div>
 	<div class="window on" id="voiceWindow">
