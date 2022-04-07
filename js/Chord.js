@@ -340,7 +340,7 @@ Chord.getChord = function (bars) {
   var alter = {};
   barVecs.forEach(function(a){
     for(var i = 1; i< a.length; i++){
-      a._alter = true;
+      a[i]._alter = true;
     }
   });
   barVecs.flat().forEach(function(a,i){
