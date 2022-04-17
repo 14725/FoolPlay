@@ -5,7 +5,35 @@ self.addEventListener("install", function(evt){
 });
 
 self.addEventListener("fetch", function(evt){
-	evt.respondWith(NetworkFirst(evt.request));
+	//evt.respondWith(NetworkFirst(evt.request));
+	evt.respondWith(new Promise(function(respondWith){
+	var netPromise = NetworkFirst(evt.request);
+	var timeoutTimer = setTimeout(async function(){
+	  var request = evt.request;
+	  var cache,response;
+	  if(!checkNeed(request,{ok:true})){
+	    return;
+	  }
+	  cache = await caches.open(CACHE);
+	  if(!timeoutTimer) return;
+	  response = await cache.match(request);
+	  if(!timeoutTimer) return;
+	  if(response) {respondWith( response);
+	  timeoutTimer = 0;
+	  console.log(`response from timeout`,response);}
+
+	},1000);
+	netPromise.then(function(response){
+	  if(!timeoutTimer) return;
+	  else {
+	    clearTimeout(timeoutTimer);
+	    timeoutTimer=0;
+	    respondWith(response);
+	  }
+	  console.log(`response from networkFirst`,response);
+	});
+	}));
+	
 });
 
 async function NetworkFirst(request){
@@ -45,7 +73,6 @@ async function NetworkFirst(request){
 	  return errorPage(e);
 	}
 }
-
 function offlineErrorPage(error){
   var html = `
   <meta charset="utf-8"/>

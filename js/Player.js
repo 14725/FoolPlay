@@ -577,12 +577,8 @@ Player.queueHighLight = function fn() {
   if (cur == null) return;
   var dom = UI.dom[Math.max(0, cur.eleId-1)];
   dom.className += " hl";
-  function f(d) {
-    for (var i = 1; i <= 10; i++) {
-      setTimeout(function(d) {
-        window.scrollBy(0, d / 10)}, i*100, d);
-    }
-  }
+  
+  
   document.body.style.scrollBehavior = 'smooth';
   document.body.parentNode.style.scrollBehavior = 'smooth';
   var rect = dom.getBoundingClientRect();
@@ -599,7 +595,7 @@ Player.queueHighLight = function fn() {
   while (Player.highLight.length && (Player.highLightStamp+cur.time*1000-time) < -50) {
     cur = Player.highLight.shift();
   }
-  setTimeout(fn, Math.max(0, (Player.highLightStamp+cur.time*1000-time)|0));
+  Player.highLightTid = setTimeout(fn, Math.max(0, (Player.highLightStamp+cur.time*1000-time)|0));
 };
 
 
@@ -634,6 +630,8 @@ Player.stop = function player_stop() {
   Player.tasking = [];
   clearInterval(Player.musicTId);
   clearInterval(Player.voiceTId);
+  clearTimeout(Player.highLightTid);
+  
 };
 
 Player.sing = Player.play = function player_play() {
