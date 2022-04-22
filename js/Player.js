@@ -115,6 +115,48 @@ Object.defineProperty(Array.prototype,'chainableForEach',{
     return this;
   }
 });
+/* Smooth scroll */
+(function(){
+  try{
+    window.scrollTo({
+      left:self.pageXOffset
+    });
+    return;
+  }catch(e){}
+  var rawScrollTo = window.scrollTo.bind(window);
+  var timer = 0;
+  var tLeft, tTop;
+  function t(){
+    var lastY = self.pageYOffset;
+    rawScrollTo(self.pageXOffset * 0.9 + tLeft * 0.1, lastY * 0.9 + tTop * 0.1);
+    if(Math.abs(lastY - self.pageYOffset) < 2){
+      rawScrollTo(tLeft,tTop);
+      timer = 0;
+    } else {
+      timer = requestAnimationFrame(t);
+    }
+  }
+  window.scrollTo = function scrollTo_Hacked(a,b){
+    if(b !== undefined){
+      scrollTo_Hacked({
+        left:a,top:b
+      })
+    }else{
+      a.left || (a.left = self.pageXOffset);
+      a.top || (a.top = self.pageYOffset);
+      if(a.behavior == 'smooth'){
+        tLeft = a.left;
+        tTop = a.top;
+        if(!timer){
+          timer = requestAnimationFrame(t);
+        }
+      } else {
+        cancelAnimationFrame(timer);
+        rawScrollTo(a.left,a.top);
+      }
+    }
+  };
+})();
 
 var Player = {
   ctx: null,
@@ -579,17 +621,19 @@ Player.queueHighLight = function fn() {
   dom.className += " hl";
   
   
-  document.body.style.scrollBehavior = 'smooth';
-  document.body.parentNode.style.scrollBehavior = 'smooth';
   var rect = dom.getBoundingClientRect();
   if (rect.bottom > window.innerHeight - 30) {
     // 太靠底，滚到页面上方
-    window.scrollTo(0, document.scrollingElement.scrollTop + rect.top - 40);
+    window.scrollTo({
+      top:document.scrollingElement.scrollTop + rect.top - 40,
+      behavior: 'smooth'
+    });
   } else if (rect.top < 30) {
-    window.scrollTo(0, document.scrollingElement.scrollTop + rect.top - 40);
+    window.scrollTo({
+      top:document.scrollingElement.scrollTop + rect.top - 40,
+      behavior: 'smooth'
+    });
   }
-  document.body.style.scrollBehavior = 'auto';
-  document.body.parentNode.style.scrollBehavior = 'auto';
 
   var time = Math.round(Player.ctx.currentTime * 1000);
   while (Player.highLight.length && (Player.highLightStamp+cur.time*1000-time) < -50) {
