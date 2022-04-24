@@ -118,7 +118,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
   if(1){
   if (!Player.enableVoice)return;
   if (!sentense)    return;
-  if (!Player.meta) {
+  if (!Player.meta && Object.keys(Player.anoMeta).length == 0) {
     Player.trace('音源尚未加载。');
     return;
   }
@@ -128,7 +128,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
   }
 
   
-  pinyin = (sentense.replace(/[^a-z]gi/,'').toLowerCase() in Player.anoMeta ) ? sentense.replace(/[^a-z]/ig,'').toLowerCase() : sentense.split("").map(function(a) {
+  pinyin = (sentense.replace(/[^a-z]/ig,'').toLowerCase() in Player.anoMeta ) ? sentense.replace(/[^a-z]/ig,'').toLowerCase() : sentense.split("").map(function(a) {
     return Pinyin.convertToPinyin(a, '', true)})[0];
   if (!pinyin) return;
   pinyin = pinyin.replace(/[^a-z]/ig,'').toLowerCase();
@@ -587,7 +587,9 @@ Player.stop = function player_stop() {
   clearInterval(Player.musicTId);
   clearInterval(Player.voiceTId);
   clearTimeout(Player.highLightTid);
-  
+  var hl = document.querySelector(".hl")
+  if (hl) hl.className = hl.className.replace('hl','').replace(/\s\s+/,' ');
+
 };
 
 Player.sing = Player.play = function player_play() {

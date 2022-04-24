@@ -579,11 +579,10 @@ input[type=number] {
 	position: fixed;
 	background: #CCCCFF;
 	padding: 3px;
-	border: 1px solid black;
 	font-family: Simsun ,serif;
 	cursor: default;
 	z-index: 2;
-	border-radius: 3px 3px 0 0;
+	border-radius: 5px 5px 0 0;
 	opacity:0.6;
 }
 .window.on:before{
@@ -591,6 +590,7 @@ input[type=number] {
   position:fixed;
   top:-100%;left:-100%;width:300%;height:300%;
   background: rgba(0,0,0,0.3);
+  
   z-index: -2;
 }
 .window.loading:before{
@@ -602,6 +602,9 @@ input[type=number] {
   top:0;left:0;width:100%;height:100%;
   background: linear-gradient(transparent 20%,hsla(0,0%,100%,.7) 40%,transparent 41%),linear-gradient(90deg,hsla(0,0%,100%,.4),rgba(0,0,0,.1),hsla(0,0%,100%,.2)),linear-gradient(55deg,transparent,rgba(0,0,0,.1) 20%,rgba(0,0,0,.1) 50%,transparent 53%),#4580c4;
   z-index: -2;
+  box-shadow: 0px 0px 50px -10px black, 0px 0px 3px white inset;
+	border-radius: 5px 5px 0 0;
+
 }
 .window.on{
 	background: rgb(215,215,255);
@@ -620,6 +623,8 @@ input[type=number] {
 	-o-user-select:none;
 	user-select:none;
 	box-sizing:content-box;
+  text-shadow: -1px 0 10px white,1px 0 10px white,0 -1px 10px white,0 1px 10px white,0 0 10px white;
+
 }
 .window > .windowtitle > button {
   float: right;

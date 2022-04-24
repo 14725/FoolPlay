@@ -23,9 +23,6 @@
     <p><a href="FAIL.htm" onclick='util_saveAs("下载测试通过","text/plain","下载测试通过.txt"); return false;'>测试网页脚本生成文件下载</a></p>
     <script>
 function util_saveAs(content,mine,fileName){
-  if(Math.min(screen.width, screen.height) < 630){
-    if(!confirm('您似乎在使用手机访问本程序，文件保存功能可能可能不能正常工作：手机把临时地址当做网络地址下载。\n\n如果必要，尝试手机自带浏览器或 Ungoogled Chromium、Edge等浏览器。\n\n继续？'))return;
-  }
   var url;
   var blob;
   /* 不使用文件本身的 MIME 以防触发浏览器特殊机制（如Chrome 会把网页 “打包”为MHTML 并破坏追加的脚本区域） */
@@ -81,7 +78,7 @@ function util_saveAs(content,mine,fileName){
   <ul>
     <li>键盘简谱输入；</li>
     <li>
-      简易播放，包括人声合成以及伴奏，但没有暂停（<code>|X X X X|X X X X|...|</code>
+      简易播放，包括人声合成以及伴奏，但没有暂停（<code>|X X X X|X X X X|...|</code>。人声方面，加载袅袅格式音源实现中文合成，加载meSpeak TTS 引擎实现英文合成。
       ）；
     </li>
     <li>可以按照JSON格式保存到电脑上或者读取由本程序保存功能输出的文件。</li>

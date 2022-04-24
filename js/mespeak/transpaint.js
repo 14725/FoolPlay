@@ -7,7 +7,7 @@ Transplant.loadMeSpeak = function(){
   document.body.appendChild(script);
 };
 Transplant.loadVoice = function(){
-  loadme.innerText = '加载英语数据...';
+  loadme.innerText = '加载英语语音数据...';
   meSpeak.loadVoice('en.json',Transplant.avalible);
 };
 Transplant.addVoice = async function(text){
@@ -27,7 +27,7 @@ Transplant.addVoice = async function(text){
       ok(data);
     });
   });
-  var ctx = Player.ctx;
+  var ctx = Transplant.ctx;
   var buf = await ctx.decodeAudioData(wav);
   var float32 = buf.getChannelData(0);
   var int16 = new Int16Array(float32.length);
@@ -61,12 +61,14 @@ Transplant.addAllVoice = async function(){
       await Transplant.addVoice(i);
     }
   }
+  Player.trace('英语发音准备完成。')
 };
 Transplant.avalible = function(){
   loadme.onclick = Transplant.addAllVoice;
   loadme.innerText = '为本乐谱准备英语';
 }
 Transplant.main = function(){
+  Transplant.ctx = new OfflineAudioContext(1,1,44100)
   Transplant.loadMeSpeak();
 };
 
