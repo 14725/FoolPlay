@@ -15,4 +15,4 @@ mespeak.js 应该可以从 https://masswerk.at/mespeak/ 找到。
 ```
 然而 它仍然不会在手机上加载 Worker. 
 
-mespeak-core.js （而不是源码或压缩包内文件） 被修改过，使 f5 失去音调。（用16进制器定位到 `1718A0A9` .或用文本编辑器查找 `pitch 228 228`）
+mespeak-core.js （而不是源码或压缩包内文件） 被修改过，使 f5 失去音调。（用16进制器定位到 `1718A9` .或用文本编辑器查找 `pitch 441 441`）

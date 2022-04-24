@@ -33,16 +33,27 @@ Transplant.addVoice = async function(text){
   var int16 = new Int16Array(float32.length);
   var i = float32.length - 1;
   while(i != 0){
-    int16[i] = float32[i] * 32767 - 32767/2;
+    int16[i] = float32[i] * 32767;
     i--;
   }
-  console.log(int16)
+  /* 自动标注 */
+  var i,sum=0;
+  const WIN = 1024;
+  const MINE = 0.03;
+  for(i = 0; i<WIN; i++){
+    sum += float32[i] * float32[i];
+  }
+  for(; i < 22050; i++){
+    sum += float32[i] * float32[i];
+    sum -= float32[i-WIN] * float32[i-WIN];
+    if(sum > MINE * WIN) break;
+  }
   var item = {
-    consonant:2048,
+    consonant:i,
     data: int16, /* int16s */
     vowel: int16.length - 2048,
     length: int16.length * 2, /* x * 2 */
-    freq: 225
+    freq: 441
   };
   Player.anoMeta[text] = item;
 };
