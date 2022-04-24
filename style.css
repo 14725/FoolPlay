@@ -4,20 +4,13 @@
   font-weight:normal;
   font-style:normal;
 }
-
 .yin {
   line-height: 24px;
   height: 24px;
   margin-top: -7px;
 }
 
-
-/*Fix from normalize.css*/
-/**
- * Prevent `sub` and `sup` elements from affecting the line height in
- * all browsers.
- */
-
+/* Some style was taken from  7.css, */
 /* H */
 .error {
   -webkit-user-select: text;
@@ -35,9 +28,6 @@
   clear: both;
 }
 @-ms-viewport {
-  width: device-width;
-}
-@viewport {
   width: device-width;
 }
 input::-webkit-outer-spin-button,
@@ -72,7 +62,7 @@ body {
   padding-bottom: 3em;
   box-sizing: border-box;
   background: #FFF;
-  box-shadow: 0px 0px 5px #aaa;
+  box-shadow: 0 0 5px #aaa;
   overflow: visible;
 }
 body::after {
@@ -108,13 +98,12 @@ input::-ms-clear {
 }
 .menu,.status {
   z-index: 2;
-  background: #eee;
+  background: #f0f0f0;
   position: absolute;
   padding: 2px 0;
   text-align: justify;
-  border-style: none solid solid none;
-  border-width: 1px;
-  border-color: #aaa;
+  border: 1px solid rgba(0,0,0,.4);
+  box-shadow: 4px 4px 3px -2px rgba(0,0,0,.5)
 }
 .menu.line,.status {
   left: 0;
@@ -126,6 +115,10 @@ input::-ms-clear {
 }
 .menu.line {
   top: 0;
+  background: linear-gradient(#fff 20%,#f1f4fa 25%,#f1f4fa 43%,#d4dbee 48%,#e6eaf6);
+  box-shadow: none;
+  border-right: none;
+
 }
 .status {
   bottom: 0;
@@ -153,7 +146,8 @@ input::-ms-clear {
   left: -1.2em;
 }
 .menu>*:hover {
-  background: #dff;
+  background: linear-gradient(hsla(0,0%,100%,.5), rgba(184,214,251,.5) 60%, rgba(184,214,251,.5) 90%, hsla(0,0%,100%,.8));
+
 }
 .menu.line>* {
   float: left;
@@ -216,8 +210,10 @@ input::-ms-clear {
   margin-bottom: 5px;
 }
 .measure{
-  flex-wrap: wrap;
   max-width: 101%;
+}
+.measure:last-child{
+  flex-wrap: wrap;
 }
 .sectionLine {
   height: 40px;
@@ -337,7 +333,6 @@ body:not(.fensanalign) .container::after {
   text-align: center;
   -webkit-appreatce: none;
   width: 1.5em;
-
 }
 input:not([type]),
 input[type=text],
@@ -420,10 +415,9 @@ label {
 }
 .caret,#caret {
   position: absolute;
-  border: 1px solid;
+  border-left: 1px solid;
   animation: caretflash cubic-bezier(1,0,0,1)  1s;
   -webkit-animation: caretflash cubic-bezier(1,0,0,1)  1s;
-  /* Safari �� Chrome */
   animation-iteration-count: infinite;
   -webkit-animation-iteration-count: infinite;
   height: 60px;
@@ -534,7 +528,6 @@ label {
   width: 18px;
   height: 18px;
   background: url(img/segno.svg) center/contain no-repeat;
-
   visibility: visible;
   position: absolute;
   top: -10px;
@@ -582,52 +575,78 @@ input[type=number] {
 
 
 .window {
-  display: none;
-  position: fixed;
-  background: #CCCCFF;
-  padding: 3px;
-  border: 1px solid black;
-  font-family: Simsun ,serif;
-  cursor: default;
-  z-index: 2;
-  border-radius: 3px 3px 0 0;
+	display: none;
+	position: fixed;
+	background: #CCCCFF;
+	padding: 3px;
+	border: 1px solid black;
+	font-family: Simsun ,serif;
+	cursor: default;
+	z-index: 2;
+	border-radius: 3px 3px 0 0;
+	opacity:0.6;
 }
-
-.window.on {
-  background: rgb(0,0,128);
-  z-index: 2;
-  opacity: 1;
+.window.on:before{
+  content: '';
+  position:fixed;
+  top:-100%;left:-100%;width:300%;height:300%;
+  background: rgba(0,0,0,0.3);
+  z-index: -2;
 }
-.windowtitle {
-  text-align: left;
-  padding: 4px;
-  color: #fff;
-  height: 18px;
-  overflow: hidden;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  box-sizing: content-box;
+.window.loading:before{
+  display:none;
+}
+.window.on:after{
+  content: '';
+  position:absolute;
+  top:0;left:0;width:100%;height:100%;
+  background: linear-gradient(transparent 20%,hsla(0,0%,100%,.7) 40%,transparent 41%),linear-gradient(90deg,hsla(0,0%,100%,.4),rgba(0,0,0,.1),hsla(0,0%,100%,.2)),linear-gradient(55deg,transparent,rgba(0,0,0,.1) 20%,rgba(0,0,0,.1) 50%,transparent 53%),#4580c4;
+  z-index: -2;
+}
+.window.on{
+	background: rgb(215,215,255);
+	z-index: 2;
+	opacity:1;
+}
+.windowtitle{
+	text-align:left;
+	padding:4px;
+	color:#000;
+	height:18px;
+	overflow:hidden;
+	-webkit-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	-o-user-select:none;
+	user-select:none;
+	box-sizing:content-box;
 }
 .window > .windowtitle > button {
   float: right;
   width: 18px;
   height: 18px;
   padding: 0;
+  color:white;
+  transform: scale(1.2);
+  background: red;
+  background: radial-gradient(ellipse at center, rgba(204,134,134,1) 30%,rgba(204,0,0,1) 100%);
+  border: solid 1px white;
 }
-
 .window button {
-  border: solid 1px 2px 2px 1px;
-  border-color: #FFF rgb(134,138,142) rgb(134,138,142) #FFF;
+  border-style:solid;
+  border-width: 1px 2px 2px 1px;
+  border-color: #eee rgb(134,138,142) rgb(134,138,142) #eee;
+  box-shadow: 0 0 1px gray;
+  border-radius: 3px;
 }
 .window button:active {
   border-color: rgb(134,138,142) #FFF #FFF rgb(134,138,142);
 }
-
 .window .content {
   background: #fff;
+  border: 1px solid rgba(0,0,0,.6);
+  background: #f0f0f0;
+  box-shadow: 0 0 1px .5px #fff;
   padding: 3px;
 }
 .window .content .msg {
@@ -637,4 +656,8 @@ input[type=number] {
   height: 1.2em;
   text-align: center;
   white-space:nowrap;
+}
+
+.append-yes:after{
+  content: '✔️';
 }

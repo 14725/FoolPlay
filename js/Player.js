@@ -1,94 +1,5 @@
 // jshint maxerr:9999
 
-/*! https://mths.be/scrollingelement v1.5.2 by @diegoperini & @mathias | MIT license */
-/* Shrunk to be small by asdfqw */
-if (!('scrollingElement' in document)) (function() {
-  function computeStyle(element) {
-    return getComputedStyle(element, null);
-  }
-
-  function isBodyElement(element) {
-    return element instanceof HTMLBodyElement;
-  }
-
-  function getNextBodyElement(frameset) {
-    // We use this function to be correct per spec in case `document.body` is
-    // a `frameset` but there exists a later `body`. Since `document.body` is
-    // a `frameset`, we know the root is an `html`, and there was no `body`
-    // before the `frameset`, so we just need to look at siblings after the
-    // `frameset`.
-    var current = frameset;
-    while (current = current.nextSibling) {
-      if (current.nodeType == 1 && isBodyElement(current)) {
-        return current;
-      }
-    }
-    // No `body` found.
-    return null;
-  }
-
-  // Note: standards mode / quirks mode can be toggled at runtime via
-  // `document.write`.
-  var isCompliantCached;
-  var isCompliant = function() {
-    var isStandardsMode = /^CSS1/.test(document.compatMode);
-    if (!isStandardsMode) {
-      // In quirks mode, the result is equivalent to the non-compliant
-      // standards mode behavior.
-      return false;
-    }
-    if (isCompliantCached === void 0) {
-      // When called for the first time, check whether the browser is
-      // standard-compliant, and cache the result.
-      var iframe = document.createElement('iframe');
-      iframe.style.height = '1px';
-      (document.body || document.documentElement || document).appendChild(iframe);
-      var doc = iframe.contentWindow.document;
-      doc.write('<!DOCTYPE html><div style="height:9999em">x</div>');
-      doc.close();
-      isCompliantCached = doc.documentElement.scrollHeight > doc.body.scrollHeight;
-      iframe.parentNode.removeChild(iframe);
-    }
-    return isCompliantCached;
-  };
-
-  function isRendered(style) {
-    return style.display != 'none' && !(style.visibility == 'collapse' &&
-      /^table-(.+-group|row|column)$/.test(style.display));
-  }
-
-  function isScrollable(body) {
-    // A `body` element is scrollable if `body` and `html` both have
-    // non-`visible` overflow and are both being rendered.
-    var bodyStyle = computeStyle(body);
-    var htmlStyle = computeStyle(document.documentElement);
-    return bodyStyle.overflow != 'visible' && htmlStyle.overflow != 'visible' &&
-    isRendered(bodyStyle) && isRendered(htmlStyle);
-  }
-
-  var scrollingElement = function() {
-    if (isCompliant()) {
-      return document.documentElement;
-    }
-    var body = document.body;
-    // Note: `document.body` could be a `frameset` element, or `null`.
-    // `tagName` is uppercase in HTML, but lowercase in XML.
-    var isFrameset = body && !/body/i.test(body.tagName);
-    body = isFrameset ? getNextBodyElement(body): body;
-    // If `body` is itself scrollable, it is not the `scrollingElement`.
-    return body && isScrollable(body) ? null: body;
-  };
-  document.scrollingElement = scrollingElement();
-  if (Object.defineProperty) {
-    // Support modern browsers that lack a native implementation.
-    Object.defineProperty(document, 'scrollingElement', {
-      'get': scrollingElement
-    });
-  } else if (document.__defineGetter__) {
-    // Support Firefox ≤ 3.6.9, Safari ≤ 4.1.3.
-    document.__defineGetter__('scrollingElement', scrollingElement);
-  }
-}());
 /* Array.flat/flatmap的填补*/
 (function() {
     Array.prototype.flat || Object.defineProperty(Array.prototype, "flat", {
@@ -181,12 +92,14 @@ var Player = {
   enableChord: true,
   enableMusic: true,
 
+  
 
   tasking: [],
 
   storage: yuxStorage
 };
 Player.meta = {};
+Player.anoMeta = {};
 Player.buffer = null;
 /* 对象模板 */
 var itemT = {
@@ -215,11 +128,11 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
   }
 
   
-  sentense = sentense[0];
-  pinyin = sentense.split("").map(function(a) {
+  pinyin = (sentense.replace(/[^a-z]gi/,'').toLowerCase() in Player.anoMeta ) ? sentense.replace(/[^a-z]/ig,'').toLowerCase() : sentense.split("").map(function(a) {
     return Pinyin.convertToPinyin(a, '', true)})[0];
   if (!pinyin) return;
-  if (!(pinyin in Player.meta)) {
+  pinyin = pinyin.replace(/[^a-z]/ig,'').toLowerCase();
+  if (!(pinyin in Player.meta) && !(pinyin in Player.anoMeta)) {
     Player.trace('未知拼音：'+sentense+': '+pinyin);
     return;
   }
@@ -239,13 +152,17 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol,raw
     var nextT = a[i+1]?a[i+1].time:len;
     avgFreq += f.f * (nextT - f.time);
   });
-  Player.meta[pinyin].forEach(function(a){
-    if(Math.abs(a.freq - avgFreq) < bestFreq){
-      bestVoice = a;
-      bestFreq = Math.abs(a.freq - avgFreq);
-    }
-  });
   avgFreq /= len;
+  if(Player.anoMeta[pinyin]){
+    bestVoice = Player.anoMeta[pinyin];
+  } else {
+    Player.meta[pinyin].forEach(function(a){
+      if(Math.abs(a.freq - avgFreq) < bestFreq){
+        bestVoice = a;
+        bestFreq = Math.abs(a.freq - avgFreq);
+      }
+    });
+  }
   //延长处理
   if (!raw.isTooLong|| sentense == '啦') {
     shouldC = true;
@@ -622,18 +539,13 @@ Player.queueHighLight = function fn() {
   
   
   var rect = dom.getBoundingClientRect();
-  if (rect.bottom > window.innerHeight - 30) {
-    // 太靠底，滚到页面上方
+  if (rect.bottom > window.innerHeight - 30 || rect.top < 40) {
     window.scrollTo({
-      top:document.scrollingElement.scrollTop + rect.top - 40,
+      top:window.pageYOffset + rect.top - 40,
       behavior: 'smooth'
     });
-  } else if (rect.top < 30) {
-    window.scrollTo({
-      top:document.scrollingElement.scrollTop + rect.top - 40,
-      behavior: 'smooth'
-    });
-  }
+  } 
+  
 
   var time = Math.round(Player.ctx.currentTime * 1000);
   while (Player.highLight.length && (Player.highLightStamp+cur.time*1000-time) < -50) {
@@ -1234,7 +1146,7 @@ Player.saveWav = async function player_play() {
   }
 
   // voice
-  taskMusic()
+  taskMusic();
   await taskVoice();
   window.data = null;
   (async function(ctx){
@@ -1251,7 +1163,7 @@ Player.saveWav = async function player_play() {
   Player.target = Player._oldtar;
   Player.target = Player._oldtar;
   window.data =await pro;
-  Util.saveAs(Player.bufferToWave(window.data),'audio/wav', Music.title +'.wav')
+  Util.saveAs(Player.bufferToWave(window.data),'audio/wav', Music.title +'.wav');
 };
 Player.bufferToWave = function bufferToWave(abuffer, len) {
   var numOfChan = abuffer.numberOfChannels,
@@ -1306,7 +1218,7 @@ Player.bufferToWave = function bufferToWave(abuffer, len) {
       pos += 2;
     }
     // next source sample
-    offset++
+    offset++;
   }
 
   // create Blob
@@ -1323,5 +1235,12 @@ Player.bufferToWave = function bufferToWave(abuffer, len) {
     view.setUint32(pos, data, true);
     pos += 4;
   }
-}
+};
 
+Player.loadMeSpeak = function(){
+  loadme.innerText = '加载中...';
+  loadme.href = 'javascript:';
+  var script = document.createElement('script');
+  script.src = 'js/mespeak/transpaint.js';
+  document.body.appendChild(script);
+}

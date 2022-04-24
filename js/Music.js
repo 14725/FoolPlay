@@ -871,7 +871,7 @@ UI.getHTMLforNote = function ui_getHTMLforNote(note, id) {
   return html;
 };
 UI.getHTMLUnit = function ui_getHTMLUnit(classes, pitch, word, id) {
-  var regp = /(，|。|？|：|！|“|”|、|；)/g;
+  var regp = /([,.?!，。？：！“”、；])/g;
   return ('<div class="note $classes" data-id="$id"><div class="acnote"><div class="upo"></div><div class="yin">$pitch</div><div class="minusline"></div><div class="downo"></div></div><div class="geci">$word</div></div>')
     .split("$classes").join(classes)
     .split("$pitch").join(Util.t2h(pitch))
@@ -1450,8 +1450,9 @@ UI.onChangeListener = function ui_onChangeListener(event) {
   else howmany = end - start,
     index = start;
   if (UI.editingLynicLine == -1) UI.editingLynicLine = 0;
+  console.log('content',content)
   UI.spliceWord(index, howmany, content);
-  UI.selStart = UI.selEnd = content.length + start;
+  UI.selStart = UI.selEnd = content.length + start - (content.match(UI.symbols) ? content.match(UI.symbols).length : 0 );
   UI.refreshIME("");
   UI.render();
 };
@@ -1461,36 +1462,51 @@ UI.insertEdit = function ui_insertEdit(notes) {
   Music.music = [].concat(Music.music.slice(0, UI.selStart), notes, Music.music.slice(UI.selEnd));
   UI.render();
 };
+UI.symbols = /[-abcdefghijklmnopqrstuvwxyz,.!'?，。；【】、！￥…（）—：“”’‘《》？]/ig;
 UI.spliceWord = function ui_spliceWord(index, howmany, str) {
   var items = [];
   var pushingSymbol = "";
   var char;
-  var symbols = "，。；【】、！￥…（）—：“”’‘《》？";
+  var symbols = UI.symbols;
   var isPushing = true;
-  if (str != "" && symbols.indexOf(str.charAt(0)) >= 0 && index >= 0) {
-    UI.spliceWord(index - 1, howmany + 1, Music.music[index - 1].word[UI.editingLynicLine] + str);
+  if (str != "" && symbols.test(str.charAt(0)) && index >= 0) {
+    UI.spliceWord(index - 1, howmany + 1, (Music.music[index - 1].word[UI.editingLynicLine]||' ') + str);
     return;
   }
   //准备插入
   for (var i = 0; i < str.length; i++) {
     char = str.charAt(i);
-    if (symbols.indexOf(char) >= 0) {
+    console.log('char ',char);
+    /*if (symbols.test(char)) {
       if (isPushing) {
         pushingSymbol += char;
       } else {
         if(items[items.length - 1] == null){
           items[items.length - 1] = '';
         }
-        items[items.length - 1] += char;
-        
+        items[items.length - 1] += pushingSymbol;
+        pushingSymbol = '';
       }
+      isPushing=true;
     } else {
       isPushing = false;
       items.push(char);
+    }*/
+    symbols.lastIndex = 0;
+    if (symbols.test(char)) {
+     if(items[items.length - 1] == null){
+      items[items.length - 1] = '';
+     }
+     console.log('append')
+     items[items.length - 1] += char;
+    } else {
+      console.log('push')
+      items.push(char);
     }
   }
+  console.log(items.toString())
   for (i = index + howmany; i < Music.music.length; i++) {
-    items.push(Music.music[i].word[UI.editingLynicLine]);
+    items.push(Music.music[i].word[UI.editingLynicLine] || '');
     if(items[items.length - 1] == null){
       items[items.length - 1] = '';
     }

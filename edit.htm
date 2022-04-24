@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.json" />
 </head>
 <body>
-	<div class="window loading destroy" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);display:block">
+	<div class="window loading on destroy" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);display:block">
 		<div class="content"><h1>傻瓜弹曲</h1><p align="right">正在加载<span id="loadfile">......</span>…… </p></div>
 	</div>	<div class="window loading nojs" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);display:block;opacity:1">
 		<div class="content"><h1>傻瓜弹曲</h1><p align="right">JavaScript已被禁用，因此本程序无法运行。 </p></div>
@@ -61,7 +61,9 @@
 		<div class="menu">
 			<a href="javascript:(function(){Player.sing();})();">播放</a>
 			<a href="javascript:(function(){Player.stop();})();">停止</a>
+			<hr>
 			<a href="javascript:(function(){Player.showVoiceWindow()})();">选择音源</a>
+			<a id="loadme" href="javascript:(function(){Player.loadMeSpeak()})();">加载英语支持</a>
 			<hr>
 			<label><input type="checkbox" checked onclick="Player.enableSMPlay = this.checked"/>编辑时奏音乐</label>
 			<hr>
@@ -245,8 +247,8 @@
 		  <button id="b_inf" onclick="f_inf.click()">inf.d?</button>
 		  <button id="b_voi" onclick="f_voi.click()">voice.d?</button>|
 		  <label><input type="checkbox" id="c_man" style="vertical-align:middle" />我是男生</label>|<button id="b_app">应用</button>
-		  <input type="file" hidden onchange="(this.files[0].name.toLowerCase().indexOf('inf')==-1) && alert('您选择的文件名是' + this.files[0].name + '，这应该是你想要加载的 inf.d 文件吧？')" id="f_inf"/>
-		  <input type="file" hidden onchange="(this.files[0].name.toLowerCase().indexOf('voice')==-1) && alert('您选择的文件名是' + this.files[0].name + '，这应该是你想要加载的 voice.d 文件吧？')" id="f_voi"/>
+		  <input type="file" hidden onchange="(this.files[0] && (this.files[0].name.toLowerCase().indexOf('inf')==-1) && alert('您选择的文件名是' + this.files[0].name + '，这应该是你想要加载的 inf.d 文件吧？')),b_inf.className = this.files[0]?'append-yes':''" id="f_inf"/>
+		  <input type="file" hidden onchange="(this.files[0] && (this.files[0].name.toLowerCase().indexOf('voice')==-1) && alert('您选择的文件名是' + this.files[0].name + '，这应该是你想要加载的 voice.d 文件吧？')),b_voi.className = this.files[0]?'append-yes':''" id="f_voi"/>
 		</div>
 	</div>
 	<div style="font-family:nds; position:fixed; left: -999px;">预加载字体</div>
