@@ -1,16 +1,21 @@
-var Transplant = {};
+var Transplant = {
+  ctx: null, 
+  ok: false
+};
 Transplant.loadMeSpeak = function(){
   loadme.innerText = '加载TTS引擎...';
   var script = document.createElement('script');
   script.onload = Transplant.loadVoice;
   script.src = 'js/mespeak/mespeak.js';
   document.body.appendChild(script);
+  Transplant.ok = true;
 };
 Transplant.loadVoice = function(){
   loadme.innerText = '加载英语语音数据...';
   meSpeak.loadVoice('en.json',Transplant.avalible);
 };
 Transplant.addVoice = async function(text){
+  meSpeak.resetQueue(); /* meSpeak bug: 不能正确queue */
   var wav = await new Promise(function(ok,fail){
     meSpeak.speak(text,{
       rawdata: true,
@@ -38,15 +43,26 @@ Transplant.addVoice = async function(text){
   }
   /* 自动标注 */
   var i,sum=0;
+  var sum2 = 0;
   const WIN = 1024;
-  const MINE = 0.03;
+  const MANL = 22050;
   for(i = 0; i<WIN; i++){
     sum += float32[i] * float32[i];
   }
-  for(; i < 22050; i++){
+  for(; i < MANL; i++){
     sum += float32[i] * float32[i];
     sum -= float32[i-WIN] * float32[i-WIN];
-    if(sum > MINE * WIN) break;
+    sum2 += sum;
+  }
+  sum2 /= (MANL-WIN) * 2;
+  sum = 0;
+  for(i = 0; i<WIN; i++){
+    sum += float32[i] * float32[i];
+  }
+  for(; i < MANL; i++){
+    sum += float32[i] * float32[i];
+    sum -= float32[i-WIN] * float32[i-WIN];
+    if(sum > sum2) break;
   }
   var item = {
     consonant:i,
@@ -75,6 +91,7 @@ Transplant.addAllVoice = async function(){
   Player.trace('英语发音准备完成。')
 };
 Transplant.avalible = function(){
+  Transplant.addAllVoice();
   loadme.onclick = Transplant.addAllVoice;
   loadme.innerText = '为本乐谱准备英语';
 }

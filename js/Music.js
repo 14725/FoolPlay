@@ -219,6 +219,23 @@ Util.saveAs = function util_saveAs(content,mine,fileName){
   link.click();
   document.body.removeChild(link);
 }
+Util.htmlNoId = function(html){
+  var data = Object.create(null);
+  var temp = document.createElement('template');
+  temp.innerHTML = html.trim();
+  var cxt = temp.content;
+  cxt.normalize();
+  var elesWithId = Array.from(cxt.querySelectorAll('[id]'));
+  elesWithId.forEach(function(ele){
+    data[ele.id] = ele;
+    ele.removeAttribute('id');
+  });
+  return {
+    ele: cxt.childNodes.length == 1 ? cxt.children[0] : cxt ,
+    ids: data
+  }
+};
+
 var PopupWindow = {
   _windowDragging: null,
   _windowDraggingY: null,
@@ -635,7 +652,7 @@ UI.render = Util.throttle(function ui_render() {
 UI.layout = function ui_layout() {
   //功能：读取浏览器对歌谱的布局，
   //重绘光标
-  [].slice.call(UI.coverOn.querySelectorAll(".cline")).forEach(function (a) {
+  [].slice.call(UI.coverOn.querySelectorAll(".cline,.house")).forEach(function (a) {
     a.parentNode.removeChild(a);
   });
   //定位
@@ -790,7 +807,8 @@ UI.appendCLine = function ui_appendCLine(pid, nid, word, ishouse) {
     clinedom.className = className;
     clinedom.style.left = (ishouse ? parea.x : parea.midX) + "px";
     clinedom.style.top = (parea.y) + "px";
-    clinedom.style.width = narea.x - parea.x + (ishouse ? narea.width : 0) + "px";
+    //clinedom.style.width = narea.x - parea.x + (ishouse ? narea.width : 0) + "px";
+    clinedom.style.width = (narea.width + parea.width) / 2 + (narea.x - parea.x - parea.width) + "px";
     UI.coverOn.appendChild(clinedom);
   } else {
     clinedom = document.createElement("div");
@@ -2030,5 +2048,29 @@ UI.main = function ui_main() {
   }
 
 };
+
+UI.about = function ui_about(url){
+  var ele = `<iframe src="${Util.t2h(url)}" style="width:calc(100vw - 4.3em);height:calc(100vh - 9.5em);max-width:30em; max-height: 20em;"></iframe>`;
+  var dg =PopupWindow.alert(ele);
+  var fr = dg.querySelector('iframe');
+  fr.onload = function(){
+    var list = fr.contentDocument.querySelectorAll('a');
+    Array.from(list).forEach(function(a){
+      if(a.hostname == location.hostname){
+        a.target = '_parent';
+        a.onclick = function(){
+          location.href =a.href;
+          PopupWindow.alert('正在跳转中...')
+          location.reload();
+        }
+      } else if(a.href.indexOf('javascript:') != 0) {
+        a.target = '_blank';
+        a.onclick = function(){
+          return confirm(`该网址“${Util.t2h(a.innerText)}”（${Util.t2h(a.href)}）不属于本网站，确定访问？`);
+        }
+      }
+    });
+  }
+}
 
 UI.main();

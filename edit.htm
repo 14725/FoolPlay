@@ -59,11 +59,11 @@
 	<div class="item">
 		播放
 		<div class="menu">
-			<a href="javascript:(function(){Player.sing();})();">播放</a>
+			<a href="javascript:(function(){Player.play();})();">播放</a>
 			<a href="javascript:(function(){Player.stop();})();">停止</a>
 			<hr>
 			<a href="javascript:(function(){Player.showVoiceWindow()})();">选择音源</a>
-			<a id="loadme" href="javascript:(function(){Player.loadMeSpeak()})();">加载英语支持</a>
+			<a id="loadme" href="javascript:(function(){})();">英语支持未加载...</a>
 			<hr>
 			<label><input type="checkbox" checked onclick="Player.enableSMPlay = this.checked"/>编辑时奏音乐</label>
 			<hr>
@@ -84,7 +84,8 @@
 	<div class="item">
 		帮助
 		<div class="menu">
-			<a href="./" >关于...</a>
+			<a href="javascript:UI.about('faq.html');" >FAQ...</a>
+			<a href="javascript:UI.about('index.html');" >关于...</a>
 		</div>
 	</div>
 	<div class="item">和弦
@@ -221,6 +222,8 @@
 <script src="js/Chord.js"></script>
 <script>loadfile.innerHTML = "触摸兼容程序"</script>
 <script src="js/touchShim.js"></script>
+<script>loadfile.innerHTML = "meSpeak 适配器"</script>
+<script src="js/mespeak/transplant.js"></script>
 <script>
 	var classlist = ['Music','Player','yuxStorage','Chord','Pinyin'];
 	classlist.forEach(function(a){
@@ -230,9 +233,6 @@
 	})
 	PopupWindow.close(document.querySelector(".loading"));
 </script>
-	<div class="window about on">
-		<div class="windowtitle">关于...<button class="close"><b>×</b></button></div>
-	</div>
 	<div class="window on" id="chordWindow">
 		<div class="windowtitle">手动输入和弦<button class="close"><b>×</b></button></div>
 		<div class="content">

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>傻瓜弹曲——FAQ</title>
+  <link rel="stylesheet" href="index.css">
+  <base target="_blank" />
+</head>
+<body>
+  <style>
+    pre{
+      -webkit-user-select: all;
+      -moz-user-select: all;
+      -ms-user-select: all;
+      user-select: all;
+      white-space: pre-wrap;
+    }
+  </style>
+  <h2>FAQ</h2>
+  <details>
+    <summary>我保存文件的时候，提示“下载失败”？</summary>
+    <p>许多浏览器，尤其是手机上的浏览器或者所谓“下载加速器”，不能保存由网页程序生成的文件。如果必要，请换用 Chrome、 Firefox 等。它们自带的下载功能与网页结合紧密，能下载本站文件。</p>
+    <p>紧急应对方案：</p>
+    <pre>javascript:function(){document.write(Util.t2h(UI.outString()));document.close()}();</pre>
+    <ol>
+      <li>把上面的脚本粘贴到浏览器地址栏（小心地址栏会删除前面的<code>javascript:</code>，需重新补充）或者<button onclick="writeString(this)">试试点击这里</button>；</li>
+      <li>把浏览器窗口中的文字复制粘贴到一纯文本文档中。</li>
+    </ol>
+    如上方法得到的文档也可以被傻瓜弹曲打开。
+  </details>
+  <details>
+    <summary>能输入播放英文？！</summary>
+    <p>中文一字一格，向光标后面顶；标点符号和英文一堆字母一格，会塞到前面去。英文播放不使用袅袅音源，而是使用meSpeak合成，音色与音源无关。</p>
+  </details>
+  <details>
+    <summary>我发现了一个Bug，并且你这里没有提到！</summary>
+    <p>到 Gitee 上的<a href="https://gitee.com/asdfqw/FoolPlay/issues"> Issues </a>页面。</p>
+    <p>里面可能有更多信息。如果找不到，可以在那里提交一个 Issue 。描述清楚状况。如果网页上有错误信息，拷进来。如果只发生于某个文档，请把那个文档保存也传上来。</p>
+    <hr>
+    <p>当然，如果你懂网页，能自行修复 这个 Bug，也可去 Fork 这个项目并且 Pull Request。</p>
+    <p><small>我才不会告诉你一些能忍的Bug我就懒得修了。然而还是提出为妙。</small></p>
+  </details>
+  <script>
+    function writeString(btn){
+      try{
+      parent.UI.about('data:text/html;charset=UTF-8,' + encodeURIComponent(`<textarea style="box-sizing:border-box;position:fixed;top:0;bottom:0;left:0;width:100%;">${parent.Util.t2h(parent.UI.outString())}</textarea>`));
+      }catch(e){
+        alert('本按钮不能工作：\n'+e.stack);
+        btn.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

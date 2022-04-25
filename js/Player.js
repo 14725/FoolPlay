@@ -92,7 +92,7 @@ var Player = {
   enableChord: true,
   enableMusic: true,
 
-  
+  everStopped: false,
 
   tasking: [],
 
@@ -579,6 +579,7 @@ Player.tick = function player_tick(func, time) {
 };
 
 Player.stop = function player_stop() {
+  Player.everStopped = true;
   Player.tasking.forEach(function(a) {
     try {
       a()}catch(e) {}});
@@ -592,10 +593,27 @@ Player.stop = function player_stop() {
 
 };
 
-Player.sing = Player.play = function player_play() {
+Player.play = async function player_play(ignoreEnglish) {
   Player.timeStart = Player.ctx.currentTime + 0.5;
   Player.stop();
   Player.splitUp();
+  Player.everStopped = false;
+  var stop = false;
+  Player.ctx.resume();
+  if(!ignoreEnglish && Transplant && Transplant.ok){
+    var tip = PopupWindow.alert('正在合成英语中...<br>从状态栏看合成进度<br>或者关闭这个对话框强制播放。');
+    tip.onclick = function(event){
+      if(event.target.nodeName == 'BUTTON'){
+        Player.play(true);
+        stop = true;
+      }
+    }
+    await Transplant.addAllVoice();
+    tip.remove();
+    if(!stop && !Player.everStopped)
+    Player.play(true);
+    return;
+  } else {}
   var voice = Util.clone(Player.voice);
   var music = Util.clone(Player.music);
   var timeAhead = player_play.timeAhead || 3;
@@ -667,26 +685,6 @@ Player.trace = function player_train(log) {
 
 Player.main();
 
-/*
-  in: the whole Music.
-  out:{
-    // Represent a bar
-    [
-      {
-        instument:{
-          
-        },
-        voice:{
-          
-        },
-        chords:{
-          
-        }
-      }
-    ]
-  }
-  May be helpful to more analysis.
-*/
 
 Player.flatAndTag = function player_flatAndTag(){
   var bars = Util.clone(Music.flatBar());
@@ -1239,10 +1237,3 @@ Player.bufferToWave = function bufferToWave(abuffer, len) {
   }
 };
 
-Player.loadMeSpeak = function(){
-  loadme.innerText = '加载中...';
-  loadme.href = 'javascript:';
-  var script = document.createElement('script');
-  script.src = 'js/mespeak/transpaint.js';
-  document.body.appendChild(script);
-}

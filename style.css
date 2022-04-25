@@ -582,7 +582,7 @@ input[type=number] {
 	font-family: Simsun ,serif;
 	cursor: default;
 	z-index: 2;
-	border-radius: 5px 5px 0 0;
+	border-radius: 5px 5px 2px 2px;
 	opacity:0.6;
 }
 .window.on:before{
@@ -603,7 +603,7 @@ input[type=number] {
   background: linear-gradient(transparent 20%,hsla(0,0%,100%,.7) 40%,transparent 41%),linear-gradient(90deg,hsla(0,0%,100%,.4),rgba(0,0,0,.1),hsla(0,0%,100%,.2)),linear-gradient(55deg,transparent,rgba(0,0,0,.1) 20%,rgba(0,0,0,.1) 50%,transparent 53%),#4580c4;
   z-index: -2;
   box-shadow: 0px 0px 50px -10px black, 0px 0px 3px white inset;
-	border-radius: 5px 5px 0 0;
+	border-radius: 5px 5px 2px 2px;
 
 }
 .window.on{
@@ -662,7 +662,7 @@ input[type=number] {
   text-align: center;
   white-space:nowrap;
 }
-
 .append-yes:after{
   content: '✔️';
 }
+
