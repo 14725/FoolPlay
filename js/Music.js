@@ -249,13 +249,12 @@ PopupWindow.open = function popupWindow_open(dom) {
 };
 PopupWindow.close = function popupWindow_close(dom) {
   dom.style.display = "none";
-  if (dom.className.indexOf("destroy") > -1) {
+  if (dom.className.indexOf("destroy") > -1 && dom.parentElement) {
     dom.parentElement.removeChild(dom);
   }
 };
 PopupWindow.alert = function popupWindow_alert(msg) {
-  dom = document.createElement("div");
-  dom.id = "PopupWindowAlert";
+  var dom = document.createElement("div");
   dom.className = "window destroy on";
   dom.innerHTML = '<div class="windowtitle">来自网页的消息<button class="close"><b>×</b></button></div><div class="content"><div class="msg"></div><center><button onclick="PopupWindow.close(this.parentElement.parentElement.parentElement)">知道了</button></center></div>';
   dom.querySelector(".msg").innerHTML = msg.split("\n").join("<br>");
@@ -263,25 +262,95 @@ PopupWindow.alert = function popupWindow_alert(msg) {
   PopupWindow.open(dom);
   return dom;
 };
+PopupWindow.progress = function popupWindow_progress() {
+  var obj = Util.htmlNoId(`
+  <div class="window destroy on">
+  <div class="windowtitle">进度<button class="cancel"><b>×</b></button></div>
+  <div class="content">
+  <span id="s_tip">正在处理中</span>
+  <span id="s_progress">N/A / N/A</span>
+  <br><progress id="p_load" style="width:300px"></progress>
+  <hr>
+  <div style="text-align: right">
+  <button class="cancel" >取消</button>
+  </div>
+  </div>
+  </div>`);
+  var dom = obj.ele;
+  Util.live('click',dom,'.cancel',function(){
+    try{
+      oncl();
+    }catch(e){
+      throw e;
+    }finally{
+      rtn.noCancel();
+    }
+  });
+  var oncl;
+  /*if(!cancelable){
+    
+  }*/
+  document.body.appendChild(dom);
+  PopupWindow.open(dom);
+  var rtn = {
+    ele: dom,
+    noCancel: function(){
+      Array.from(dom.querySelectorAll('.cancel')).forEach(function(a){a.disabled = true;;})
+      return this;
+    },
+    okToCancel: function(){
+      Array.from(dom.querySelectorAll('.cancel')).forEach(function(a){a.disabled = false;});
+      return this;
+    },
+    text: function(a){
+      obj.ids.s_tip.innerText = a;
+      return this;
+    },
+    progressText: function(a){
+      obj.ids.s_progress.innerText = a;
+      return this;
+    },
+    max: function(a){
+      obj.ids.p_load.max = a;
+      return this;
+    },
+    progress: function(a){
+      obj.ids.p_load.value = a;
+      return this;
+    },
+    oncancel: function(a){
+      oncl = a;
+      this.okToCancel();
+      return this;
+    },
+    close: function(){
+      oncl = null;
+      PopupWindow.close(this.ele);
+    }
+  };
+  rtn.noCancel();
+  return rtn;
+}
 PopupWindow.main = function popupWindow_main() {
+  /* 实践证明，这个程序没有非模式窗口的必要性 */
   Util.live("mousedown", document, ".window .windowtitle", function set_flags(event) {
-    var onlist = Array.prototype.slice.call(document.querySelectorAll(".window.on"));
-    onlist.forEach(function (item) {
-      item.classList.remove("on");
-    });
+    //var onlist = Array.prototype.slice.call(document.querySelectorAll(".window.on"));
+    //onlist.forEach(function (item) {
+      //item.classList.remove("on");
+    //});
     var _rect = event.target.parentNode.getBoundingClientRect();
     PopupWindow._windowDragging = event.target.parentNode;
 
     PopupWindow._windowDraggingX = event.clientX - PopupWindow._windowDragging.getBoundingClientRect().left;
     PopupWindow._windowDraggingY = event.clientY - PopupWindow._windowDragging.getBoundingClientRect().top;
   });
-  Util.live("mousedown", document, ".window", function set_flags(event) {
-    var onlist = Array.prototype.slice.call(document.querySelectorAll(".window.on"));
-    onlist.forEach(function (item) {
-      item.classList.remove("on");
-    });
-    event.target.classList.add("on");
-  });
+  //Util.live("mousedown", document, ".window", function set_flags(event) {
+    //var onlist = Array.prototype.slice.call(document.querySelectorAll(".window.on"));
+    //onlist.forEach(function (item) {
+      //item.classList.remove("on");
+    //});
+    //event.target.classList.add("on");
+  //});
   Util.live("click", document, ".window .windowtitle .close", function set_flags(event) {
     PopupWindow.close(event.target.parentNode.parentNode);
   });
@@ -411,7 +480,10 @@ Music.flatBar = function music_flatbar() {
   var cntLine = 0; // 经过的小节最多有多少行音乐？ 决定反复次数。
   var reLeft = 1; // 反复检查。
   var hasHouse = false; // 是否检查房子？
-
+  if(Music.music.length == 0){
+    // 都没有内容展平什么？
+    return [];
+  }
   while (fallCount-- > 0) {
     cur++;
     if (cur >= Music.sections.length) return res;
@@ -808,7 +880,7 @@ UI.appendCLine = function ui_appendCLine(pid, nid, word, ishouse) {
     clinedom.style.left = (ishouse ? parea.x : parea.midX) + "px";
     clinedom.style.top = (parea.y) + "px";
     //clinedom.style.width = narea.x - parea.x + (ishouse ? narea.width : 0) + "px";
-    clinedom.style.width = (narea.width + parea.width) / 2 + (narea.x - parea.x - parea.width) + "px";
+    clinedom.style.width = (narea.midX - parea.midX) + "px";
     UI.coverOn.appendChild(clinedom);
   } else {
     clinedom = document.createElement("div");
@@ -1747,7 +1819,6 @@ UI.new = function ui_new(action) {
   }
   if (file && file.length > 0) {
     dom = document.createElement("div");
-    dom.id = "PopupWindowAlert";
     dom.className = "window destroy on";
     dom.innerHTML =
       '<div class="windowtitle">' +
@@ -2053,8 +2124,9 @@ UI.about = function ui_about(url){
   var ele = `<iframe src="${Util.t2h(url)}" style="width:calc(100vw - 4.3em);height:calc(100vh - 9.5em);max-width:30em; max-height: 20em;"></iframe>`;
   var dg =PopupWindow.alert(ele);
   var fr = dg.querySelector('iframe');
-  fr.onload = function(){
-    var list = fr.contentDocument.querySelectorAll('a');
+  fr.onload = function(){try{
+    var list = fr.contentDocument.querySelectorAll('a:not(.nohack)');
+    if(!list) return;
     Array.from(list).forEach(function(a){
       if(a.hostname == location.hostname){
         a.target = '_parent';
@@ -2063,13 +2135,13 @@ UI.about = function ui_about(url){
           PopupWindow.alert('正在跳转中...')
           location.reload();
         }
-      } else if(a.href.indexOf('javascript:') != 0) {
+      } else if(a.href.toLowerCase().indexOf('javascript:') != 0) {
         a.target = '_blank';
         a.onclick = function(){
           return confirm(`该网址“${Util.t2h(a.innerText)}”（${Util.t2h(a.href)}）不属于本网站，确定访问？`);
         }
       }
-    });
+    });}catch(e){console.log(e)}
   }
 }
 

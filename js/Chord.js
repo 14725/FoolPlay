@@ -389,6 +389,7 @@ function 转换为C调() {
 }
 
 function 标注(结果){
+  var minors = /[DEA]/g;
   document.querySelectorAll(".chord_it").forEach(function (a) {
       a.remove();
     });
@@ -398,7 +399,7 @@ function 标注(结果){
     ele = document.createElement('div');
     ele.style.position = 'absolute';
     ele.style.marginTop = '-0.8em';
-    ele.innerText = it;
+    ele.innerText = it.replace('B','Bdim').replace(minors,'$&m');
     ele.className = "chord_it";
     doms[id].insertBefore(ele, doms[id].firstChild.nextSibling);
   });

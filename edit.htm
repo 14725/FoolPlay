@@ -90,11 +90,12 @@
 	</div>
 	<div class="item">和弦
 		<div class="menu">
-			<a onclick="PopupWindow.open(chordWindow)" target="help">手动输入</a>
-			<a onclick="Music.music = Music.flat();Music.loops = [];UI.render()" target="help">展开循环</a>
-			<a onclick="转换为C调()" target="help">转换为C调</a>
-			<a onclick="输出()" target="help">输出</a>
-			<a onclick="tagCur()" target="help">机械结果</a>
+			<a onclick="tagCur()">机械结果</a>
+			<a onclick="Music.music = Music.flat();Music.loops = [];UI.render()">展开循环</a>
+			<hr>
+			<a onclick="PopupWindow.open(chordWindow)">数据标注（损坏）</a>
+			<a onclick="转换为C调()">转换为C调（损坏）</a>
+			<a onclick="输出()">输出（损坏）</a>
 		</div>
 	</div>
 </div>

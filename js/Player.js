@@ -912,12 +912,12 @@ Player.splitUp = function player_splitUp() {
   Player.voice = Util.clone(Player.voice);
   Player.voicePass2();
 };
-Player.schChord = function(){
-  
-};
 
 Player.showVoiceWindow = function() {
   PopupWindow.open(voiceWindow);
+  Array.from(voiceWindow.querySelectorAll('.append-yes')).forEach(function(a){
+    a.classList.remove('append-yes');
+  })
   c_man.checked = false;
   b_app.onclick = async function() {
     try {
@@ -1029,50 +1029,34 @@ Player.voicePass2 = function(){
 };
 
 Player.downloadVoice = async function(){
-  var html = `
-  <div class="window on destroy" id="voiceDownloadWindow">
-		<div class="windowtitle">加载音源文件
-		</div>
-		<div class="content">
-		  正在下载音源数据：<span id="s_progress">N/A / N/A</span>
-		  <br>
-		  <progress id="p_load" style="width:300px"></progress>
-		  <hr>
-		  <div style="text-align:right">
-		    <button class="close" id="b_cancel" onclick="voiceDownloadWindow.remove();">取消</button>
-		  </div>
-		</div>
-	</div>
-  `;
-  
-  document.body.insertAdjacentHTML('beforeend',html);
-  PopupWindow.open(voiceDownloadWindow);
+  var pro = PopupWindow.progress();
+  pro.text('正在加载音源...');
   let inf = await (await fetch('data/inf.d')).text();
   await Player.storage.setItem('inf.d',inf);
   return new Promise(function(ok,fail){
     var xhr = new XMLHttpRequest();
     xhr.onerror = xhr.onabort = function(event){
-      voiceDownloadWindow.remove();
+      pro.close();
       Player.showVoiceWindow();
       fail(new Error('Fetch failed: '+event.type));
     };
-    b_cancel.onclick = function(){
+    pro.oncancel(function(){
       xhr.abort();
-    };
+    });
     xhr.onprogress = function(event){
       if(event.lengthComputable){
-        p_load.value = event.loaded;
-        p_load.max = event.total;
-        s_progress.innerText = `${(p_load.value/1048576).toFixed(3)}MB / ${(p_load.max/1048576).toFixed(3)}MB`;
+        pro.max(event.total)
+          .progress(event.loaded)
+          .progressText(`${(event.total/1048576).toFixed(3)}MB / ${(event.loaded/1048576).toFixed(3)}MB`);
       }else{
-        s_progress.innerText = `${(event.loaded/1048576).toFixed(3)}MB / 未知(约20MB)`;
+        pro.progressText(`${(event.loaded/1048576).toFixed(3)}MB / 未知(约20MB)`);
       }
     };
     xhr.onload = function(){
       if(xhr.status > 300){
         Player.trace('加载失败');
       }
-      voiceDownloadWindow.remove();
+      pro.close();
       Player.storage.setItem('voice.d',xhr.response)
       .then(function(){
         Player.load1();
@@ -1095,12 +1079,12 @@ Player.downloadVoice = async function(){
 
 Player.saveWav = async function player_play() {
   Player.stop();
-  var dom;
-  dom = PopupWindow.alert('渲染人声中...');
+  var pro = PopupWindow.progress();
+  pro.text('正在合成人声');
   Player.splitUp();
   Player._oldctx = Player.ctx;
   Player._oldtar = Player.target;
-  Player.ctx = new OfflineAudioContext(1, 44100 * (Player.music[Player.music.length - 1].start+5), 44100);
+  var ctx = Player.ctx = new OfflineAudioContext(1, 44100 * (Player.music[Player.music.length - 1].start+5), 44100);
   Player.target = Player.ctx.destination;
   Player.ctx.resume = function(){}
   Player.timeStart = Player.ctx.currentTime + 0.5;
@@ -1108,7 +1092,9 @@ Player.saveWav = async function player_play() {
   var voice = Util.clone(Player.voice);
   var music = Util.clone(Player.music);
   var timeAhead = player_play.timeAhead || 3;
-
+  var cancelFns = [];
+  var stopped = false;
+  pro.oncancel(cancelAll);
   function taskMusic() {
     var passedTime = Player.ctx.currentTime - Player.timeStart;
     var toTime = passedTime + timeAhead;
@@ -1122,7 +1108,7 @@ Player.saveWav = async function player_play() {
       }
       //(startTime,tune,len,vol,isChord)
       music.shift();
-      Player.start(cur.start, cur.f[0].f, cur.len, cur.vol, cur.isChord, (cur.word && cur.word.trim() != ''));
+      cancelFns.push(Player.start(cur.start, cur.f[0].f, cur.len, cur.vol, cur.isChord, (cur.word && cur.word.trim() != '')));
     }
   }
   async function taskVoice() {
@@ -1131,9 +1117,9 @@ Player.saveWav = async function player_play() {
     var i = 0;
     var cur;
     while (voice.length) {
-      dom.remove();
-      dom = PopupWindow.alert('合成人声中：剩余' + voice.length + '项。');
-      (Math.random() > 0.7) && await Util.tick();
+      pro.text('合成人声中：剩余：')
+        .progressText(voice.length + '项。');
+      (Math.random() > 0.8) && await Util.tick();
       cur = voice[0];
       if (!cur.f[0] || isNaN(cur.f[0].f)) {
         voice.shift();
@@ -1141,29 +1127,49 @@ Player.saveWav = async function player_play() {
       }
       //(sentense,detune,start,len,vol)
       voice.shift();
-      Player.manvoice(cur.word, cur.f, cur.start, cur.len, cur.vol, cur);
+      if(stopped) return;
+      cancelFns.push(Player.manvoice(cur.word, cur.f, cur.start, cur.len, cur.vol, cur));
     }
   }
-
+  function cancelAll(){
+    /* 技术上，在OfflineAudioContext开始后就无法停止了。 尽可能减少计算让它快点跑完 */
+    pro.text('正在取消...');
+    Player.target = ctx.destination;
+    cancelFns.forEach(function(a){
+      try{a()}catch(e){console.error(e)}
+    });
+    Player.target = Player._oldtar;
+    stopped = true;
+    pro.noCancel();
+    if(!rpro){
+      pro.close();
+    }
+  }
+  
   // voice
   taskMusic();
   await taskVoice();
+  if(stopped) return;
   window.data = null;
-  (async function(ctx){
+  (async function(ctx,pro){
+    pro.text('正在连接：').max(ctx.length / 44100);
     while(!window.data){
       await Util.tick(100);
-      dom.remove();
-      dom = PopupWindow.alert('正在连接：'+(ctx.currentTime / ctx.length * 44100 * 100).toFixed(2) + '%');
+      pro.progress(ctx.currentTime)
+         .progressText((ctx.currentTime / ctx.length * 44100 * 100).toFixed(2) + '%');
     }
-    try{dom.remove()}catch(e){}
-
-  })(Player.ctx);
-  var pro = Player.ctx.startRendering();
+    pro.close();
+    cancelFns = [];
+  })(Player.ctx,pro);
+  var rpro = Player.ctx.startRendering();
   Player.ctx = Player._oldctx;
   Player.target = Player._oldtar;
-  Player.target = Player._oldtar;
-  window.data =await pro;
-  Util.saveAs(Player.bufferToWave(window.data),'audio/wav', Music.title +'.wav');
+  var data =await rpro;
+  pro.close();
+  window.data = true;
+  if(stopped) return;
+  Util.saveAs(Player.bufferToWave(data),'audio/wav', Music.title +'.wav');
+  
 };
 Player.bufferToWave = function bufferToWave(abuffer, len) {
   var numOfChan = abuffer.numberOfChannels,
