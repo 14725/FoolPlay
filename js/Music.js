@@ -630,11 +630,11 @@ var UI = {
   _oldSelStart: 0,
   get oldSelStart() {
     console.warn("oldSelStart 已经停用. 请使用UI.from 或者 UI.author.");
-    return _oldSelStart;
+    return this._oldSelStart;
   },
   set oldSelStart(v) {
     console.warn("oldSelStart 已经停用. 请使用UI.from 或者 UI.author.");
-    _oldSelStart = v;
+    this._oldSelStart = v;
   },
   lastClickedNotePos: null,
   editingLynicLine: -1,
@@ -776,7 +776,7 @@ UI.layout = function ui_layout() {
 UI.throttledLayout = UI.layout;
 UI.redraw = function ui_redraw() {
   var temp, isreved = false;
-
+  
   var yinheight, ciheight;
   //清除选择态
   Array.prototype.slice.call(document.querySelectorAll(".selected")).forEach(function (dom) {
@@ -812,13 +812,31 @@ UI.redraw = function ui_redraw() {
     //隐藏光标
     caret.style.display = "none";
   }
+  if(UI.author > 0 && UI.domsAreas[UI.author] &&  UI.domsAreas[UI.author].x <= 5){
+    anoCaret.style.display = "block";
+    anoCaret.style.left = UI.domsAreas[Math.min(UI.author-1, Music.music.length - 1)].x + UI.domsAreas[UI.author-1].width + "px"
+    if (UI.editingLynicLine == -1) {
+      //在音符级别
+      anoCaret.style.top = UI.domsAreas[Math.min(UI.author-1, Music.music.length - 1)].y + "px";
+      anoCaret.style.height = UI.yinheight + "px";
+    } else {
+      //在歌词级别
+      anoCaret.style.top = (
+        UI.domsAreas[Math.min(UI.author-1, Music.music.length - 1)].y + UI.yinheight +
+        UI.ciheight * UI.editingLynicLine
+      ) + "px";
+      anoCaret.style.height = UI.ciheight + "px";
+    }
+  } else {
+    anoCaret.style.display = "none";
+  }
 
 
   if (Music.music.length == 0) {
     UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = "0";
-    caret.style.height = "40px";
+    caret.style.height = UI.yinheight + "px";
   } else {
-    yinheight = 40;
+    yinheight = UI.yinheight;
     ciheight = UI.ciheight;
     UI.IMETip.style.left = UI.editbox.style.left = caret.style.left = "0";
     if (UI.author != UI.domsAreas.length) {
@@ -1623,7 +1641,7 @@ UI.getClosestNoteIn = function ui_getClosestNoteIn(x, y, over) /*:ID*/ {
   var rect;
   if (over) {
     UI.domsAreas.forEach(function (rect, id) {
-      tempDis = Math.abs(rect.x + rect.width / 2 - x) + Math.abs(rect.midY - y) * 100000;
+      tempDis = Math.abs(rect.x - x) + Math.abs(rect.midY - y) * 100000;
       if (tempDis < minDis) {
         minid = id;
         minDis = tempDis;
@@ -1635,6 +1653,12 @@ UI.getClosestNoteIn = function ui_getClosestNoteIn(x, y, over) /*:ID*/ {
     if (tempDis < minDis) {
       minid = UI.domsAreas.length;
     }
+
+    rect = UI.domsAreas[0];
+    tempDis = Math.abs(x) + Math.abs(rect.midY - y) * 100000;
+    //if (tempDis < minDis) {
+    //  minid = -1;
+    //}
   } else {
     UI.domsAreas.forEach(function (rect, id) {
       tempDis = Math.abs(rect.midX - x) + Math.abs(rect.midY - y) * 100000;
@@ -1891,14 +1915,15 @@ UI.setEditor = function ui_setEditor() {
       if (UI.isShiftDown) {
         //UI.from = UI.oldSelStart
       } else {
-        UI.oldSelStart = UI.from = UI.author = UI.getClosestNote(event.clientX, event.clientY, true);
+        //UI.oldSelStart = UI.from = UI.author = UI.getClosestNote(event.clientX, event.clientY, true);
+        UI.from = UI.author = UI.getClosestNote(event.clientX, event.clientY, true);
         var heightYin = 40;
         var eleArea = document.querySelector(".geci").getBoundingClientRect();
         var heightWord = eleArea.bottom - eleArea.top;
         var author = Math.min(UI.author, Music.music.length - 1)
         var h = event.clientY - UI.domsAreas[author].y - UI.container.getBoundingClientRect().top;
-        if (h > heightYin) {
-          UI.editingLynicLine = parseInt((h - heightYin) / heightWord);
+        if (h > heightYin && Music.music[UI.author]) {
+          UI.editingLynicLine = Math.min(parseInt((h - heightYin) / heightWord),Music.music[UI.author].word.length);
           UI.redraw();
         } else {
           UI.editingLynicLine = -1;
@@ -1948,9 +1973,12 @@ UI.setEditor = function ui_setEditor() {
       //}else{
       //	UI.author = myid+1;
       //}
-      UI.from = UI.author;
+      //UI.from = UI.author;
+      
       if (UI.isShiftDown) {
-        UI.from = UI.oldSelStart;
+        UI.author = myid;
+      } else {
+        UI.from = UI.author = myid;
       }
       UI.redraw();
     });
@@ -1977,7 +2005,7 @@ UI.setEditor = function ui_setEditor() {
     });
   UI.editbox.addEventListener("blur",
     function show_caret() {
-      UI.caretStyle.innerHTML = "#caret{display:none!important}";
+      UI.caretStyle.innerHTML = ".caret{display:none!important}";
     });
   Util.onCJKInput(UI.editbox,
     function input_lynic(e) {
@@ -2053,7 +2081,7 @@ UI.main = function ui_main() {
   width = window.innerWidth;
   //动态隐藏光标，防止引起混乱。
   UI.caretStyle = document.createElement("style");
-  UI.caretStyle.innerHTML = "#caret{display:none!important}";
+  UI.caretStyle.innerHTML = ".caret{display:none!important}";
   document.head.appendChild(UI.caretStyle);
   if (location.pathname.split("/").reverse()[0].split(".")[0] == "edit")
     UI.setEditor();
