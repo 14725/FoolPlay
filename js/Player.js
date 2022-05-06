@@ -200,8 +200,8 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 		if (id == 0) {
 			return [[(d.time + advance) * 44100, Math.log(d.f)]];
 		}
-		gap = Math.min(ary[id].time - ary[id - 1].time, (ary[id + 1] == null ? 999 : ary[id + 1].time) - ary[id].time) / 2.3;
-		gap = Math.min(gap,0.3);
+		gap = Math.min(ary[id].time - ary[id - 1].time, (ary[id + 1] == null ? 999 : ary[id + 1].time) - ary[id].time) / 2.2;
+		gap = Math.min(gap,0.08);
 		if (gap < 0.05)
 			gap *= 2;
 		return [[(d.time + advance - gap) * 44100, Math.log(detune[id - 1].f)], [(d.time + advance + gap) * 44100, Math.log(d.f)]];
@@ -1044,27 +1044,27 @@ Player.voicePass2 = function() {
 		var n = a[i + 1];
 		if (i > 0 && !m.isTooLong) {
 			t.f[0].time = 0.2;
-			if (t.f[1] && t.f[1].time > t.f[0].time) {
+			if (t.f[1] && t.f[1].time / 1.2 > t.f[0].time) {
 				t.f[0].time = t.f[1].time / 1.2;
 			}
 			t.f.unshift({
 				/* 上一个音调的中间 */
 				//time:((m.start + m.len) + (m.start + m.f[m.f.length-1].time))/2 - t.start,
-				time: -0.4,
+				time: -0.2,
 				f: m.f[m.f.length - 1].f
 			});
 		} else {
 			/* 音头上拉 */
 			t.f.unshift({
-				time: -8.3,
+				time: -3.3,
 				f: t.f[0].f / 5 * 4
 			});
 		}
 		if (!t.isTooLong && n) {
-			/*t.f.push({
+			t.f.push({
 				time: Math.max(t.len - 0.2, t.f[t.f.length - 1].time + 0.05),
 				f: t.f[t.f.length - 1].f
-			});*/
+			});
 			t.f.push({
 				time: n.start - t.start,
 				f: n.f[0].f
@@ -1077,8 +1077,13 @@ Player.voicePass2 = function() {
 Player.downloadVoice = async function() {
 	var pro = PopupWindow.progress();
 	pro.text('正在加载音源...');
-	let inf = await (await fetch('data/inf.d')).text();
-	await Player.storage.setItem('inf.d', inf);
+	try {
+		let inf = await (await fetch('data/inf.d')).text();
+		await Player.storage.setItem('inf.d', inf);
+	} catch (e) {
+		pro.close();
+		Player.showVoiceWindow();
+	}
 	return new Promise(function(ok, fail) {
 		var xhr = new XMLHttpRequest();
 		xhr.onerror = xhr.onabort = function(event) {
@@ -1109,8 +1114,12 @@ Player.downloadVoice = async function() {
 		}
 		;
 		xhr.responseType = "arraybuffer";
-		xhr.open('GET', 'data/voice.png', true);
-		xhr.send();
+		try {
+			xhr.open('GET', 'data/voice.png', true);
+			xhr.send();
+		} catch (e) {
+			xhr.onabort();
+		}
 	}
 	);
 }
@@ -1281,4 +1290,5 @@ Player.bufferToWave = function bufferToWave(abuffer, len) {
 		view.setUint32(pos, data, true);
 		pos += 4;
 	}
-};
+}
+;

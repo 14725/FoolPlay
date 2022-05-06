@@ -683,7 +683,7 @@ var UI = {
 	ciheight: 0,
 	yinheight: 36,
 	// 在不知道具体渲染情况下的一个预设估计值，渲染后将得到数值
-	shouldScroll: true,
+  shouldScroll: true,
 };
 UI.render = Util.throttle(function ui_render() {
 	//功能：刷新歌谱的主要内容，会继续调用 UI.layout
@@ -1128,9 +1128,8 @@ UI.onKeyDown = function ui_onKeyDown(event) {
 		//Delete
 		if (UI.from == UI.author) {
 			UI.from = ++UI.author;
-
 		}
-		;// No break, let it fall down;
+		// No break, let it fall down;
 	case 8:
 		//Backspace
 		if (UI.editbox.value != "") {
@@ -1868,8 +1867,8 @@ UI.openListener = function ui_openListener(me) {
 ;
 UI.openFile = function ui_openFile(datastr) {
 	try {
-		if (datastr.indexOf("<script>") > 0) {
-			datastr = datastr.split("<script>")[1].split("</script>")[0];
+		if (datastr.indexOf("<scr" + "ipt>") > 0) {
+			datastr = datastr.split("<scr" + "ipt>")[1].split("</scr" + "ipt>")[0];
 		}
 		var data = JSON.parse(datastr);
 		if (data.music == null) {
@@ -1946,7 +1945,7 @@ UI.saveAs = function ui_saveAs() {
 		console.warn("localStorage 拒绝访问。这应该不是什么天大的事情。");
 		console.warn(e);
 	}
-	content = "<!DOCTYPE html>\n<meta charset=\"utf-8\"/>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<style>\n*{\n  text-align: center;\n}\nbody{\n  max-width:500px;\n  margin:auto;\n  padding:5px;\n}\nh1{\n  font-weight: 300;\n}\na {\n  display:inline-block;\n  background: #3498db;\n  background-image: linear-gradient(to bottom, #3498db, #2980b9);\n  border-radius: 999px;\n  text-shadow: 1px 1px 3px #666666;\n  box-shadow: 0px 1px 3px #666666;\n  color: white;\n  font-size: 20px;\n  padding: 10px 20px 10px 20px;\n  border: solid #1f628d 2px;\n  text-decoration: none!important;\n}\na:hover {\n  background: #3cb0fd;\n  background-image: linear-gradient(to bottom, #3cb0fd, #3498db);\n}\nli{\n  font-size: small;\n  color:gray;\n  text-align: left;\n}\n</style>\n<p>本文件是“傻瓜弹曲”的歌谱文件，它记录着一首歌，名叫：</p>\n<h1>%title%</h1>\n<a href=\"%url%#data=%tdata%\">点击此处查看歌谱</a>\n<br>\n<br>\n<hr>\n<ol>\n  <li>如果弹出“打开方式”对话框，请选择浏览器。</li>\n  <li>如果上面的按钮不能正常工作，请换用“浏览器”、“HTML 查看器”等打开本文件，或者在傻瓜弹曲网站（%url%）中，文件 -> 打开。</li>\n</ol>\n<script>%data%</script>";
+	content = "<!DOCTYPE html>\n<meta charset=\"utf-8\"/>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<style>\n*{\n  text-align: center;\n}\nbody{\n  max-width:500px;\n  margin:auto;\n  padding:5px;\n}\nh1{\n  font-weight: 300;\n}\na {\n  display:inline-block;\n  background: #3498db;\n  background-image: linear-gradient(to bottom, #3498db, #2980b9);\n  border-radius: 999px;\n  text-shadow: 1px 1px 3px #666666;\n  box-shadow: 0px 1px 3px #666666;\n  color: white;\n  font-size: 20px;\n  padding: 10px 20px 10px 20px;\n  border: solid #1f628d 2px;\n  text-decoration: none!important;\n}\na:hover {\n  background: #3cb0fd;\n  background-image: linear-gradient(to bottom, #3cb0fd, #3498db);\n}\nli{\n  font-size: small;\n  color:gray;\n  text-align: left;\n}\n</style>\n<p>本文件是“傻瓜弹曲”的歌谱文件，它记录着一首歌，名叫：</p>\n<h1>%title%</h1>\n<a href=\"%url%#data=%tdata%\">点击此处查看歌谱</a>\n<br>\n<br>\n<hr>\n<ol>\n  <li>如果弹出“打开方式”对话框，请选择浏览器。</li>\n  <li>如果上面的按钮不能正常工作，请换用“浏览器”、“HTML 查看器”等打开本文件，或者在傻瓜弹曲网站（%url%）中，文件 -> 打开。</li>\n</ol>\n<scr" + "ipt>%data%</scr" + "ipt>";
 	content = content.replace(/%url%/g, a.href.split('#')[0].split('?')[0]).replace("%data%", UI.outString()).replace("%title%", Music.title).replace("%tdata%", encodeURIComponent(UI.outString()));
 	Util.saveAs(content, 'text/html', a.download);
 }
@@ -2169,10 +2168,9 @@ UI.main = function ui_main() {
 	width = window.innerWidth;
 	//动态隐藏光标，防止引起混乱。
 	UI.caretStyle = document.createElement("style");
-	//UI.caretStyle.innerHTML = ".caret{display:none!important}";
+	UI.caretStyle.innerHTML = ".caret{display:none!important}";
 	document.head.appendChild(UI.caretStyle);
-	if (location.pathname.split("/").reverse()[0].split(".")[0] == "edit")
-		UI.setEditor();
+	UI.setEditor();
 	UI.render();
 
 	/* 提升菜单栏触摸效果的Hack */
@@ -2190,6 +2188,7 @@ UI.main = function ui_main() {
 			UI.layout();
 		} catch (e) {
 			setTimeout(fn, 500);
+			console.error(e);
 		}
 	});
 	//All is inited；
@@ -2215,6 +2214,9 @@ UI.main = function ui_main() {
 				localStorage.removeItem("open");
 			} else if (q.data) {
 				UI.openFile(decodeURIComponent(q.data));
+				/* 减少特定情况下的浏览器卡死 */
+				/* 希望能缓解历史记录混乱 */
+				location.replace('#id-nonsense-' + (Math.random() * 100000).toFixed());
 			} else if (localStorage.saved != null) {
 				UI.openFile(localStorage.saved);
 			}

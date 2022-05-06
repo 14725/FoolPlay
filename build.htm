@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no"/>
+  <!-- 调试器 —— Eruda JS 控制台 -->
+  <script src="js/lib/eruda.js"></script>
+  <!-- 调试器 —— 错误显示弹框 -->
+  <script>
+  (function(){
+    if(!('eruda' in window)){
+      function show(text){
+        var ele = document.createElement("div");
+    		with(ele.style){
+    		  border = '3px solid';
+    		  color = 'red';
+    		  whiteSpace = 'pre';
+    		  padding = '1em';
+    		  overflowX = 'auto';
+    		  position = 'relative';
+    		  background = 'white';
+    		  zIndex = '9999999';
+    		}
+    		ele.innerText = text;
+    		ele.innerHTML = '<input type="button" style="position:absolute;top:0;right:0;" value="关闭" onclick="this.parentNode.parentNode.removeChild(this.parentNode)">' + ele.innerHTML;
+    		var parent = (document.querySelector('.errors')) || (document.body) || (document.documentElement) || document.createElement('div');
+    		parent.appendChild(ele)
+    		ele.scrollIntoView();
+      }
+      function showError(message, source, lineno, colno, error) {
+    		var text = '';
+    		text += "程序内部错误：\n"+error+"\n";
+    		text += message;
+    		text += "\n在脚本文件 " + source + " 中\n\n";
+    		text += "\n第 " + lineno + " 行，第 " + colno + " 列\n\n";
+    		try{
+    		  text += error.stack;
+    		}catch(e){};
+    		show(text);
+    	}
+    	window.addEventListener('error',function(event){
+    	  if(event.error){
+      	  try{
+        	  var message, filename, lineno, colno;
+        	  message= filename= lineno= colno = "(未知)";
+        	  with(event){
+        	    showError(message, filename, lineno, colno, error);
+      	    }
+      	  }catch(e){alert(e)};
+    	  }else{
+    	    show(event.target.outerHTML + '\n加载失败。')
+    	  }
+    	},true);
+    	window.addEventListener('unhandledrejection',function(event){
+    	  var reason = event.reason;
+    	  var message, filename, lineno, colno;
+    	  message= filename= lineno= colno = "(未知)";
+    	  with(reason){
+    	     showError(message, filename, lineno, colno, reason);
+    	  }
+    	  event.preventDefault();
+    	})
+    }else{
+      eruda.init();
+      window.addEventListener('error',function(event){
+    	  if(!event.error){
+    	    console.error(event.target.outerHTML + '\n加载失败。');
+    	  }
+    	},true);
+    	window.addEventListener('unhandledrejection',function(event){
+    	  console.error(event,event.reason)
+    	  event.preventDefault();
+    	})
+    }
+  })();
+  </script>
+  <!-- 程序的脚本在 body 末尾 -->
+  <title>傻瓜弹曲</title>
+</head>
+<body>
+	<p>如果一切正常，您的浏览器已经下载一个离线版的傻瓜弹曲文件。单文件，便携式！</p>
+	<p>尽管会有一些功能缺失...</p>
+	<ul>
+		<li>无自带音源和英语支持；</li>
+		<li>钢琴音色变质；</li>
+	</ul>
+	...
+	<p style="color:gray;font-size:0.8em;">
+		其实这是我最初没把程序传到Gitee之前的想法，这样我可以当他为普通程序，随带随用。
+	</p>
+<script>
+async function forcefetch(url){
+  if(url.indexOf('eruda') >= 0){
+    return 'eruda={init:function(){}}';
+  }
+  if(url.indexOf('transplant') >= 0){
+  	return 'Transplant = {addAllVoice:function(){}}';
+  }
+  while(true){
+    console.log('Trying to load '+url);
+    var res = await fetch(url);
+    if(!res.ok) continue;
+    return await res.text();
+  }
+}
+(async function(){
+  var editHTM = await forcefetch('edit.htm');
+  var dom = new DOMParser().parseFromString(editHTM,'text/html');
+  console.log(dom);
+  /* Acode Hack */
+  if(dom.head.children[0].name == 'viewport'){
+    dom.head.children[0].remove();
+    dom.head.children[0].remove();
+    dom.head.children[0].remove();
+    dom.head.children[0].remove();
+    dom.head.children[0].remove();
+  }
+  var styles = dom.querySelectorAll('link[rel=stylesheet]');
+  var scripts = dom.querySelectorAll('script[src]');
+  for(i of styles){
+    let ele = dom.createElement('style');
+    ele.innerHTML = await forcefetch(i.getAttribute('href'));
+    i.replaceWith(ele);
+  }
+  for(i of scripts){
+    i.innerHTML = await forcefetch(i.getAttribute('src'));
+    i.removeAttribute('src')
+  }
+  var html = '<!DOCTYPE html>'+dom.body.parentElement.outerHTML;
+  console.log(html);
+  console.log(dom)
+  util_saveAs(html,'text/html','edit-offline.htm')
+})();
+
+function util_saveAs(content,mine,fileName){
+  var url;
+  var blob;
+  /* 不使用文件本身的 MIME 以防触发浏览器特殊机制（如Chrome 会把网页 “打包”为MHTML 并破坏追加的脚本区域） */
+  if(mine.indexOf('html') > -1){
+    mine = 'application/octet-stream';
+  }
+  try {
+    blob = new File([content],fileName,{type:mine});
+  }catch(e){
+    blob = new Blob([content],{type:mine});
+  }
+  url = URL.createObjectURL(blob);
+  setTimeout(function(){
+    URL.revokeObjectURL(url)
+  },40*1000);
+  if(blob){
+    if ('msSaveOrOpenBlob' in navigator) {
+      window.navigator.msSaveOrOpenBlob(blob, fileName);
+      return;
+    }
+  }
+  var link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+</script>
+</body>
+</html>
