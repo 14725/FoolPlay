@@ -160,7 +160,7 @@ Util.queries = function queryString() {
 	for (var i = 0; i < param.length; i++) {
 		var paramsA = param[i].split('=');
 		var key = decodeURIComponent(paramsA[0].split("+").join("%20"));
-		var value = decodeURIComponent(paramsA[1].split("+").join("%20"));
+		var value = decodeURIComponent((paramsA[1] || "").split("+").join("%20"));
 
 		if (obj[key]) {
 			/* 处理数组 */
