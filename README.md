@@ -3,15 +3,12 @@
 
 使用公元前 1980 年的人工智障技术制造的一个输入简谱并且能够带伴奏与歌词播放的APP。
 
-[傻瓜弹曲程序入口>>>](https://asdfqw.gitee.io/foolplay/edit.htm)
-
-警告：有大量浏览器不能正确保存文件。如果您用手机编辑乐谱，请先测试保存功能能否正常工作，以防数据丢失。
-
-[《心愿》](https://asdfqw.gitee.io/foolplay/edit.htm#music=xy) | [《踏浪》](https://asdfqw.gitee.io/foolplay/edit.htm#music=tl) | [《爱拼才会赢》](https://asdfqw.gitee.io/foolplay/edit.htm#music=apchy) | [《劳动最光荣》](https://asdfqw.gitee.io/foolplay/edit.htm#music=ldzgr) | [《同桌的你》](https://asdfqw.gitee.io/foolplay/edit.htm#music=tzdn)
-
-[留言本](http://users.smartgb.com/g/g.php?a=s&i=g18-84768-1a) | [本程序的源代码](http://gitee.com/asdfqw/FoolPlay)
+这个项目的[主页](https://asdfqw.gitee.io/foolplay)（本仓库的 `index.html`）
+对大众来说是更好的自述文件，所以我要说些别的（省得我同时维护两份文档）。
 
 ## 不联网运行
+
+不需要 Node.js 等神奇东西。 `build.htm` 不是对编译的解释，而是运行于浏览器的单文件打包器。
 
 您可以克隆这个项目或者“下载zip”得到本程序的一份副本。您需要一个本地服务器来完整地运行本程序。
 
@@ -26,17 +23,7 @@ Python 2
 python -m SimpleHTTPServer
 ```
 
-至于 Windows 用户，（待续）
-
-## 功能
-
-（如上所述）
-
-*   键盘简谱输入；
-*   简易播放，包括人声合成以及伴奏，但没有暂停（`|X X X X|X X X X|...|` ）；
-*   可以按照JSON格式保存到电脑上或者读取由本程序保存功能输出的文件。
-
-至于菜单上所显示的剩下几乎所有功能都没有实现（不要奇怪为什么点击某选项没有反应）。编辑功能有些Bug，不要太介意……
+至于 Windows 用户，大家八仙过海吧。因为诸如 HTTPSASM 之类都比 Python 的自带服务器好，因为它开包即用，无需安装。
 
 ## 浏览器
 
@@ -53,6 +40,7 @@ python -m SimpleHTTPServer
 *   简化以及去除各 JS 文件内的多余代码；
 *   美化歌谱及编辑器
 *   解决浏览器打印不分页问题
+*   AI调教 （大佬救救我）
 *   ……
 
 ## 不多的帮助
