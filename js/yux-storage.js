@@ -5,7 +5,10 @@
  * Created: 20-11-10
  * Update: 21-03-13
  */
-
+/* 
+The MIT License (MIT)
+Copyright © <2020 阅文前端>
+*/
 class yuxDB {
 
     constructor() {

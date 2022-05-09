@@ -1,4 +1,4 @@
-For all the HTML, all the JS (expect eruda.js, TinyPY.js, yux-storage.js), and the index.css
+For all the HTML, all the JS (expect eruda.js, TinyPY.js, yux-storage.js), and the style.css
 
 
                     GNU GENERAL PUBLIC LICENSE
@@ -692,10 +692,11 @@ where <copyright holders>:
 eruda.js         2016-present liriliri
 yux-storage.js   2020 阅文前端
 TinyPY.js        2017 Creeper
-index.css        2011-2022 Twitter, 2011-2022 The Bootstrap Authors
+index.css*       2019 Kognise
+    *In fact the water.css
 
 For JIN NIAN voiceband, only non-commercial use is allowed. 
-For jpfont-nds.otf, I have contacted the author, see below (or at http://ajiang.net/gb/main.asp)
+For jpfont-nds.otf, I have contacted the author, see below (or at http://ajiang.net/gb/main.asp?keyword=%D7%D6%CC%E5  the search page of NDS's guestbook)
  某某某 2021-9-12 20:59 说 字体版权问题
 我使用您的字体需要需要授权？可否商用？可否使用字形做二次修改？原字体文件可否随某应用程序发布？或者提取出来的字形？
 ■ 回复：

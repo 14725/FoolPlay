@@ -1,3 +1,13 @@
+/*
+The file is.a part of Foolplay（傻瓜弹曲）
+Foolplay is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+
 // jshint maxerr:9999
 
 /* Array.flat/flatmap的填补*/
@@ -168,6 +178,8 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 	if (Player.anoMeta[pinyin]) {
 		bestVoice = Player.anoMeta[pinyin];
 	} else {
+		console.log(Player.meta[pinyin][0]);
+		bestVoice=Player.meta[pinyin][0];
 		Player.meta[pinyin].forEach(function(a) {
 			if (Math.abs(a.freq - avgFreq) < bestFreq) {
 				bestVoice = a;
@@ -180,7 +192,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 		shouldC = true;
 	}
 	//advance = l/44100 * (bestVoice.consonant / bestVoice.length * 2);
-
+	console.log(bestVoice);
 	advance = bestVoice.consonant / 44100;
 	var late = (bestVoice.length / 2 - bestVoice.vowel) / 44100;
 
@@ -201,7 +213,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 			return [[(d.time + advance) * 44100, Math.log(d.f)]];
 		}
 		gap = Math.min(ary[id].time - ary[id - 1].time, (ary[id + 1] == null ? 999 : ary[id + 1].time) - ary[id].time) / 2.2;
-		gap = Math.min(gap,0.08);
+		gap = Math.min(gap,0.2);
 		if (gap < 0.05)
 			gap *= 2;
 		return [[(d.time + advance - gap) * 44100, Math.log(detune[id - 1].f)], [(d.time + advance + gap) * 44100, Math.log(d.f)]];
@@ -215,7 +227,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 	var ffreq = Player.getF(freqList);
 
 	var buf1 = Player.transform(bestVoice, l, fTime, function(x) {
-		return Math.exp(ffreq(x))
+		return Math.exp(ffreq(x)) + Math.sin(x *(2*3.14 )/ 44100 / 0.2) * Math.min(Math.max(x/44100-0.7 ,0),0.7)/1 * 5
 	});
 	var ctx = Player.ctx;
 	var n = ctx.createBufferSource();
@@ -225,7 +237,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 	g.gain.linearRampToValueAtTime(0.0001, Player.timeStart + 0);
 	g.gain.linearRampToValueAtTime(0.1, Player.timeStart + start - advance);
 	g.gain.linearRampToValueAtTime(vol, Player.timeStart + start);
-	g.gain.linearRampToValueAtTime(vol, Player.timeStart + start - advance + (l - bestVoice.consonant) / 44100 - 0.1);
+	g.gain.linearRampToValueAtTime(vol,Math.max(Player.timeStart + start - advance + (l - bestVoice.consonant) / 44100 *0.7 ,Player.timeStart + start+0.0001));
 	g.gain.linearRampToValueAtTime(0.0001, Player.timeStart + start - advance + l / 44100);
 
 	n.buffer = Player.convertBuffer(buf1);
@@ -1043,26 +1055,28 @@ Player.voicePass2 = function() {
 		var m = a[i - 1];
 		var n = a[i + 1];
 		if (i > 0 && !m.isTooLong) {
-			t.f[0].time = 0.2;
-			if (t.f[1] && t.f[1].time / 1.2 > t.f[0].time) {
+			//t.f[0].time = 0.2;
+			console.log(t.word,Util.clone(t.f),t.f[0].time,(t.f[1]||{}).time)
+			if (t.f[1] && t.f[1].time < t.f[0].time) {
 				t.f[0].time = t.f[1].time / 1.2;
 			}
 			t.f.unshift({
-				/* 上一个音调的中间 */
+				///* 上一个音调的中间 */
 				//time:((m.start + m.len) + (m.start + m.f[m.f.length-1].time))/2 - t.start,
-				time: -0.2,
-				f: m.f[m.f.length - 1].f
+				time:(m.start) - t.start,
+				//time: -0.1,
+				f: m.f[m.f.length - 2].f
 			});
 		} else {
 			/* 音头上拉 */
 			t.f.unshift({
-				time: -3.3,
+				time: Math.max(-5.3,(m?(-m.len):-99)),
 				f: t.f[0].f / 5 * 4
 			});
 		}
-		if (!t.isTooLong && n) {
+		if ( n) {
 			t.f.push({
-				time: Math.max(t.len - 0.2, t.f[t.f.length - 1].time + 0.05),
+				time: Math.max(0,t.len - 0.3, t.f[t.f.length - 1].time ),
 				f: t.f[t.f.length - 1].f
 			});
 			t.f.push({

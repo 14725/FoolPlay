@@ -5,14 +5,8 @@ mespeak.js
 
 mespeak.js 应该可以从 https://masswerk.at/mespeak/ 找到。
 
-另外，mespeak.js 的源码已打包在 mespeak.zip 中。
+另外，mespeak.js 的源码已打包在 mespeak.zip 中。其中文件被触摸过、修改过，但内容应该等价。
 
-注意：文件被触摸过、修改过，但内容应该等价。
+此处 mespeak.js 可能不能在移动端正确发声，因为移动端的自动播放解锁程序被破坏。（但这让我们更容易地使用 Worker，否则有可能卡住。）
 
-压缩包中的 mespeak.js （以及本文件夹中的）有注释：
-```javascript
-/* Modified to remove Mobile Worker Lock */
-```
-然而 它仍然不会在手机上加载 Worker. 
-
-mespeak-core.js （而不是源码或压缩包内文件） 被修改过，使 f5 失去音调。（用16进制器定位到 `1718A9` .或用文本编辑器查找 `pitch 441 441`）
+mespeak-core.js （而不是源码或压缩包内文件） 被修改过，除f5外其他变种（m1, m2, ...）被删除，并且使 f5 失去音调。（用文本编辑器查找 `pitch 441 441`）
