@@ -15,7 +15,7 @@
     使用公元前 1980 年的人工智障技术制造的一个输入简谱并且能够带伴奏与歌词播放的APP。
   </p>
   <p>
-    <a href="edit.htm">傻瓜弹曲程序入口&gt;&gt;&gt;</a> | <a href="build.htm">真•离线版<sup style="color:red">NEW!</sup></a>
+    <a href="edit.htm">傻瓜弹曲程序入口&gt;&gt;&gt;</a> | <a href="pack/build.htm">真•离线版<sup style="color:red">NEW!</sup></a>
   </p>
   <p style="color:red">
     警告：有大量浏览器不能正确保存文件。如果您用手机编辑乐谱，请先测试保存功能能否正常工作，以防数据丢失。
@@ -100,9 +100,11 @@ function util_saveAs(content,mine,fileName){
     本人很懒，无心更新，下面的计划压根不会执行。在放寒暑假的时候可能会动一动。
   </p>
   <ul>
-    <li>加入对反复记号以及弱起的支持；</li>
+    <li>加入对<del>反复记号</del>（被恶心到了）以及弱起的支持；</li>
     <li>简化以及去除各 JS 文件内的多余代码；</li>
     <li>美化歌谱及编辑器</li>
+    <li>加快加载</li>
+    <li>简易调教</li>
     <li>解决浏览器打印不分页问题</li>
     <li>……</li>
   </ul>
@@ -139,9 +141,26 @@ function util_saveAs(content,mine,fileName){
     </li>
     <li>
       <code>Ctrl + ↑|↓</code>
-      -&gt;切换编辑歌谱以及歌词（不支持多段，因为无法播放）。
+      -&gt;切换编辑歌谱以及歌词。
       <ul>
         <li>用鼠标点击音符下方的空白区域也可以</li>
+      </ul>
+    </li>
+    <li>
+      <code>:</code>
+      -&gt;反复记号。
+      <ul>
+        <li>在 :|| 、 ||::|| 、 ||: 、 （无）之间切换。</li>
+        <li>禁止套娃否则后果自负。</li>
+      </ul>
+    </li>
+    <li>
+      <code>|-1</code>
+      -&gt;房子。
+      <ul>
+        <li>可以是 1、2、3、4、5、6、7、8、9。</li>
+        <li><code>(||:)A |-1 B :|| |-2 C (:||)</code>，你懂的。 => <code>A B A C </code>。前面的公共部分要不每一房子对一行歌词或只用一行歌词。</li>
+        <li>禁止套娃，不要乱搞，不要学网上的杂七杂八的胡乱反复。</li>
       </ul>
     </li>
   </ul>

@@ -15,9 +15,8 @@ You should have received a copy of the GNU General Public License along with thi
 	
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no"/>
-  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-  <!-- 调试器 —— Eruda JS 控制台 -->
-  <script src="js/lib/eruda.js"></script>
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../index.css">
   <!-- 调试器 —— 错误显示弹框 -->
   <script>
   (function(){
@@ -88,35 +87,60 @@ You should have received a copy of the GNU General Public License along with thi
   })();
   </script>
   <!-- 程序的脚本在 body 末尾 -->
-  <title>傻瓜弹曲</title>
+  <title>傻瓜弹曲——单文件打包器</title>
 </head>
 <body>
-	<p>如果一切正常，您的浏览器已经下载一个离线版的傻瓜弹曲文件。单文件，便携式！</p>
-	<p>尽管会有一些功能缺失...</p>
+	<h1>单文件打包器</h1>
+	<p>
+		您会得到一个单文件版的傻瓜弹曲程序。是的。这个文件是真正的离线版，不是所谓
+		的PWA（清理缓存，PWA所谓的离线将失效，哪怕您点的“安装”）。相对原版，此打包器
+		生成压缩过的文件并去除一些网站代码。
+	</p>
+	<p>您可以把它复制到您的U盘上，然而在本地运行，将有如下限制：</p>
 	<ul>
 		<li>无自带音源和英语支持；</li>
 		<li>钢琴音色变质；</li>
+		<li>不会因此变成绿色软件；</li>
 	</ul>
-	...
-	<p style="color:gray;font-size:0.8em;">
-		其实这是我最初没把程序传到Gitee之前的想法，这样我可以当他为普通程序，随带随用。
-	</p>
+	<p>如果您打算将它传到自己的服务器上，您可以补充以下文件（相对生成的文件）来恢复一些功能：</p>
+	<table>
+		<tr><th>补充文件</th><th>作用</th></tr>
+		<tr><td>../data/pianosap.wav</td><td>把芯片音乐换成玩具钢琴</td></tr>
+		<tr><td>../data/inf.d</td><td>（在版权允许时可换成其他文件）袅袅虚拟歌手音色库的描述文件（oto）</td></tr>
+		<tr><td>../data/voice.png</td><td>（在版权允许时可换成其他文件）袅袅虚拟歌手音色库的数据文件（注意扩展名！已改名，以禁止服务器gzip压缩（效果不好）并允许本程序显示加载进度）</td></tr>
+	</table>
+	<hr>
+	<button onclick="pack();this.disabled = true;">下载本程序文件并打包</button>
+	<details>
+		<summary>网络日志</summary>
+		<textarea id=opt rows="25" style="width:95%;"></textarea>
+	</details>
+	<script src="terser.js"></script>
 <script>
+function log(...rest){
+	var str = String(rest);
+	console.log(rest);
+	opt.value += rest + '\n';
+}
+function compressCSS(str){
+	return str.replace(/\s+/g,' ')
+	          .replace(/\s*([{}:,;])\s*/g,'$1');
+}
 async function forcefetch(url){
   if(url.indexOf('eruda') >= 0){
-    return 'eruda={init:function(){}}';
+    return '';
   }
   if(url.indexOf('transplant') >= 0){
   	return 'Transplant = {addAllVoice:function(){}}';
   }
   while(true){
-    console.log('Trying to load '+url);
-    var res = await fetch(url);
+    log('尝试加载'+url);
+    var res = await fetch('../'+url);
     if(!res.ok) continue;
     return await res.text();
   }
 }
-(async function(){
+async function pack(){
   var editHTM = await forcefetch('edit.htm');
   var dom = new DOMParser().parseFromString(editHTM,'text/html');
   console.log(dom);
@@ -128,22 +152,34 @@ async function forcefetch(url){
     dom.head.children[0].remove();
     dom.head.children[0].remove();
   }
+  /* HTML去空格 */
+  var nodeIterator = dom.createNodeIterator(dom, NodeFilter.SHOW_TEXT);
+  var node;
+  while(node = nodeIterator.nextNode()){
+  	node.nodeValue = node.nodeValue.trim();
+  }
+  for(i of dom.querySelectorAll('script:not([src]), .loading')){
+  	i.remove();
+  }
+
   var styles = dom.querySelectorAll('link[rel=stylesheet]');
   var scripts = dom.querySelectorAll('script[src]');
   for(i of styles){
     let ele = dom.createElement('style');
-    ele.innerHTML = await forcefetch(i.getAttribute('href'));
+    ele.innerHTML = compressCSS(await forcefetch(i.getAttribute('href')));
     i.replaceWith(ele);
   }
   for(i of scripts){
-    i.innerHTML = await forcefetch(i.getAttribute('src'));
+    i.innerHTML = (await Terser.minify(await forcefetch(i.getAttribute('src')))).code;
     i.removeAttribute('src')
   }
+  dom.body.insertAdjacentHTML('beforeend','<scr'+'ipt>UI.about=function(src){var a=document.createElement("a");a.href="https://asdfqw.gitee.io/foolplay/"+src;open(a.href)}</sc'+'ript>')
   var html = '<!DOCTYPE html>'+dom.body.parentElement.outerHTML;
   console.log(html);
-  console.log(dom)
+  console.log(dom);
+  log('完成！')
   util_saveAs(html,'text/html','edit-offline.htm')
-})();
+}
 
 function util_saveAs(content,mine,fileName){
   var url;
