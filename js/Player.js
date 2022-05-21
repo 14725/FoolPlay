@@ -25,8 +25,8 @@ You should have received a copy of the GNU General Public License along with thi
 	}),
 	Array.prototype.flatMap || Object.defineProperty(Array.prototype, "flatMap", {
 		configurable: !0,
-		value: function(r) {
-			return Array.prototype.map.apply(this, arguments).flat();
+		value: function(r,t) {
+			return Array.prototype.map.apply(this, arguments).flat(t);
 		},
 		writable: !0
 	});
@@ -178,7 +178,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 	if (Player.anoMeta[pinyin]) {
 		bestVoice = Player.anoMeta[pinyin];
 	} else {
-		console.log(Player.meta[pinyin][0]);
+		//console.log(Player.meta[pinyin][0]);
 		bestVoice=Player.meta[pinyin][0];
 		Player.meta[pinyin].forEach(function(a) {
 			if (Math.abs(a.freq - avgFreq) < bestFreq) {
@@ -192,7 +192,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 		shouldC = true;
 	}
 	//advance = l/44100 * (bestVoice.consonant / bestVoice.length * 2);
-	console.log(bestVoice);
+	//console.log(bestVoice);
 	advance = bestVoice.consonant / 44100;
 	var late = (bestVoice.length / 2 - bestVoice.vowel) / 44100;
 
@@ -930,11 +930,11 @@ Player.splitUp = function player_splitUp() {
 	}
 
 	var chordNotes = Chord.getChord().flat();
-	console.log('chordNotes', chordNotes)
+	//console.log('chordNotes', chordNotes)
 	var sttime = 0;
 	chordNotes.forEach(function(noteary, id) {
 		var ttlen = noteary.len;
-		;console.log(noteary)
+		//;console.log(noteary)
 		noteary = noteary.chordnotes
 		var extend = 1;
 		/*if (id < chordNotes.length-1 && noteary.toString() == chordNotes[id+1].toString()) {
@@ -1056,7 +1056,7 @@ Player.voicePass2 = function() {
 		var n = a[i + 1];
 		if (i > 0 && !m.isTooLong) {
 			//t.f[0].time = 0.2;
-			console.log(t.word,Util.clone(t.f),t.f[0].time,(t.f[1]||{}).time)
+			//console.log(t.word,Util.clone(t.f),t.f[0].time,(t.f[1]||{}).time)
 			if (t.f[1] && t.f[1].time < t.f[0].time) {
 				t.f[0].time = t.f[1].time / 1.2;
 			}

@@ -39,11 +39,11 @@ Util.clone = function util_clone(a) {
 	}
 	for (var i in a) {
 		if (a[i] == null)
-			break;
+			continue;
 		/* 原型攻击防护 */
 		if (i in {})
 			continue;
-		if (Array.isArray(a) && i in {})
+		if (Array.isArray(a) && i in [])
 			continue;
 		if (a[i].constructor == Object || Array.isArray(a[i])) {
 			b[i] = Util.clone(a[i]);
@@ -249,7 +249,7 @@ Util.saveAs = function util_saveAs(content, mine, fileName) {
 	link.click();
 	document.body.removeChild(link);
 }
-Util.htmlNoId = function(html) {
+Util.htmlNoId = function util_htmlNoId(html) {
 	var data = Object.create(null);
 	var temp = document.createElement('template');
 	temp.innerHTML = html.trim();
@@ -496,112 +496,220 @@ Music.split = function music_splitIntoMeasures() {
 
 }
 ;
-Music.flatBar = function music_flatbar() {
-	//功能：返回去除反复记号的乐谱
-	// Just Dummy now... TODO
-
-	Music.music.forEach(function(me, idx) {
-		me.rawIndex = idx;
-	});
-	var res = [];
-	var fallCount = Music.sections.length * 10;
-	// 备份：20遍反复
-	var cur = -1;
-	//当前位置
-
-	// 此处只处理单层反复记号 （||: ::||）
-
-	// 状态表
-	var RE_NORMAL = 0;
-	var RE_INRE = 1;
-
-	var status = 0;
-	// 状态！
-	var reStart = 0;
-	// 反复记号开始。默认从第0小节开始
-	var reEnd = 0;
-	// 反复记号结束位置。
-	var cntLine = 0;
-	// 经过的小节最多有多少行音乐？ 决定反复次数。
-	var reLeft = 1;
-	// 反复检查。
-	var hasHouse = false;
-	// 是否检查房子？
-	if (Music.music.length == 0) {
-		// 都没有内容展平什么？
-		return [];
+Music.flatBar = function(){
+	/* 目前没有机制保证 loop 过长 */
+	/* 0. 确定 Loop 存在*/
+	if(Music.loops.length > Music.sections.length){
+		Music.loops.length = Music.sections.length
 	}
-	while (fallCount-- > 0) {
-		cur++;
-		if (cur >= Music.sections.length)
-			return res;
-		res.push(Music.flatOneBar(Music.sections[cur], reLeft - 1));
-		//看这个小节！
-		switch (status) {
-		case RE_NORMAL:
-			// 没有处理反复！
-			if (Music.loops[cur]) {
-				// 1. 如果这个小节是开始？
-				if (Music.loops[cur]["do"]) {
-					// 清空状态
-					reStart = cur;
-					cntLine = 0;
-					reLeft = 1;
-					hasHouse = false;
+	var loops = Util.clone(Music.loops);
+	var sections = Util.clone(Music.sections);
+	/* 1. 拆分符号 */
+	var lists = loops.map(function(item,id){
+		if(!item)  return [];
+		var list = [];
+		if(item.do)
+			list.push({id:id, action:'do'});
+		if(item.house && item.house.length)
+			list.push({id:id, action:'house', data:item.house});
+		if(item.loop)
+			list.push({id:id, action:'loop'});
+		return list;
+	}).flat();
+	if(lists.length == 0) return sections;
+	if(lists[0].action != 'do'){
+		lists.unshift({id:0, action:'do'});
+	}
+	//console.log(lists);
+	/* 2. 划分循环 */
+	var loopParas = [{type: 'normal', start:0, end:0}];
+	//var check = deadProtect(lists.length);
+	var i ;
+	loop:
+	for(i = 0; i< lists.length;){
+		//check();
+		//console.log(i,lists,Util.clone(loopParas));
+		//console.log(loopParas[loopParas.length-1].type,lists[i].action);
+		switch(loopParas[loopParas.length-1].type){
+			case 'normal':
+				switch(lists[i].action){
+					case 'do':
+						loopParas[loopParas.length-1].end = lists[i].id;
+						if(lists[i+2] && lists[i+1].action == 'house'
+						&& lists[i+2].action == 'loop'){
+							loopParas.push({
+								type: 'houseLoop',
+								start: lists[i].id,
+								end:   lists[i+1].id-1,
+								houses:[]
+							});
+							i++;
+						} else if (lists[i+1] && lists[i+1].action == 'loop'){
+							loopParas[loopParas.length-1].end = lists[i].id;
+							loopParas.push({
+								type: 'loop',
+								start: lists[i].id,
+								end:   lists[i+1].id,
+								houses:[]
+							});
+							i++;
+						} else {
+							console.warn('错误：不能识别的符号组合（可识别房子:|| 或 :||）\
+是不是在房子后漏了反复记号？解析停止。\n' + 
+						'    小节：' + (lists[i].id+1) + '；内部标签：' + lists[i].action);
+							i++;
+							break loop;
+						}
+						break;
+					case 'loop':
+					case 'house':
+						console.warn('错误：不能识别的序列（在非反复片段末尾遇见不是\
+||: 的符号），请检查您的乐谱。目前不支持嵌套反复。解析停止。\n' + 
+						'    小节：' + (lists[i].id+1) + '；内部标签：' + lists[i].action
+						+'；状态：' + loopParas[loopParas.length-1].type);
+						i++;
+						break;
+					default: 
+						throw Error('错误：未识别的符号。')
 				}
-				// 2. 如果这个小节是反复？
-				if (Music.loops[cur].loop) {
-					// 切换状态！
-					status = RE_INRE;
-					if (cntLine > 1) {
-						reLeft = 2;
-					} else {
-						reLeft = 1;
-					}
-
-					reEnd = cur;
-					// 跳转指针！
-					cur = reStart - 1;
-					break;
+				break;
+			case 'loop':
+				switch(lists[i].action){
+					case 'loop':
+						loopParas[loopParas.length-1].end = lists[i].id;
+						if(lists[i+1] && lists[i+1].action == 'do'){
+							loopParas.push({
+								type: 'normal',
+								start: lists[i].id+1,
+								end:   lists[i+1].id,
+								houses:[]
+							});
+							i++;
+						} else {
+							console.warn('错误：不能识别的符号组合（循环外面必须用 ||: 开头）\
+是不是在房子后漏了反复记号？解析停止。\n' + 
+						'    小节：' + (lists[i].id+1) + '；内部标签：' + lists[i].action);
+							i++;
+							break loop;
+						}
+						break;
+					case 'do':
+						console.warn('错误：不能识别的序列（在反复片段中遇见不是\
+		反复开始符号），请检查您的乐谱。解析停止。\n' + 
+						'    小节：' + (lists[i].id+1) + '；内部标签：' + lists[i].action
+						+'；状态：' + loopParas[loopParas.length-1].type);
+						i++;
+						break;
+					case 'house':
+						console.warn('错误：不能识别的序列（在反复片段外遇见不是\
+		反复开始符号的符号而非房子），请检查您的乐谱。解析停止。\n' + 
+						'    小节：' + (lists[i].id+1) + '；内部标签：' + lists[i].action
+						+'；状态：' + loopParas[loopParas.length-1].type);
+						i++;
+						break;
+					default: 
+						throw Error('错误：未识别的符号。')
 				}
-			}
-			cntLine = Music.sections[cur].reduce(function(prev, cur) {
-				return Math.max(prev, cur.note.word.length);
-			}, cntLine);
-			break;
-		case RE_INRE:
-			if (Music.loops[cur]) {
-				// 1. 如果这个小节是开始？
-				if (Music.loops[cur]["do"]) {/*什么也不做*/
+				break;
+			case 'houseLoop':
+				switch(lists[i].action){
+					case 'house':
+						if(lists[i+1] && lists[i+1].action != 'loop'){
+							lists.splice(i+1,0,{id:lists[i+1].id-1, action:'loop'})
+						}
+						if(lists[i+1] && lists[i+1].action == 'loop'){
+							loopParas[loopParas.length-1].end = lists[i+1].id+1;
+							loopParas[loopParas.length - 1].houses[lists[i].data[0]-1] = {
+								start: lists[i].id, end: lists[i+1].id+1
+							} ;
+							i+=2;
+						} else {
+							console.warn('错误：不能识别的符号组合（可识别房子:||）\
+是不是在房子后漏了反复记号？解析停止。\n' + 
+						'    小节：' + (lists[i].id+1) + '；内部标签：' + lists[i].action
+						+'；状态：' + loopParas[loopParas.length-1].type);
+							i++;
+							break loop;
+						}
+						break;
+					case 'do':
+						loopParas.push({
+							type: 'normal',
+							start: lists[i-1].id+1,
+							end:   lists[i].id,
+							houses:[]
+						});
+						
+						break;
+					case 'loop':
+						console.warn('错误：不能识别的序列（在非反复片段末尾遇见不是\
+||: 的符号），请检查您的乐谱。目前不支持嵌套反复。解析停止。\n' + 
+						'    小节：' + (lists[i].id+1) + '；内部标签：' + lists[i].action
+						+'；状态：' + loopParas[loopParas.length-1].type);
+						i++;
+						break;
+					default: 
+						throw Error('错误：未识别的符号。');
 				}
-				// 2. 如果这个小节是反复？
-				if (Music.loops[cur].loop) {
-					if (reLeft >= cntLine) {
-						// 切换状态！
-						status = RE_NORMAL;
-						reLeft = 1;
-						reEnd = cur;
-						// 跳转指针！;
-					} else {
-						reLeft++;
-						// 跳转指针！
-						cur = reStart - 1;
-					}
-
-				}
-
-			}
-			break;
+				break;
+			default: /* 永远不会发生 */
+				throw Error('错误：循环标记类型：' + loopParas[loopParas.length-1].type 
+				            + '不受支持。');
+				break;
 		}
-
 	}
-	console.warn("展开歌谱失败。");
-	console.log("Dump: ");
-	console.log(UI.outString());
-	PopupWindow.alert("无法识别歌谱的反复记号：将忽略反复。");
-	return Util.clone(Music.sections);
-}
-;
+	/* 最后一段在循环外面，我们把它解出来 */
+	if(loopParas[loopParas.length-1].end != sections.length){
+		loopParas.push({
+			type: 'normal', 
+			start: loopParas[loopParas.length-1].end, 
+			end: sections.length
+		})
+	}
+	/* 3. 展开 */
+	//console.log(loopParas);
+	return loopParas.map(function(item){
+
+		var ary = [];
+		var maxLen = sections.slice(item.start, item.end).reduce(function f(to,cur){
+			////console.log(cur);
+			if(Array.isArray(cur)){
+				return Math.max(to,cur.reduce(f,0))
+			}
+			return Math.max(to,((cur.note&&cur.note.word)||[]).length);
+		},0);
+		var limit = maxLen - 1;
+		if(maxLen <= 1){
+			limit = 0;
+			maxLen = 2;
+		}
+		//console.log(item,maxLen,limit)
+		if(item.type == 'normal'){
+			ary.push(sections.slice(item.start, item.end).map(function(item){
+				return Music.flatOneBar(item,0);
+			}));
+		} else if(item.type == 'loop'){
+			for(var i = 0; i<maxLen; i++){
+				ary.push(sections.slice(item.start, item.end).map(function(item){
+					return Music.flatOneBar(item,Math.min(limit,i));
+				}));
+			}
+		} else if(item.type == 'houseLoop'){
+			for(var i = 0; i<item.houses.length; i++){
+				ary.push(sections.slice(item.start, item.houses[0].start).map(function(item){
+					return Music.flatOneBar(item,Math.min(limit,i));
+				}));
+				ary.push(sections.slice(item.houses[i].start, item.houses[i].end).map(function(item){
+					return Music.flatOneBar(item,0);
+				}));
+			}
+		} else {
+			console.error('loopParas', loopParas, 'item', item);
+			throw Error('错误：不支持的片段类型。');
+		}
+		return ary;
+	}).flat(2);
+};;
 Music.flat = function music_flat() {
 	var res = [];
 	var bars = Music.flatBar();
@@ -2147,6 +2255,10 @@ UI.writeBack = function ui_write_back() {
 		Music.tempo[1] = 4;
 		UI.statusbar.querySelector("div").innerText = "暂不支持其他拍号，将自动设置为4。";
 	}
+	if(Music.loops.length > Music.sections.length){
+		Music.loops.length = Music.sections.length
+	}
+
 	document.querySelector(".tempo0").value = Music.tempo[0];
 	document.querySelector(".tempo1").value = Music.tempo[1];
 }
