@@ -570,9 +570,10 @@ Player.queueHighLight = function fn() {
 	var cur = Player.highLight.shift();
 	if (document.querySelector(".hl"))
 		document.querySelector(".hl").className = document.querySelector(".hl").className.replace(" hl", "");
-	if (cur == null)
+	if (cur == null || cur.eleId == -1){
 		return;
-	var dom = UI.dom[Math.max(0, cur.eleId - 1)];
+	}
+	var dom = UI.dom[Math.max(0, cur.eleId )];
 	dom.className += " hl";
 
 	var rect = dom.getBoundingClientRect();
@@ -587,7 +588,7 @@ Player.queueHighLight = function fn() {
 	while (Player.highLight.length && (Player.highLightStamp + cur.time * 1000 - time) < -50) {
 		cur = Player.highLight.shift();
 	}
-	Player.highLightTid = setTimeout(fn, Math.max(0, (Player.highLightStamp + cur.time * 1000 - time) | 0));
+	if(Player.highLight[0]) Player.highLightTid = setTimeout(fn, Math.max(0, (Player.highLightStamp + Player.highLight[0].time * 1000 - time) | 0));
 }
 ;
 
@@ -834,7 +835,7 @@ Player.splitUp = function player_splitUp() {
 		cItem.eleId = music[i].rawIndex;
 		Player.highLight.push(cItem);
 	}
-
+	Player.highLight.push({eleId:-1,time: curTime + sp32b * music[i-1].length});
 	curLen = curTime = 0;
 	/* 乐器旋律 */
 	for (i = 0; i < music.length; i++) {
