@@ -500,7 +500,7 @@ Music.flatBar = function(){
 	/* 目前没有机制保证 loop 过长 */
 	/* 0. 确定 Loop 存在*/
 	if(Music.loops.length > Music.sections.length){
-		Music.loops.length = Music.sections.length
+		Music.loops.length = Music.sections.length;
 	}
 	var loops = Util.clone(Music.loops);
 	var sections = Util.clone(Music.sections);
@@ -556,7 +556,8 @@ Music.flatBar = function(){
 						} else {
 							console.warn('错误：不能识别的符号组合（可识别房子:|| 或 :||）\
 是不是在房子后漏了反复记号？解析停止。\n' + 
-						'    小节：' + (lists[i].id+1) + '；内部标签：' + lists[i].action);
+						'    小节：' + (lists[i].id+1) + '；内部标签：' + lists[i].action
+						+'；状态：' + loopParas[loopParas.length-1].type);
 							i++;
 							break loop;
 						}
@@ -570,13 +571,13 @@ Music.flatBar = function(){
 						i++;
 						break;
 					default: 
-						throw Error('错误：未识别的符号。')
+						throw Error('错误：未识别的符号。');
 				}
 				break;
 			case 'loop':
 				switch(lists[i].action){
 					case 'loop':
-						loopParas[loopParas.length-1].end = lists[i].id;
+						loopParas[loopParas.length-1].end = lists[i].id+1; /* 包括自身 */
 						if(lists[i+1] && lists[i+1].action == 'do'){
 							loopParas.push({
 								type: 'normal',
@@ -585,10 +586,13 @@ Music.flatBar = function(){
 								houses:[]
 							});
 							i++;
+						} else if(!lists[i+1]){
+							i++;/* 什么也不用做。 乐曲结束了。 但是此处不应该warn。*/
 						} else {
 							console.warn('错误：不能识别的符号组合（循环外面必须用 ||: 开头）\
 是不是在房子后漏了反复记号？解析停止。\n' + 
-						'    小节：' + (lists[i].id+1) + '；内部标签：' + lists[i].action);
+						'    小节：' + (lists[i].id+1) + '；内部标签：' + lists[i].action
+						+'；状态：' + loopParas[loopParas.length-1].type);
 							i++;
 							break loop;
 						}
@@ -615,7 +619,8 @@ Music.flatBar = function(){
 				switch(lists[i].action){
 					case 'house':
 						if(lists[i+1] && lists[i+1].action != 'loop'){
-							lists.splice(i+1,0,{id:lists[i+1].id-1, action:'loop'})
+							/* 房子的末尾未必是反复记号：没有必要限制范围。 */
+							lists.splice(i+1,0,{id:lists[i+1].id-1, action:'loop'});
 						}
 						if(lists[i+1] && lists[i+1].action == 'loop'){
 							loopParas[loopParas.length-1].end = lists[i+1].id+1;
@@ -623,6 +628,8 @@ Music.flatBar = function(){
 								start: lists[i].id, end: lists[i+1].id+1
 							} ;
 							i+=2;
+						} else if(!lists[i+1]){
+							i++;/* 什么也不用做。 乐曲结束了。 但是此处不应该warn。*/
 						} else {
 							console.warn('错误：不能识别的符号组合（可识别房子:||）\
 是不是在房子后漏了反复记号？解析停止。\n' + 
@@ -655,7 +662,6 @@ Music.flatBar = function(){
 			default: /* 永远不会发生 */
 				throw Error('错误：循环标记类型：' + loopParas[loopParas.length-1].type 
 				            + '不受支持。');
-				break;
 		}
 	}
 	/* 最后一段在循环外面，我们把它解出来 */
@@ -664,7 +670,7 @@ Music.flatBar = function(){
 			type: 'normal', 
 			start: loopParas[loopParas.length-1].end, 
 			end: sections.length
-		})
+		});
 	}
 	/* 3. 展开 */
 	//console.log(loopParas);
@@ -674,7 +680,7 @@ Music.flatBar = function(){
 		var maxLen = sections.slice(item.start, item.end).reduce(function f(to,cur){
 			////console.log(cur);
 			if(Array.isArray(cur)){
-				return Math.max(to,cur.reduce(f,0))
+				return Math.max(to,cur.reduce(f,0));
 			}
 			return Math.max(to,((cur.note&&cur.note.word)||[]).length);
 		},0);
@@ -709,7 +715,7 @@ Music.flatBar = function(){
 		}
 		return ary;
 	}).flat(2);
-};;
+};
 Music.flat = function music_flat() {
 	var res = [];
 	var bars = Music.flatBar();
@@ -1031,10 +1037,10 @@ UI.autoScroll = function ui_autoScroll() {
 	var statusbarTop = UI.statusbar.getBoundingClientRect().top;
 	var author = Math.min(UI.author, Music.music.length - 1);
 	if (Music.music.length) {
-		if (UI.domsAreas[author].y == 0) {
+		/*if (UI.domsAreas[author].y == 0) {
 			window.scroll(0, 0);
 			return;
-		}
+		}*/
 		UI.domList.every(function(item, index) {
 			if (item.dataset.id == author) {
 				if (UI.domsAreas[author].y + UI.domsAreas[author].height + containerTop > statusbarTop) {
@@ -2136,7 +2142,9 @@ UI.setEditor = function ui_setEditor() {
 			var author = Math.min(UI.author, Music.music.length - 1)
 			var h = event.clientY - UI.domsAreas[author].y - UI.container.getBoundingClientRect().top;
 			if (h > heightYin && Music.music[UI.author]) {
-				UI.editingLynicLine = Math.min(parseInt((h - heightYin) / heightWord), Music.music[UI.author].word.length);
+				UI.editingLynicLine = Math.min(parseInt((h - heightYin) / heightWord)
+				, UI.domsAreas[author].y==UI.domsAreas[UI.domsAreas.length-1].y ? Math.max(UI.editingLynicLine,Music.music[UI.author].word.length) : 999
+				);
 				UI.redraw();
 			} else {
 				UI.editingLynicLine = -1;
