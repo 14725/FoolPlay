@@ -238,7 +238,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 	g.gain.linearRampToValueAtTime(0.1, Player.timeStart + start - advance);
 	g.gain.linearRampToValueAtTime(vol, Player.timeStart + start);
 	g.gain.linearRampToValueAtTime(vol,Math.max(Player.timeStart + start - advance + (l - bestVoice.consonant) / 44100 *0.7 ,Player.timeStart + start+0.0001));
-	g.gain.linearRampToValueAtTime(0.0001, Player.timeStart + start - advance + l / 44100);
+	g.gain.linearRampToValueAtTime(0.0001, Player.timeStart + start - advance + (l -(raw.isTooLong?0:bestVoice.length / 2 - bestVoice.vowel) )/ 44100);
 
 	n.buffer = Player.convertBuffer(buf1);
 	n.connect(g);
@@ -293,10 +293,8 @@ Player.load2 = function() {
 		/* 转换为对象 */
 		table.forEach((a)=>(a[0] = a[0].split('_')[0].replace(/\d/ig, '')));
 		table.forEach(function(line) {
-
 			var item = Object.assign({}, itemT);
 			Object.seal(item);
-
 			Object.keys(item).forEach(function(key, i) {
 				item[key] = parseFloat(line[i + 1]);
 			});
@@ -1089,9 +1087,12 @@ Player.voicePass2 = function() {
 }
 ;
 
-Player.downloadVoice = async function() {
+Player.downloadVoice = async function player_downloadVoice(uncompressed) {
+	if(!uncompressed && !Player.ctx.createBuffer(1,4096,44100).getChannelData){
+		return Player.downloadVoice(true);
+	}
 	var pro = PopupWindow.progress();
-	pro.text('正在加载音源...');
+	pro.text('正在加载音源设定...');
 	try {
 		let inf = await (await fetch('data/inf.d')).text();
 		await Player.storage.setItem('inf.d', inf);
@@ -1101,12 +1102,12 @@ Player.downloadVoice = async function() {
 	}
 	return new Promise(function(ok, fail) {
 		var xhr = new XMLHttpRequest();
+		pro.text('正在加载音源数据...');
 		xhr.onerror = xhr.onabort = function(event) {
 			pro.close();
 			Player.showVoiceWindow();
 			fail(new Error('Fetch failed: ' + event.type));
-		}
-		;
+		};
 		pro.oncancel(function() {
 			xhr.abort();
 		});
@@ -1118,19 +1119,35 @@ Player.downloadVoice = async function() {
 			}
 		}
 		;
-		xhr.onload = function() {
+		xhr.onload = async function() {
 			if (xhr.status > 300) {
 				Player.trace('加载失败');
 			}
+			var buf;
+			if(!uncompressed){
+				var ctx = new OfflineAudioContext(1,1024,44100);
+				pro.text('正在解压缩音源数据...');
+				var buf32 = await ctx.decodeAudioData(xhr.response);
+				buf32 = buf32.getChannelData(0);
+				var buf16 = new Int16Array(buf32.length);
+				var i = buf32.length;
+				while(--i >= 0){
+					buf16[i] = buf32[i] * 32767;
+				}
+				buf = buf16.buffer;
+			} else {
+				buf = xhr.response;
+			}
 			pro.close();
-			Player.storage.setItem('voice.d', xhr.response).then(function() {
+
+			Player.storage.setItem('voice.d', buf).then(function() {
 				Player.load1();
 			}).catch(fail);
 		}
 		;
 		xhr.responseType = "arraybuffer";
 		try {
-			xhr.open('GET', 'data/voice.png', true);
+			xhr.open('GET', uncompressed?'data/voice.png':'data/voice.jpg', true);
 			xhr.send();
 		} catch (e) {
 			xhr.onabort();
@@ -1143,6 +1160,10 @@ Player.downloadVoice = async function() {
 /* Hacking file - render offline*/
 
 Player.saveWav = async function player_play() {
+	if(!Player.ctx.createBuffer(1,4096,44100).getChannelData){
+		PopupWindow.alert('错误：浏览器不允许导出音频；\n请关闭浏览器隐私保护功能（查找 audio fingerprint 等词），刷新重试。');
+		return;
+	}
 	Player.stop();
 	var pro = PopupWindow.progress();
 	pro.text('正在合成人声');
@@ -1151,7 +1172,7 @@ Player.saveWav = async function player_play() {
 	Player._oldtar = Player.target;
 	var ctx = Player.ctx = new OfflineAudioContext(1,44100 * (Player.music[Player.music.length - 1].start + 5),44100);
 	Player.target = Player.ctx.destination;
-	Player.ctx.resume = function() {}
+	Player.ctx.resume = function() {};
 	Player.timeStart = Player.ctx.currentTime + 0.5;
 	Player.stop();
 	var voice = Util.clone(Player.voice);
@@ -1202,9 +1223,9 @@ Player.saveWav = async function player_play() {
 		Player.target = ctx.destination;
 		cancelFns.forEach(function(a) {
 			try {
-				a()
+				a && a();
 			} catch (e) {
-				console.error(e)
+				console.error(e);
 			}
 		});
 		Player.target = Player._oldtar;

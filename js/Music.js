@@ -331,8 +331,7 @@ PopupWindow.progress = function popupWindow_progress() {
 		noCancel: function() {
 			Array.from(dom.querySelectorAll('.cancel')).forEach(function(a) {
 				a.disabled = true;
-				;
-			})
+			});
 			return this;
 		},
 		okToCancel: function() {

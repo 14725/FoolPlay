@@ -25,10 +25,56 @@ python -m SimpleHTTPServer
 
 至于 Windows 用户，大家八仙过海吧。因为诸如 HTTPSASM 之类都比 Python 的自带服务器好，因为它开包即用，无需安装。
 
+## 文件（部分）...
+```
+edit.htm ------------ 本程序主程序
+FAIL.htm ------------ 无 blob 下载功能浏览器的测试错误页面
+faq.html ------------ 常见问题解答
+favicon.ico --------- 地址栏图标
+index.css ----------- 文档类页面的样式表（water.css）
+index.html ---------- 主页/关于页
+jpfont-nds.otf ------ （未引用，内嵌于style.css）怒独僧简谱字体
+LICENSE ------------- 许可证以及版权声明
+manifest.json ------- PWA 配置文件
+README.md ----------- 我！
+SerWork.js ---------- Service Worker 离线脚本
+style.css ----------- edit.htm 的样式表
++data --------------- 声音数据文件夹
++-- inf.d ----------- 音源标注
++-- pianosap.wav ---- 钢琴采样
++-- voice.jpg ------- 音源数据（MP3或任意压缩格式）
++-- voice.png ------- 音源数据（未压缩 16bit/44100Hz PCM）
+images/1024x1024.png  PWA 头像
++img ---------------- 歌谱记号图片(见文件名知意)
++-- coda.svg
++-- segno.svg
++js ----------------- 程序主要逻辑
++-- mespeak --------- mespeak
++---+-- en.json ----- MeSpeak 英文字典
++---+-- mespeak-core.js （被修改过）
++---+-- mespeak.js
++---+-- mespeak.zip - 源码压缩
++---+-- README.md --- 改了什么？
++---+-- transplant.js 用MeSpeak合成音源的胶水
++-- Chord.js -------- 和弦生成器
++-- eruda.js -------- 网页控制台
++-- Music.js -------- 主逻辑（包含PopuoWindow, Util, Music, UI）
++-- Player.js ------- 播放器（人声和钢琴）
++-- TinyPY.js ------- 迷你拼音生成器
++-- touchShim.js ---- 触摸屏初步支持
++-- yux-storage.js -- IndexedDB 封装
++music -------------- 示例文件
++-- （略）
++pack --------------- 单文件打包器
++-- build.htm
++-- readme.md
++-- terser.js ------- JS 压缩
+
+```
+
 ## 浏览器
 
 *   最新的桌面浏览器（对于Chr***系列，从55开始）应该都能工作；
-*   Internet Explorer 11（以及部分手机浏览器）之类近代浏览器（无 Web Audio API 支持）可以编辑歌谱，但不能出声音。不对其中的错误提示框负责。
 *   介意ES6语法的浏览器不能工作。当然，如果（如果我不懒，）把程序翻译到ES5并打上Polyfill，可以在更多浏览器上、如Chrome 49（和WinXP!）上工作。
 *   有严重的性能问题，但暂时不会得到解决。
 
@@ -57,7 +103,4 @@ python -m SimpleHTTPServer
 
 ## 鸣谢
 
-*   怒独僧简谱字体 （[http://www.nuduseng.com/jianpu/](http://www.nuduseng.com/jianpu/)）
-*   tiny-pinyin （[https://github.com/creeperyang/pinyin/](https://github.com/creeperyang/pinyin/)）
-*   yux-storage （[https://github.com/yued-fe/yux-storage](https://github.com/yued-fe/yux-storage)）
-*   瑾年 （[https://dsailab.com/voice/info/JIN%20NIAN/](https://dsailab.com/voice/info/JIN%20NIAN/)）
+你还是看 index.htm 吧，我写不动了。
