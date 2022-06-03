@@ -439,7 +439,7 @@ Player.loadPyTable = function player_loadPyTable() {}
 ;
 Player.loadSample = function player_loadSample() {
 	var request = new XMLHttpRequest();
-	request.open('GET', 'data/pianosap.wav', true);
+	request.open('GET', 'data/pianosap.mp3', true);
 	request.responseType = 'arraybuffer';
 	request.onload = function() {
 		var audioData = request.response;
@@ -447,7 +447,7 @@ Player.loadSample = function player_loadSample() {
 			Player.pianoSample = buffer;
 		}),
 		function(e) {
-			console.warn("钢琴采样加载失败，将使用合成音效。" + e.err)
+			console.warn("钢琴采样加载失败，将使用合成音效。" + e.err);
 		}
 		;
 	}
@@ -587,6 +587,7 @@ Player.queueHighLight = function fn() {
 		cur = Player.highLight.shift();
 	}
 	if(Player.highLight[0]) Player.highLightTid = setTimeout(fn, Math.max(0, (Player.highLightStamp + Player.highLight[0].time * 1000 - time) | 0));
+	else document.querySelector(".hl").className = document.querySelector(".hl").className.replace(" hl", "");
 }
 ;
 
@@ -726,7 +727,6 @@ Player.trace = function player_train(log) {
 }
 ;
 
-Player.main();
 
 Player.flatAndTag = function player_flatAndTag() {
 	var bars = Util.clone(Music.flatBar());
@@ -1328,3 +1328,5 @@ Player.bufferToWave = function bufferToWave(abuffer, len) {
 	}
 }
 ;
+
+Player.main();

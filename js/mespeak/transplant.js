@@ -82,7 +82,7 @@ Transplant.addVoice = async function(text){
     data: int16, /* int16s */
     vowel: int16.length - 2048,
     length: int16.length * 2, /* x * 2 */
-    freq: 441
+    freq: 432
   };
   Player.anoMeta[text] = item;
 };

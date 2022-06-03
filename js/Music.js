@@ -2362,7 +2362,7 @@ UI.main = function ui_main() {
 	}
 	try {
 		//不在局域网环境下注册。
-		if ((!(/(localhost|(\d{1,3}\.){3})/.test(location.host))) || location.href.indexOf('test') > 0)
+		if ((!(/(localhost|(\d{1,3}\.){3})/.test(location.host))) || location.hash.indexOf('test') > 0)
 			navigator.serviceWorker.register('SerWork.js', {
 				scope: './'
 			}).then(function(r) {
