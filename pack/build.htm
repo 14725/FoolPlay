@@ -105,12 +105,14 @@ You should have received a copy of the GNU General Public License along with thi
 	<p>如果您打算将它传到自己的服务器上，您可以补充以下文件（相对生成的文件）来恢复一些功能：</p>
 	<table>
 		<tr><th>补充文件</th><th>作用</th></tr>
-		<tr><td>../data/pianosap.wav</td><td>把芯片音乐换成玩具钢琴</td></tr>
+		<tr><td>../data/pianosap.mp3</td><td>把芯片音乐换成玩具钢琴</td></tr>
 		<tr><td>../data/inf.d</td><td>（在版权允许时可换成其他文件）袅袅虚拟歌手音色库的描述文件（oto）</td></tr>
 		<tr><td>../data/voice.png</td><td>（在版权允许时可换成其他文件）袅袅虚拟歌手音色库的数据文件（注意扩展名！已改名，以禁止服务器gzip压缩（效果不好）并允许本程序显示加载进度）</td></tr>
 	</table>
+	<p>否则请勾选“打包额外文件”，把上述文件打包到单文件中。</p>
 	<hr>
-	<button onclick="pack();this.disabled = true;">下载本程序文件并打包</button>
+	<label><input type="checkbox" id="resPack"/> 打包上述资源</label>
+	<button onclick="pack();this.disabled = true;resPack.disabled =true;">下载本程序文件并打包</button>
 	<details>
 		<summary>网络日志</summary>
 		<textarea id=opt rows="25" style="width:95%;"></textarea>
@@ -140,6 +142,33 @@ async function forcefetch(url){
     return await res.text();
   }
 }
+async function sAB(url){
+	log('Loading as Arraybuffer: '+url)
+	var arraybuffer = await (await fetch('../' + url)).arrayBuffer();
+	var bary = new Uint8Array(arraybuffer);
+	var str = btoa([].map.call(bary,function(a){
+		return String.fromCharCode(a);
+	}).join(''));
+	var element = document.createElement('script');
+	element.type = 'base64';
+	element.id = url;
+	element.textContent = str;
+	return element;
+}
+async function sT(url){
+	log('Loading as Text: '+url)
+	var str = await (await fetch('../' + url)).text();
+	var element = document.createElement('script');
+	element.type = 'text';
+	element.id = url;
+	element.textContent = str;
+	return element;
+}
+async function s(url){
+	var element = document.createElement('script');
+	element.src = url;
+	return element;
+}
 async function pack(){
   var editHTM = await forcefetch('edit.htm');
   var dom = new DOMParser().parseFromString(editHTM,'text/html');
@@ -161,7 +190,13 @@ async function pack(){
   for(i of dom.querySelectorAll('script:not([src]), .loading')){
   	i.remove();
   }
-
+  if(resPack.checked){
+  	dom.body.insertAdjacentElement('afterbegin',await s('pack/mock.js'))
+  	dom.body.insertAdjacentElement('afterbegin',await sT('data/inf.d'))
+  	dom.body.insertAdjacentElement('afterbegin',await sAB('data/voice.jpg'))
+  	dom.body.insertAdjacentElement('afterbegin',await sAB('data/pianosap.mp3'))
+  	dom.body.insertAdjacentElement('afterbegin',await s('pack/debug.js'))
+  }
   var styles = dom.querySelectorAll('link[rel=stylesheet]');
   var scripts = dom.querySelectorAll('script[src]');
   for(i of styles){
@@ -173,7 +208,9 @@ async function pack(){
     i.innerHTML = (await Terser.minify(await forcefetch(i.getAttribute('src')))).code;
     i.removeAttribute('src')
   }
-  dom.body.insertAdjacentHTML('beforeend','<scr'+'ipt>UI.about=function(src){var a=document.createElement("a");a.href="https://asdfqw.gitee.io/foolplay/"+src;open(a.href)}</sc'+'ript>')
+  
+  dom.body.insertAdjacentHTML('beforeend','<scr'+'ipt>UI.about=function(){PopupWindow.alert("此功能在单文件打包版本中已删除。\\n"+Util.t2h(document.documentElement.firstChild.nodeValue))}</sc'+'ript>')
+  dom.body.insertAdjacentHTML('afterbegin','<scr'+'ipt>navigator.serviceWorker.register=null  </sc'+'ript>')
   var html = '<!DOCTYPE html>'+dom.body.parentElement.outerHTML;
   console.log(html);
   console.log(dom);

@@ -41,7 +41,7 @@ SerWork.js ---------- Service Worker 离线脚本
 style.css ----------- edit.htm 的样式表
 +data --------------- 声音数据文件夹
 +-- inf.d ----------- 音源标注
-+-- pianosap.wav ---- 钢琴采样
++-- pianosap.mp3 ---- 钢琴采样
 +-- voice.jpg ------- 音源数据（MP3或任意压缩格式）
 +-- voice.png ------- 音源数据（未压缩 16bit/44100Hz PCM）
 images/1024x1024.png  PWA 头像
