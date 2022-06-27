@@ -12,6 +12,7 @@ FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
   You should have received a copy of the GNU General Public License along with 
 this program. If not, see <https://www.gnu.org/licenses/>.
   for sources and more information, check https://gitee.com/asdfqw/FoolPlay 
+
 	-->
 <head>
 <meta charset="utf-8"/>
@@ -268,7 +269,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 		  <hr>
 		  <button id="b_inf" onclick="f_inf.click()">inf.d?</button>
 		  <button id="b_voi" onclick="f_voi.click()">voice.d?</button>|
-		  <label><input type="checkbox" id="c_man" style="vertical-align:middle" />我是男生</label>|<button id="b_app">应用</button>
+		  <label><input type="checkbox" id="c_man" style="vertical-align:middle" />降八度演唱</label>|<button id="b_app">应用</button>
 		  <input type="file" hidden onchange="(this.files[0] && (this.files[0].name.toLowerCase().indexOf('inf')==-1) && alert('您选择的文件名是' + this.files[0].name + '，这应该是你想要加载的 inf.d 文件吧？')),b_inf.className = this.files[0]?'append-yes':''" id="f_inf"/>
 		  <input type="file" hidden onchange="(this.files[0] && (this.files[0].name.toLowerCase().indexOf('voice')==-1) && alert('您选择的文件名是' + this.files[0].name + '，这应该是你想要加载的 voice.d 文件吧？')),b_voi.className = this.files[0]?'append-yes':''" id="f_voi"/>
 		</div>

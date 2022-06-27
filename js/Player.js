@@ -144,24 +144,25 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 			return;
 		}
 
-		pinyin = (sentense.replace(/[^a-z]/ig, '').toLowerCase()in Player.anoMeta) ? sentense.replace(/[^a-z]/ig, '').toLowerCase() : sentense.split("").map(function(a) {
-			return Pinyin.convertToPinyin(a, '', true)
-		})[0];
-		if (!pinyin)
-			return;
-		pinyin = pinyin.replace(/[^a-z]/ig, '').toLowerCase();
-		if (!(pinyin in Player.meta) && !(pinyin in Player.anoMeta)) {
-			Player.trace('未知拼音：' + sentense + ': ' + pinyin);
-			return;
+		temp = sentense.replace(/[^a-z]/ig, '');
+		isHanzi = (temp == "");
+		
+		if(!sentense.trim()) return;
+		if(isHanzi){
+			pinyin = Pinyin.getChar(sentense[0]);
+			if(!(pinyin in Player.meta)) Player.trace('未知拼音：' + sentense + ': ' + pinyin);
+		} else {
+			pinyin = temp.toLowerCase();
 		}
 	}
 	var shouldC = false;
 	var l = len * 44100;
 	var advance = 0.01;
 	var bestVoice = null;
-	var bestFreq = +9999;
+	var bestFreq = +99999;
 	var avgFreq = 0;
 	var freqList = [];
+	var temp, isHanzi;
 	//频率滑动表
 	var fTime = function(x) {
 		return x
@@ -175,7 +176,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 		avgFreq += f.f * (nextT - f.time);
 	});
 	avgFreq /= len;
-	if (Player.anoMeta[pinyin]) {
+	if (!isHanzi) {
 		bestVoice = Player.anoMeta[pinyin];
 	} else {
 		//console.log(Player.meta[pinyin][0]);
@@ -237,7 +238,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 	g.gain.linearRampToValueAtTime(0.0001, Player.timeStart + 0);
 	g.gain.linearRampToValueAtTime(0.1, Player.timeStart + start - advance);
 	g.gain.linearRampToValueAtTime(vol, Player.timeStart + start);
-	g.gain.linearRampToValueAtTime(vol,Math.max(Player.timeStart + start - advance + (l - bestVoice.consonant) / 44100 *0.7 ,Player.timeStart + start+0.0001));
+	g.gain.linearRampToValueAtTime(vol,Math.max(Player.timeStart + start - advance + (l - bestVoice.consonant) / 44100 *0.7 ,Player.timeStart + start+0.0001, Player.timeStart + start - advance + (l -(raw.isTooLong?0:bestVoice.length / 2 - bestVoice.vowel) )/ 44100-0.3));
 	g.gain.linearRampToValueAtTime(0.0001, Player.timeStart + start - advance + (l -(raw.isTooLong?0:bestVoice.length / 2 - bestVoice.vowel) )/ 44100);
 
 	n.buffer = Player.convertBuffer(buf1);
@@ -293,8 +294,10 @@ Player.load2 = function() {
 		/* 转换为对象 */
 		table.forEach((a)=>(a[0] = a[0].split('_')[0].replace(/\d/ig, '')));
 		table.forEach(function(line) {
+
 			var item = Object.assign({}, itemT);
 			Object.seal(item);
+
 			Object.keys(item).forEach(function(key, i) {
 				item[key] = parseFloat(line[i + 1]);
 			});
@@ -333,7 +336,8 @@ Player.convertBuffer = function player_convertBuffer(buffer) {
 }
 
 /* 线性插值，用点列表生成连续函数 */
-Player.getF = function getF(points) {
+Player.getF = function Player_getF(points) {
+	console.log("Player.getF", points.length);
 	points = Util.clone(points);
 	return function(x) {
 		if (x < points[0][0]) {
@@ -385,6 +389,7 @@ Player.sample = function player_sample(data, total, now) {
 ;
 
 Player.transform = function player_transform(data, length, fPos, fFreq) {
+	console.time("Player.transform");
 	var wave = new Int16Array(length);
 	//alert(sample(data,99999,40000));//return [];
 	/* 原始周期 */
@@ -412,6 +417,7 @@ Player.transform = function player_transform(data, length, fPos, fFreq) {
 		}
 		pos += t;
 	}
+	console.timeEnd("Player.transform");
 	return wave;
 }
 ;
@@ -435,7 +441,6 @@ Player.highLightItem = {
 	time: 0,
 	eleId: 0
 };
-Player.loadPyTable = function player_loadPyTable() {}
 ;
 Player.loadSample = function player_loadSample() {
 	var request = new XMLHttpRequest();
@@ -447,7 +452,7 @@ Player.loadSample = function player_loadSample() {
 			Player.pianoSample = buffer;
 		}),
 		function(e) {
-			console.warn("钢琴采样加载失败，将使用合成音效。" + e.err);
+			console.warn("钢琴采样加载失败，将使用合成音效。" + e.err)
 		}
 		;
 	}
@@ -514,7 +519,7 @@ Player.start = function player_start(startTime, tune, len, vol, isChord, word) {
 	}
 	Player.ctx.resume();
 
-	vol = vol * 0.3;
+	vol = vol * 0.7;
 	var gain = Player.ctx.createGain();
 
 	gain.connect(Player.target);
@@ -588,6 +593,7 @@ Player.queueHighLight = function fn() {
 	}
 	if(Player.highLight[0]) Player.highLightTid = setTimeout(fn, Math.max(0, (Player.highLightStamp + Player.highLight[0].time * 1000 - time) | 0));
 	else document.querySelector(".hl").className = document.querySelector(".hl").className.replace(" hl", "");
+
 }
 ;
 
@@ -1107,7 +1113,8 @@ Player.downloadVoice = async function player_downloadVoice(uncompressed) {
 			pro.close();
 			Player.showVoiceWindow();
 			fail(new Error('Fetch failed: ' + event.type));
-		};
+		}
+		;
 		pro.oncancel(function() {
 			xhr.abort();
 		});
@@ -1138,8 +1145,8 @@ Player.downloadVoice = async function player_downloadVoice(uncompressed) {
 			} else {
 				buf = xhr.response;
 			}
+ 
 			pro.close();
-
 			Player.storage.setItem('voice.d', buf).then(function() {
 				Player.load1();
 			}).catch(fail);
@@ -1159,12 +1166,12 @@ Player.downloadVoice = async function player_downloadVoice(uncompressed) {
 
 /* Hacking file - render offline*/
 
-Player.saveWav = async function player_play() {
+Player.saveWav = async function player_saveWav() {
 	if(!Player.ctx.createBuffer(1,4096,44100).getChannelData){
 		PopupWindow.alert('错误：浏览器不允许导出音频；\n请关闭浏览器隐私保护功能（查找 audio fingerprint 等词），刷新重试。');
 		return;
 	}
-	Player.stop();
+Player.stop();
 	var pro = PopupWindow.progress();
 	pro.text('正在合成人声');
 	Player.splitUp();
@@ -1172,7 +1179,7 @@ Player.saveWav = async function player_play() {
 	Player._oldtar = Player.target;
 	var ctx = Player.ctx = new OfflineAudioContext(1,44100 * (Player.music[Player.music.length - 1].start + 5),44100);
 	Player.target = Player.ctx.destination;
-	Player.ctx.resume = function() {};
+	Player.ctx.resume = function() {}
 	Player.timeStart = Player.ctx.currentTime + 0.5;
 	Player.stop();
 	var voice = Util.clone(Player.voice);

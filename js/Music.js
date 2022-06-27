@@ -210,10 +210,6 @@ Util.t2h = function util_t2h(str) {
 }
 ;
 Util.saveAs = function util_saveAs(content, mine, fileName) {
-	if (Math.min(screen.width, screen.height) < 630) {
-		if (!confirm('您似乎在使用手机访问本程序，文件保存功能可能可能不能正常工作：手机把临时地址当做网络地址下载。\n\n如果必要，尝试手机自带浏览器或 Ungoogled Chromium、Edge等浏览器。\n\n继续？'))
-			return;
-	}
 	var url;
 	var blob;
 	/* 不使用文件本身的 MIME 以防触发浏览器特殊机制（如Chrome 会把网页 “打包”为MHTML 并破坏追加的脚本区域） */
@@ -228,20 +224,12 @@ Util.saveAs = function util_saveAs(content, mine, fileName) {
 		blob = new Blob([content],{
 			type: mine
 		});
-		blob = new Blob([content],{
-			type: mine
-		});
 	}
 	url = URL.createObjectURL(blob);
 	setTimeout(function() {
 		URL.revokeObjectURL(url)
 	}, 40 * 1000);
-	if (blob) {
-		if ('msSaveOrOpenBlob'in navigator) {
-			window.navigator.msSaveOrOpenBlob(blob, fileName);
-			return;
-		}
-	}
+	
 	var link = document.createElement('a');
 	link.href = url;
 	link.download = fileName;
@@ -331,7 +319,8 @@ PopupWindow.progress = function popupWindow_progress() {
 		noCancel: function() {
 			Array.from(dom.querySelectorAll('.cancel')).forEach(function(a) {
 				a.disabled = true;
-			});
+				;
+			})
 			return this;
 		},
 		okToCancel: function() {
@@ -1623,8 +1612,8 @@ UI.onInput = function(event) {
 				else
 					note.octave++;
 				UI.render();
+				Player.simplePlay(note.pitch, note.octave);
 			}
-			Player.simplePlay(note.pitch, note.octave);
 			UI.refreshIME("");
 			break;
 		case "+":
@@ -1738,15 +1727,6 @@ UI.onInput = function(event) {
 			event.target.value = "";
 			content.shift();
 			content.shift();
-		case "1":
-		case "2":
-		case "3":
-		case "4":
-		case "5":
-		case "6":
-		case "7":
-		case "8":
-		case "9":
 			break;
 		default:
 			//event.target.value = "";
@@ -2214,6 +2194,9 @@ UI.setEditor = function ui_setEditor() {
 	}
 	;
 	UI.editbox.addEventListener("keydown", UI.onKeyDown);
+	UI.editbox.addEventListener("input", function(){
+		UI.refreshIME();
+	});
 	document.addEventListener("keydown", UI.onGlobalKeyDown);
 	Util.onCJKInput(UI.editbox, UI.onInput);
 	UI.editbox.addEventListener("focus", function show_caret() {
