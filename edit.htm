@@ -222,7 +222,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 		try{
 		  ele.innerHTML += error.stack;
 		}catch(e){};
-		ele2.innerHTML = '错误<div style="float:right;" ><input type="button" value="关闭全部" onclick="var a;while(a = document.querySelector(`.error`))a.remove();"><input type="button" value="关闭" onclick="this.parentNode.parentNode.remove()"></div>' + ele2.innerHTML;
+		ele2.innerHTML = '错误<div style="float:right;" ><input type="button" value="关闭全部" onclick="var a;while(a = document.querySelector(`.error`))a.parentNode.removeChild(a);"><input type="button" value="关闭" onclick="this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode)"></div>' + ele2.innerHTML;
 		document.body.appendChild(ele2);
 		ele.scrollIntoView();
 	}

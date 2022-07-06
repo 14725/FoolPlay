@@ -45,7 +45,7 @@ Object.defineProperty(Array.prototype, 'chainableForEach', {
 		window.scrollTo({
 			left: self.pageXOffset
 		});
-		return;
+		/*return;*/
 	} catch (e) {}
 	var rawScrollTo = window.scrollTo.bind(window);
 	var timer = 0;
@@ -148,9 +148,12 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 		isHanzi = (temp == "");
 		
 		if(!sentense.trim()) return;
-		if(isHanzi){
-			pinyin = Pinyin.getChar(sentense[0]);
-			if(!(pinyin in Player.meta)) Player.trace('未知拼音：' + sentense + ': ' + pinyin);
+		if(isHanzi || raw.pinyin){
+			pinyin = raw.pinyin || Pinyin.getChar(sentense[0]);
+			if(!(pinyin in Player.meta)){
+				Player.trace('未知拼音：' + sentense + ': ' + pinyin);
+				return null;
+			} 
 		} else {
 			pinyin = temp.toLowerCase();
 		}
@@ -180,6 +183,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 		bestVoice = Player.anoMeta[pinyin];
 	} else {
 		//console.log(Player.meta[pinyin][0]);
+		
 		bestVoice=Player.meta[pinyin][0];
 		Player.meta[pinyin].forEach(function(a) {
 			if (Math.abs(a.freq - avgFreq) < bestFreq) {
@@ -435,6 +439,7 @@ Player.soundItem = {
 	//[],
 	fx: [],
 	word: "",
+	pinyin: '',
 	isChord: false
 };
 Player.highLightItem = {
@@ -476,13 +481,9 @@ Player.main = function player_main() {
 	var imag = new Float32Array(11);
 	var ac = Player.ctx;
 
-	real[0] = 0;
-	imag[0] = 0;
 	real[1] = 0.2;
-	imag[1] = 0;
 	for (var i = 1; i <= 15; i++) {
 		real[i] = 0.2 * Math.pow((15 - i) * 0.1, 4);
-		imag[i] = 0;
 	}
 	Player.wave = ac.createPeriodicWave(real, imag, {
 		disableNormalization: true
@@ -897,8 +898,10 @@ Player.splitUp = function player_splitUp() {
       f: [{time,f: 440,}],fx: [],
       word: "",isChord: false
      }*/
+    var py;
 		Array.isArray(music[i].word) && (music[i].word = music[i].word[0]);
 		f = jian2p(music[i].pitch) + 12 * music[i].octave + (+Music.arpeggio) - jian2p(6);
+		if(music[i].pinyin && music[i].pinyin[0]) py = music[i].pinyin[0];
 		if (isNaN(f))
 			continue;
 		f = 440 * Math.pow(2, f / 12);
@@ -912,6 +915,7 @@ Player.splitUp = function player_splitUp() {
 			}],
 			word: (music[i].word || '').trim(),
 			isChord: false,
+			pinyin: py
 		}, Player.soundItem);
 		if (music[i].fx.extend && !cItem.word) {
 			/* 如果延长？ 如果有歌词就不算延长*/
@@ -937,19 +941,69 @@ Player.splitUp = function player_splitUp() {
 	var chordNotes = Chord.getChord().flat();
 	//console.log('chordNotes', chordNotes)
 	var sttime = 0;
+	var tempo = Music.tempo;
 	chordNotes.forEach(function(noteary, id) {
 		var ttlen = noteary.len;
 		//;console.log(noteary)
-		noteary = noteary.chordnotes
+		noteary = noteary.chordnotes.sort()
 		var extend = 1;
-		/*if (id < chordNotes.length-1 && noteary.toString() == chordNotes[id+1].toString()) {
+		if (id < chordNotes.length-1 && noteary.toString() == chordNotes[id+1].toString()) {
       extend = 4;
-    }*/
+    }
 		var volBoost = 1.2;
 		while (ttlen > 0) {
+			let ok = false;
+			if(tempo[0] == '4' || tempo[0] == '8'){
+				ok = true;
+				if(tempo[1] == '4' || tempo[1] == '2' || tempo[1] == '12'){
+					let pos = (sttime / lenTempo) % tempo[1];
+					if(pos == 0){
+						one(noteary);
+					} else if(pos == 2){
+						fifth(noteary);
+					} else {
+						chord(noteary);
+					}
+				} else if(tempo[1] == '3'){
+					let pos = (sttime / lenTempo) % 3;
+					if(pos == 0){
+						one(noteary);
+					} else {
+						chord(noteary);
+					}
+				} else if(tempo[1] == '6') {
+					let pos = (sttime / lenTempo) % 2;
+					let _2_3 = lenTempo * 2 / 3;
+					if(pos == 0){
+						one(noteary,ttlen / 3 * 2);
+					} else {
+						fifth(noteary,ttlen / 3 * 2);
+					}
+					sttime += _2_3;
+					chord(noteary,ttlen / 3);
+					sttime -= _2_3;
+				} else {
+					ok = false;
+				}
+				
+			}
+			if(!ok){
+				console.log('fallback')
+				chord(noteary);
+			}
+			volBoost = 1;
+			sttime += lenTempo;
+			ttlen -= lenTempo;
+		}
+		sttime += ttlen;
+		function chord(noteary,_ttlen){
+			if(!_ttlen){
+				_ttlen = ttlen;
+			}
+
 			noteary.forEach(function(note) {
 				var newItem = Util.clone(Player.soundItem);
-				newItem.len = (ttlen + extend) * sp32b;
+				newItem.len = (_ttlen + extend) * sp32b;
 				newItem.start = sttime * sp32b + 0.1;
 				newItem.vol = Player.level2vol(volBoost > 0 ? 4 : 1) / 5;
 				newItem.f[0].f = 440 * Math.pow(2, (Player.fMap[note] - 1 + Music.arpeggio / 12));
@@ -957,11 +1011,36 @@ Player.splitUp = function player_splitUp() {
 				if (id != 0 || String(Music.music[0].pitch) != '0')
 					Player.music.push(newItem);
 			});
-			volBoost = 1;
-			sttime += lenTempo;
-			ttlen -= lenTempo;
 		}
-		sttime += ttlen;
+		function one(noteary,_ttlen){
+			var note = noteary[0];
+			if(!_ttlen){
+				_ttlen = ttlen;
+			}
+
+			var newItem = Util.clone(Player.soundItem);
+			newItem.len = (_ttlen + extend) * sp32b;
+			newItem.start = sttime * sp32b + 0.1;
+			newItem.vol = Player.level2vol(volBoost > 0 ? 4 : 1) / 5 * 3;
+			newItem.f[0].f = 440 * Math.pow(2, (Player.fMap[note] - 1 + Music.arpeggio / 12));
+			newItem.isChord = true;
+			if (id != 0 || String(Music.music[0].pitch) != '0')
+				Player.music.push(newItem);
+		}
+		function fifth(noteary,_ttlen){
+			var note = noteary[2];
+			var newItem = Util.clone(Player.soundItem);
+			if(!_ttlen){
+				_ttlen = ttlen;
+			}
+			newItem.len = (_ttlen + extend) * sp32b;
+			newItem.start = sttime * sp32b + 0.1;
+			newItem.vol = Player.level2vol(volBoost > 0 ? 4 : 1) / 5 * 3;
+			newItem.f[0].f = 440 * Math.pow(2, (Player.fMap[note] - 1 + Music.arpeggio / 12)) / 2;
+			newItem.isChord = true;
+			if (id != 0 || String(Music.music[0].pitch) != '0')
+				Player.music.push(newItem);
+		}
 	});
 
 	Player.music.sort(function(a, b) {
@@ -1171,7 +1250,7 @@ Player.saveWav = async function player_saveWav() {
 		PopupWindow.alert('错误：浏览器不允许导出音频；\n请关闭浏览器隐私保护功能（查找 audio fingerprint 等词），刷新重试。');
 		return;
 	}
-Player.stop();
+	Player.stop();
 	var pro = PopupWindow.progress();
 	pro.text('正在合成人声');
 	Player.splitUp();
@@ -1184,7 +1263,7 @@ Player.stop();
 	Player.stop();
 	var voice = Util.clone(Player.voice);
 	var music = Util.clone(Player.music);
-	var timeAhead = player_play.timeAhead || 3;
+	var timeAhead = 3;
 	var cancelFns = [];
 	var stopped = false;
 	pro.oncancel(cancelAll);

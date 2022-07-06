@@ -718,15 +718,17 @@ Music.flat = function music_flat() {
 ;
 Music.flatOneBar = function(bar, line) {
 	var rtn = Util.clone(bar);
-	rtn.forEach(function(n) {
-		var tmp = n.note.word;
+	function makeOk(tmp){
 		if (!tmp)
-			tmp = [];
+			return [];
 		if (tmp[line])
-			tmp = [tmp[line]];
+			return [tmp[line]];
 		else
-			tmp = [];
-		n.note.word = tmp;
+			return [];
+	}
+	rtn.forEach(function(n) {
+		n.note.word = makeOk(n.note.word);
+		n.note.pinyin = makeOk(n.note.pinyin);
 	});
 	return rtn;
 }
@@ -793,7 +795,7 @@ var UI = {
 	editingLynicLine: -1,
 	caretStyle: null,
 	ciheight: 0,
-	yinheight: 36,
+	yinheight: 0,
 	// 在不知道具体渲染情况下的一个预设估计值，渲染后将得到数值
   shouldScroll: true,
 };

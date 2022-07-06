@@ -244,7 +244,8 @@ input::-ms-clear {
 }
 
 .sectionLine {
-	height: 40px;
+	height: 30px;
+	height: calc(1em + 7px); /* o:2px*2, minusline:3px */
 	padding-right: 1px;
 	border-right: 1px solid;
 	margin-right: 1px;
@@ -260,8 +261,7 @@ input::-ms-clear {
 	display: block;
 	top: 0;
 	height: 100%;
-	font-size: 30px;
-	line-height: 30px;
+	line-height: calc(1em + 7px);;
 	padding-left: 1px;
 }
 
