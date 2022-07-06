@@ -72,6 +72,9 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 			</div>
 			<a href="javascript:UI.switchLine(false)" >下移词光标</a>
 			<a href="javascript:UI.switchLine(true)" >上移词光标</a>
+			<hr>
+			<a href="javascript:UI.editPinyinGUI(Math.min(Math.max(UI.selStart - Number(UI.selStart ==UI.selEnd),0),Music.music.length-1))">修改拼音...</a>
+
 		</div>
 	</div>
 	<div class="item">
@@ -198,6 +201,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 	<a href="javascript:UI.paste()">粘贴</a>
 	<a href="javascript:UI.selStart = 0;UI.selEnd = 999999999999;UI.redraw();">全选</a>
 	<a href="javascript:UI.delete();">删除</a>
+	<a href="javascript:UI.editPinyinGUI(Math.min(Math.max(UI.selStart - Number(UI.selStart ==UI.selEnd),0),Music.music.length-1))">修改拼音...</a>
 	<hr>
 	<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.min(Music.music[i].octave+1,1)};UI.render();}())">升高八度</a>
 	<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.max(Music.music[i].octave-1,-1)};UI.render();})()">降低八度</a>

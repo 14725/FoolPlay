@@ -6,8 +6,6 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-
-
 // jshint maxerr:9999
 
 /* Array.flat/flatmap的填补*/
@@ -30,8 +28,7 @@ You should have received a copy of the GNU General Public License along with thi
 		},
 		writable: !0
 	});
-}
-)();
+})();
 /* Chainable Array ForEach */
 Object.defineProperty(Array.prototype, 'chainableForEach', {
 	value: function(...rest) {
@@ -82,8 +79,7 @@ Object.defineProperty(Array.prototype, 'chainableForEach', {
 		}
 	}
 	;
-}
-)();
+})();
 
 var Player = {
 	ctx: null,
@@ -255,12 +251,10 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 	}
 	);
 }
-;
 /* 海宁窗 {n} = [0, 1] */
 Player.hann = function hann(n) {
 	return (1 + Math.cos(2 * Math.PI * (n - 0.5))) / 2;
 }
-;
 /* 初始化数据 */
 Player.load1 = async function() {
 	try {
@@ -281,7 +275,6 @@ Player.load1 = async function() {
 		Player.trace(String(e));
 	}
 }
-;
 Player.load2 = function() {
 	Player.trace('加载音源：加载记录表。');
 	var meta = {};
@@ -323,7 +316,6 @@ Player.load2 = function() {
 	}
 	);
 }
-;
 Player.convertBuffer = function player_convertBuffer(buffer) {
 	var ctx = Player.ctx;
 	ctx.resume();
@@ -338,7 +330,6 @@ Player.convertBuffer = function player_convertBuffer(buffer) {
 	audioBuffer.copyToChannel(temp, 0);
 	return audioBuffer;
 }
-
 /* 线性插值，用点列表生成连续函数 */
 Player.getF = function Player_getF(points) {
 	console.log("Player.getF", points.length);
@@ -361,8 +352,6 @@ Player.getF = function Player_getF(points) {
 	}
 	;
 }
-;
-
 /* 取样，并且“加窗” */
 Player.sample = function player_sample(data, total, now) {
 	var t = 44100 / data.freq;
@@ -390,8 +379,6 @@ Player.sample = function player_sample(data, total, now) {
 	}
 	return example;
 }
-;
-
 Player.transform = function player_transform(data, length, fPos, fFreq) {
 	console.time("Player.transform");
 	var wave = new Int16Array(length);
@@ -424,8 +411,6 @@ Player.transform = function player_transform(data, length, fPos, fFreq) {
 	console.timeEnd("Player.transform");
 	return wave;
 }
-;
-
 Player.soundItem = {
 	vol: 1,
 	//0~1
@@ -446,7 +431,6 @@ Player.highLightItem = {
 	time: 0,
 	eleId: 0
 };
-;
 Player.loadSample = function player_loadSample() {
 	var request = new XMLHttpRequest();
 	request.open('GET', 'data/pianosap.mp3', true);
@@ -464,7 +448,6 @@ Player.loadSample = function player_loadSample() {
 	;
 	request.send();
 }
-;
 Player.main = function player_main() {
 	if (!("AudioContext"in window)) {
 		UI.statusbar.querySelector("div").innerHTML = "您的浏览器对音频编辑没有足够的编辑功能。";
@@ -491,7 +474,6 @@ Player.main = function player_main() {
 	Player.load1();
 	Player.loadSample();
 }
-;
 Player.fMap = {};
 (function fillfMap() {
 	var fMap = Player.fMap;
@@ -503,8 +485,7 @@ Player.fMap = {};
 	fMap[3] = -5 * p;
 	fMap[4] = -4 * p;
 	fMap[5] = -2 * p;
-}
-)();
+})();
 Player.start = function player_start(startTime, tune, len, vol, isChord, word) {
 	if (!Player.ctx)
 		return;
@@ -556,7 +537,6 @@ Player.start = function player_start(startTime, tune, len, vol, isChord, word) {
 	//setTimeout(cancel,(Player.timeStart + startTime - Player.ctx.currentTime + len) * 1000 + 300);
 	return cancel;
 }
-;
 Player.simplePlay = function player_simplePlay(tune, octave) {
 	if (!Player.ctx)
 		return;
@@ -569,7 +549,6 @@ Player.simplePlay = function player_simplePlay(tune, octave) {
 	Player.start(Player.ctx.currentTime - Player.timeStart, f, 1, 1, false, null);
 
 }
-;
 Player.queueHighLight = function fn() {
 	var cur = Player.highLight.shift();
 	if (document.querySelector(".hl"))
@@ -596,8 +575,6 @@ Player.queueHighLight = function fn() {
 	else document.querySelector(".hl").className = document.querySelector(".hl").className.replace(" hl", "");
 
 }
-;
-
 Player.tick = function player_tick(func, time) {
 	var cancel = null;
 	var rest = [].slice.call(arguments);
@@ -621,8 +598,6 @@ Player.tick = function player_tick(func, time) {
 	}
 	;
 }
-;
-
 Player.stop = function player_stop() {
 	Player.everStopped = true;
 	Player.tasking.forEach(function(a) {
@@ -640,8 +615,6 @@ Player.stop = function player_stop() {
 		hl.className = hl.className.replace('hl', '').replace(/\s\s+/, ' ');
 
 }
-;
-
 Player.play = async function player_play(ignoreEnglish) {
 	Player.timeStart = Player.ctx.currentTime + 0.5;
 	Player.stop();
@@ -723,8 +696,6 @@ Player.play = async function player_play(ignoreEnglish) {
 	Player.highLightStamp = Math.round(Player.timeStart * 1000);
 	Player.queueHighLight();
 }
-;
-
 Player.trace = function player_train(log) {
 	//var log = Array.prototype.splice.call(arguments).join(" ");
 	if ("UI"in window) {
@@ -732,9 +703,6 @@ Player.trace = function player_train(log) {
 	}
 	console.log(log);
 }
-;
-
-
 Player.flatAndTag = function player_flatAndTag() {
 	var bars = Util.clone(Music.flatBar());
 
@@ -799,7 +767,6 @@ Player.flatAndTag = function player_flatAndTag() {
 	});
 	return res;
 }
-;
 Player.level2vol = function player_level2vol(level) {
 	return level / 8 + 0.25;
 }
@@ -1049,8 +1016,6 @@ Player.splitUp = function player_splitUp() {
 	Player.voice = Util.clone(Player.voice);
 	Player.voicePass2();
 }
-;
-
 Player.showVoiceWindow = function() {
 	PopupWindow.open(voiceWindow);
 	Array.from(voiceWindow.querySelectorAll('.append-yes')).forEach(function(a) {
@@ -1090,8 +1055,6 @@ Player.showVoiceWindow = function() {
 	}
 	;
 }
-;
-
 Player.voicePass2 = function() {
 	/*  对语音部分的二次处理  */
 	/* 0. 统计时长 */
@@ -1170,8 +1133,6 @@ Player.voicePass2 = function() {
 		}
 	});
 }
-;
-
 Player.downloadVoice = async function player_downloadVoice(uncompressed) {
 	if(!uncompressed && !Player.ctx.createBuffer(1,4096,44100).getChannelData){
 		return Player.downloadVoice(true);
@@ -1241,10 +1202,7 @@ Player.downloadVoice = async function player_downloadVoice(uncompressed) {
 	}
 	);
 }
-;
-
 /* Hacking file - render offline*/
-
 Player.saveWav = async function player_saveWav() {
 	if(!Player.ctx.createBuffer(1,4096,44100).getChannelData){
 		PopupWindow.alert('错误：浏览器不允许导出音频；\n请关闭浏览器隐私保护功能（查找 audio fingerprint 等词），刷新重试。');
@@ -1349,7 +1307,6 @@ Player.saveWav = async function player_saveWav() {
 	Util.saveAs(Player.bufferToWave(data), 'audio/wav', Music.title + '.wav');
 
 }
-;
 Player.bufferToWave = function bufferToWave(abuffer, len) {
 	var numOfChan = abuffer.numberOfChannels, length = abuffer.length * numOfChan * 2 + 44, buffer = new ArrayBuffer(length), view = new DataView(buffer), channels = [], i, sample, offset = 0, pos = 0;
 
@@ -1413,6 +1370,4 @@ Player.bufferToWave = function bufferToWave(abuffer, len) {
 		pos += 4;
 	}
 }
-;
-
 Player.main();

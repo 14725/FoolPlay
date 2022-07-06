@@ -6,8 +6,6 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-
-
 // jshint maxerr:9999
 
 //Errors ->Move into "edit.htm"
@@ -53,7 +51,6 @@ Util.clone = function util_clone(a) {
 	}
 	return b;
 }
-;
 Util.throttle = function util_throttle(func, that, delay) {
 	//节流，节流函数最快只能执行10Hz，不能保证实时性和被执行，但可能多余，否则导致页面锁定的情况。。
 	if (!!delay)
@@ -84,7 +81,6 @@ Util.throttle = function util_throttle(func, that, delay) {
 	throttledFunc.atOnce = callit;
 	return throttledFunc;
 }
-;
 Util.css = function util_css(list, obj) {
 	var ary = Array.prototype.slice.call(list);
 	for (var i in ary) {
@@ -93,7 +89,6 @@ Util.css = function util_css(list, obj) {
 		}
 	}
 }
-;
 Util.live = function util_live(eventName, parent, selector, listener) {
 	function patchedListener(event) {
 		var tmpEle = event.target;
@@ -120,11 +115,6 @@ Util.live = function util_live(eventName, parent, selector, listener) {
 	}
 	parent.addEventListener(eventName, patchedListener);
 }
-;
-Util.die = function util_die(eventName, parent, selector, listener) {
-	throw new Error("Util.die功能尚未实现");
-}
-;
 Util.templateClone = function util_templateClone(raw, template) {
 	//目前浅复制
 	var ans = Util.clone(template)
@@ -134,7 +124,6 @@ Util.templateClone = function util_templateClone(raw, template) {
 	}
 	return ans;
 }
-;
 Util.onCJKInput = function hack_composition(ele, listener) {
 	var isTyping = false;
 
@@ -153,7 +142,6 @@ Util.onCJKInput = function hack_composition(ele, listener) {
 	ele.addEventListener("compositionstart", compositionListener);
 	ele.addEventListener("compositionend", compositionListener);
 }
-;
 Util.queries = function queryString() {
 	var str = location.href;
 	/* 检查URL参数 https://zhuanlan.zhihu.com/p/257077535 */
@@ -182,8 +170,6 @@ Util.queries = function queryString() {
 	}
 	return obj;
 }
-;
-
 Util.copy = function util_copy(e) {
 	let transfer = document.createElement('input');
 	document.body.appendChild(transfer);
@@ -199,7 +185,6 @@ Util.copy = function util_copy(e) {
 	document.body.removeChild(transfer);
 
 }
-;
 Util.t2h = function util_t2h(str) {
 	var d = util_t2h.d;
 	if (!d) {
@@ -208,7 +193,6 @@ Util.t2h = function util_t2h(str) {
 	d.textContent = str;
 	return d.innerHTML;
 }
-;
 Util.saveAs = function util_saveAs(content, mine, fileName) {
 	var url;
 	var blob;
@@ -253,7 +237,6 @@ Util.htmlNoId = function util_htmlNoId(html) {
 		ids: data
 	}
 }
-;
 
 var PopupWindow = {
 	_windowDragging: null,
@@ -266,14 +249,12 @@ PopupWindow.open = function popupWindow_open(dom) {
 	dom.style.top = (window.innerHeight - (_rect.bottom - _rect.top)) / 2 + "px";
 	dom.style.left = (window.innerWidth - (_rect.right - _rect.left)) / 2 + "px";
 }
-;
 PopupWindow.close = function popupWindow_close(dom) {
 	dom.style.display = "none";
 	if (dom.className.indexOf("destroy") > -1 && dom.parentElement) {
 		dom.parentElement.removeChild(dom);
 	}
 }
-;
 PopupWindow.alert = function popupWindow_alert(msg) {
 	var dom = document.createElement("div");
 	dom.className = "window destroy on";
@@ -283,7 +264,6 @@ PopupWindow.alert = function popupWindow_alert(msg) {
 	PopupWindow.open(dom);
 	return dom;
 }
-;
 PopupWindow.progress = function popupWindow_progress() {
 	var obj = Util.htmlNoId(`
   <div class="window destroy on">
@@ -392,7 +372,6 @@ PopupWindow.main = function popupWindow_main() {
 		PopupWindow._windowDragging = null;
 	});
 }
-;
 PopupWindow.main();
 
 //Music
@@ -418,10 +397,10 @@ Music.MusicNote = function() {
 		octave: 0,
 		length: 32,
 		word: [],
+		pinyin: [],
 		fx: {}
 	};
 }
-;
 Music.getLenSectionTempo = function music_getLenSectionTempo() {
 	//功能：更新小节/节拍的长度
 	Music.lenSection = 32 / Music.tempo[0] * Music.tempo[1];
@@ -431,7 +410,6 @@ Music.getLenSectionTempo = function music_getLenSectionTempo() {
 	}
 	Music.speedS = 60 / Music.speed / Music.lenTempo;
 }
-;
 Music.indexNoteInSection = function music_indexNoteInSection(id) {
 	//根据音符确定小节
 	var ans = -1;
@@ -447,8 +425,7 @@ Music.indexNoteInSection = function music_indexNoteInSection(id) {
 		ans = i - 1;
 	return ans;
 }
-;
-Music.split = function music_splitIntoMeasures() {
+Music.split = function music_split() {
 	//功能：把连续的音符序列分解为节拍
 	//使用已刷新的数据
 	Music.getLenSectionTempo();
@@ -483,7 +460,6 @@ Music.split = function music_splitIntoMeasures() {
 		sections.push(thisSection);
 
 }
-;
 Music.flatBar = function(){
 	/* 目前没有机制保证 loop 过长 */
 	/* 0. 确定 Loop 存在*/
@@ -715,7 +691,6 @@ Music.flat = function music_flat() {
 	});
 	return res;
 }
-;
 Music.flatOneBar = function(bar, line) {
 	var rtn = Util.clone(bar);
 	function makeOk(tmp){
@@ -732,7 +707,7 @@ Music.flatOneBar = function(bar, line) {
 	});
 	return rtn;
 }
-;
+
 //UI
 var UI = {
 	container: document.querySelector(".container"),
@@ -873,7 +848,6 @@ UI.render = Util.throttle(function ui_render() {
 }, null, function() {
 	return Music.music.length;
 });
-
 UI.layout = function ui_layout() {
 	//功能：读取浏览器对歌谱的布局，
 	//重绘光标
@@ -934,7 +908,6 @@ UI.layout = function ui_layout() {
 		}
 	});
 }
-;
 UI.throttledLayout = UI.layout;
 UI.redraw = function ui_redraw() {
 	var temp, isreved = false;
@@ -1020,7 +993,6 @@ UI.redraw = function ui_redraw() {
 	if (UI.shouldScroll)
 		UI.autoScroll();
 }
-;
 UI.autoScroll = function ui_autoScroll() {
 	//Scroll
 	var containerTop = UI.container.offsetTop - window.pageYOffset;
@@ -1048,7 +1020,6 @@ UI.autoScroll = function ui_autoScroll() {
 		});
 	}
 }
-;
 UI.appendCLine = function ui_appendCLine(pid, nid, word, ishouse) {
 	if (word == null)
 		word = "";
@@ -1085,11 +1056,17 @@ UI.appendCLine = function ui_appendCLine(pid, nid, word, ishouse) {
 	}
 
 }
-;
 UI.getHTMLforNote = function ui_getHTMLforNote(note, id) {
 	var html = "";
 	var className = "";
 	var appendedHTML = "";
+	var words = (note.word || []).slice();
+	/*var pinyin = (note.pinyin || []).slice()
+	words = words.map(function(w,i){
+		var p = pinyin[i] || '';
+		if(!w) w = '';
+		return w + p;
+	});*/
 	note.pitch = parseInt(note.pitch);
 	if (note.pitch == null)
 		note.pitch = 1;
@@ -1103,7 +1080,7 @@ UI.getHTMLforNote = function ui_getHTMLforNote(note, id) {
 		//	1.
 		//	==
 		className += "f16";
-		appendedHTML += UI.getHTMLUnit(className, "·", note.word, id);
+		appendedHTML += UI.getHTMLUnit(className, "·", [''], id);
 		break;
 	case 4:
 		className += "f8";
@@ -1147,16 +1124,15 @@ UI.getHTMLforNote = function ui_getHTMLforNote(note, id) {
 		className += " hasdo ";
 		break;
 	}
-	html = UI.getHTMLUnit(className, note.pitch, note.word, id) + appendedHTML;
+	//html = UI.getHTMLUnit(className, note.pitch, note.word, id) + appendedHTML;
+	html = UI.getHTMLUnit(className, note.pitch, words, id) + appendedHTML;
 	return html;
 }
-;
 UI.getHTMLUnit = function ui_getHTMLUnit(classes, pitch, word, id) {
 	var regp = /([,.?!，。？：！“”、；])/g;
 	return ('<div class="note $classes" data-id="$id"><div class="acnote"><div class="upo"></div><div class="yin">$pitch</div><div class="minusline"></div><div class="downo"></div></div><div class="geci">$word</div></div>').split("$classes").join(classes).split("$pitch").join(Util.t2h(pitch)).split("$word").join(word.map(Util.t2h).join("</div><div class=\"geci\">").replace(regp, "<span style='position:absolute;'>$1</span>"))//移除标点符号空间
 	.split("$id").join(id);
 }
-;
 UI.switchLine = function ui_switchLine(up) {
 	if (UI.author >= Music.music.length) {
 		UI.author = Music.music.length - 1;
@@ -1218,7 +1194,6 @@ UI.switchLine = function ui_switchLine(up) {
 		window.scrollBy(0, -oldelePos + elePos);
 	}
 }
-;
 UI.onKeyDown = function ui_onKeyDown(event) {
 	// TODO: Fix the Keyboard after UI.insertEdit([]);
 	var cancel = true;
@@ -1496,14 +1471,11 @@ UI.onGlobalKeyDown = function(event) {
 		event.stopPropagation();
 	}
 }
-;
 UI.refreshIME = function ui_refresh_IME(value) {
 	if (value != null)
 		UI.editbox.value = value;
 	UI.IMETip.innerText = UI.editbox.value;
 }
-;
-
 UI.onInput = function(event) {
 	//歌谱的输入方法
 	//TODO: Check this after the UI.insertEdit
@@ -1738,7 +1710,6 @@ UI.onInput = function(event) {
 	event.target.value = event.target.value.replace(/[^ds|\-0-9]/g, "");
 	UI.refreshIME();
 }
-;
 UI.onChangeListener = function ui_onChangeListener(event) {
 	//TODO: Check this after spliceWord
 	var content = event.target.value;
@@ -1765,21 +1736,19 @@ UI.onChangeListener = function ui_onChangeListener(event) {
 	UI.refreshIME("");
 	UI.render();
 }
-;
-
 UI.insertEdit = function ui_insertEdit(notes) {
 	notes = notes.slice();
 	Music.music = [].concat(Music.music.slice(0, UI.selStart), notes, Music.music.slice(UI.selEnd));
 	UI.render();
 }
-;
 UI.symbols = /[-abcdefghijklmnopqrstuvwxyz,.!'?，。；【】、！￥…（）—：“”’‘《》？]/ig;
-UI.spliceWord = function ui_spliceWord(index, howmany, str) {
+UI.spliceWord = function ui_spliceWord(index, howmany /* 删除计数 */ , str) {
 	var items = [];
 	var pushingSymbol = "";
 	var char;
 	var symbols = UI.symbols;
 	var isPushing = true;
+	var add = 0;
 	if (str != "" && symbols.test(str.charAt(0)) && index >= 0) {
 		UI.spliceWord(index - 1, howmany + 1, (Music.music[index - 1].word[UI.editingLynicLine] || ' ') + str);
 		return;
@@ -1815,7 +1784,7 @@ UI.spliceWord = function ui_spliceWord(index, howmany, str) {
 			items.push(char);
 		}
 	}
-	console.log(items.toString())
+	add = items.length;
 	for (i = index + howmany; i < Music.music.length; i++) {
 		items.push(Music.music[i].word[UI.editingLynicLine] || '');
 		if (items[items.length - 1] == null) {
@@ -1827,18 +1796,39 @@ UI.spliceWord = function ui_spliceWord(index, howmany, str) {
 		Music.music[i + index].word[UI.editingLynicLine] = items[i];
 	}
 
-	for (i += index + items.length; i < Music.music.length; i++) {
+	for (i = index + items.length; i < Music.music.length; i++) {
 		Music.music[i].word[UI.editingLynicLine] = "";
 	}
+	
+	/* 至于拼音...平移就好。 */
+	add -= howmany;
+	for(i = 0; i < Music.music.length; i++){
+		if(!Music.music[i].pinyin){
+			Music.music[i].pinyin = [];
+		}
+	}
+	if(add < 0){
+		for(i = index + add; i <Music.music.length; i++){
+			Music.music[i+add].pinyin[UI.editingLynicLine] = Music.music[i].pinyin[UI.editingLynicLine];
+		}
+		for(i = Music.music.length + add; i < Music.music.length; i++){
+			Music.music[i].pinyin[UI.editingLynicLine] = '';
+		}
+	} else if(add > 0){
+		for(i = Music.music.length - 1; i >= index+add; i--){
+			Music.music[i].pinyin[UI.editingLynicLine] = Music.music[i-add].pinyin[UI.editingLynicLine];
+		}
+		for(i=index;i<index+add;i++){
+			Music.music[i].pinyin[UI.editingLynicLine]='';
+		}
+	}
 }
-;
 UI.getClosestNote = function ui_getClosestNote(clientX, clientY, over) {
 	var containerRect = UI.container.getBoundingClientRect();
 	clientX -= containerRect.left;
 	clientY -= containerRect.top;
 	return UI.getClosestNoteIn(clientX, clientY, over);
 }
-;
 UI.getClosestNoteIn = function ui_getClosestNoteIn(x, y, over) /*:ID*/
 {
 	var minid = 0;
@@ -1881,7 +1871,6 @@ UI.getClosestNoteIn = function ui_getClosestNoteIn(x, y, over) /*:ID*/
 	}
 	return minid;
 }
-;
 UI.delete = function ui_delete() {
 	if (UI.editingLynicLine == -1) {
 		UI.insertEdit([]);
@@ -1890,12 +1879,10 @@ UI.delete = function ui_delete() {
 		UI.render();
 	}
 }
-;
 UI.cut = function ui_cut() {
 	UI.copy();
 	UI.delete();
 }
-;
 UI.copy = function ui_copy() {
 	if (UI.editingLynicLine == -1) {
 		UI.clipboard = Util.clone(Music.music.slice(UI.selStart, UI.selEnd));
@@ -1910,7 +1897,6 @@ UI.copy = function ui_copy() {
 		Util.copy(list);
 	}
 }
-;
 UI.paste = function ui_paste() {
 	if (UI.editingLynicLine == -1) {
 		if (UI.clipboard.length == 0)
@@ -1938,7 +1924,6 @@ UI.paste = function ui_paste() {
 
 	}
 }
-;
 UI.open = function ui_open() {
 	UI.openBox.parentNode.reset();
 	var file = Util.queries().music;
@@ -1950,7 +1935,6 @@ UI.open = function ui_open() {
 	}
 
 }
-;
 UI.openListener = function ui_openListener(me) {
 	if (!me.files) {
 		throw "您的浏览器不支持打开本地文件。";
@@ -1969,7 +1953,6 @@ UI.openListener = function ui_openListener(me) {
 		}
 	}
 }
-;
 UI.openFile = function ui_openFile(datastr) {
 	try {
 		if (datastr.indexOf("<scr" + "ipt>") > 0) {
@@ -1989,6 +1972,7 @@ UI.openFile = function ui_openFile(datastr) {
 		for (var i in data) {
 			Music[i] = data[i];
 		}
+		if(window.Player)window.Player.highLight=[];
 		UI.render();
 		UI.authorArea.value = Music.author;
 		document.title = Music.title + ' - 傻瓜弹曲';
@@ -1999,11 +1983,10 @@ UI.openFile = function ui_openFile(datastr) {
 		UI.speedBox.value = Music.speed;
 	} catch (e) {
 		PopupWindow.alert("这个文件里存的东西我用不了，抱歉。");
-		//throw e;
+		console.error(e);
 	}
 
 }
-;
 UI.outString = function ui_tostring() {
 	var temp = {
 		title: "",
@@ -2034,7 +2017,6 @@ UI.outString = function ui_tostring() {
 	});
 	return JSON.stringify(content);
 }
-;
 UI.saveAs = function ui_saveAs() {
 	if (Music.title.replace(/\s/g, "") == "")
 		Music.title = "未命名歌曲";
@@ -2054,7 +2036,6 @@ UI.saveAs = function ui_saveAs() {
 	content = content.replace(/%url%/g, a.href.split('#')[0].split('?')[0]).replace("%data%", UI.outString()).replace("%title%", Music.title).replace("%tdata%", encodeURIComponent(UI.outString()));
 	Util.saveAs(content, 'text/html', a.download);
 }
-;
 UI.new = function ui_new(action) {
 	var file = Util.queries().music;
 	if (action == "force") {
@@ -2076,7 +2057,6 @@ UI.new = function ui_new(action) {
 		confirm('确认放弃未保存的修改并清空文档？') && UI.new("force");
 	}
 }
-;
 UI.onContextMenu = function ui_onContextMenu(event) {
 	var winwidth = window.innerWidth;
 	var winheight = window.innerHeight;
@@ -2087,7 +2067,6 @@ UI.onContextMenu = function ui_onContextMenu(event) {
 	UI.contextMenu.style.top = Math.min(innerHeight - (rect.bottom - rect.top), event.clientY) + "px";
 	event.preventDefault();
 }
-;
 UI.setEditor = function ui_setEditor() {
 	document.addEventListener("keydown", function(event) {
 		UI.isShiftDown = event.shiftKey;
@@ -2217,7 +2196,6 @@ UI.setEditor = function ui_setEditor() {
 	//FIXME
 	//setInterval(function(){UI.refreshIME();},100);
 }
-;
 UI.writeBack = function ui_write_back() {
 	/* 把音乐的基本参数从对话框写到Music对象里面 */
 	UI.titleBox.value = Music.title;
@@ -2254,8 +2232,6 @@ UI.writeBack = function ui_write_back() {
 	document.querySelector(".tempo0").value = Music.tempo[0];
 	document.querySelector(".tempo1").value = Music.tempo[1];
 }
-;
-
 UI.main = function ui_main() {
 	window.addEventListener("beforeprint", function print_relayout(event) {
 		document.body.className += " print";
@@ -2339,6 +2315,7 @@ UI.main = function ui_main() {
 				localStorage.saved = content;
 			}, 1000);
 		} catch (e) {
+			console.error(e)
 			console.warn("本地储存不能工作，为使程序运行，已创建假本地储存。");
 			window.localStorage = {};
 			localStorage.setItem = localStorage.removeItem = function() {}
@@ -2358,8 +2335,6 @@ UI.main = function ui_main() {
 	}
 
 }
-;
-
 UI.about = function ui_about(url) {
 	var ele = `<iframe src="${Util.t2h(url)}" style="width:calc(100vw - 4.3em);height:calc(100vh - 9.5em);max-width:30em; max-height: 20em;"></iframe>`;
 	var dg = PopupWindow.alert(ele);
@@ -2389,5 +2364,38 @@ UI.about = function ui_about(url) {
 		}
 	}
 }
-
+UI.editPinyinGUI = function ui_editPinyinGUI(id){
+	var note = Music.music[id];
+	var editAry ;
+	console.log(Util.clone(note))
+	if(!note.word) note.word = [];
+	console.log(note.word,note)
+	editAry = note.word.map(function(a,i){
+		if(!a) return null;
+		if(!a.trim || !(a.trim())) return null;
+		if(!Pinyin.isHanzi(a.charAt(0))) return null;
+		if(!note.pinyin)note.pinyin=[];
+		return {
+			id: i,
+			word: a,
+			pinyin: note.pinyin[i] || null
+		}
+	}).filter(function(a){
+		return !!a;
+	});
+	var html = editAry.map(function(a){
+		return '<tr><td>第'+(a.id+1)+'行</td><td>'+Util.t2h(a.word)+'</td><td><input type="text" maxlength="6" size="7" style="font-family: monospace" autocorrect="off" autocapitalize="none" placeholder="'+Pinyin.getChar(a.word)+'" pattern="[a-z]*"></td></td></tr>';
+	});
+	html ='<div class="window on destroy"><div class="windowtitle">修改拼音</div><div class="content"><table>' + html + '</table><center><button id="ok">确定</button></center></div></div>';
+	var a = Util.htmlNoId(html), dom=a.ele;
+	document.body.appendChild(dom);
+	PopupWindow.open(dom);
+	a.ids.ok.onclick = function(){
+		var list = Array.from(dom.querySelectorAll('input'));
+		list.forEach(function(ip,i){
+			Music.music[id].pinyin[editAry[i].id] = ip.value.toLowerCase().replace(/[^a-z]/g,'');
+		})
+		PopupWindow.close(dom);
+	}
+}
 UI.main();
