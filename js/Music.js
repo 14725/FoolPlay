@@ -809,6 +809,7 @@ UI.render = Util.throttle(function ui_render() {
 		var startHTML = "<div class=\"measure %CLASS%\"><div class=\"sectionLine\"></div>";
 		var endHTML = "<div class=\"sectionLine\"></div></div>";
 		var className = [];
+		var inTriplets = 0;
 		//对每一个音符拼接HTML，并统计时间长度，以便宽松按节拍添加空格
 		Music.music.forEach(function(a) {
 			if (String(a.pitch) == '0') {
@@ -822,8 +823,9 @@ UI.render = Util.throttle(function ui_render() {
 				if ((i < item[i].note.length - 2) && (item[i + 1].note.length == item[i + 2].note.length) && (item[i + 2].note.length == item[i].note.length) && ((Music.lenSection - curLen >= item[i].note.length))) {
 					curLen -= item[i].note.length;
 				}
+				inTriplets = 3;
 			}
-			if (curLen % Music.lenTempo == 0 && curLen != Music.lenSection) {
+			if (curLen % Music.lenTempo == 0 && curLen != Music.lenSection && --inTriplets < 0) {
 				thisSectionHTML.push("<div class=\"space\"></div>");
 			}
 		}
@@ -1809,6 +1811,7 @@ UI.spliceWord = function ui_spliceWord(index, howmany /* 删除计数 */ , str) 
 	}
 	if(add < 0){
 		for(i = index + add; i <Music.music.length; i++){
+			if(i + add < 0)continue
 			Music.music[i+add].pinyin[UI.editingLynicLine] = Music.music[i].pinyin[UI.editingLynicLine];
 		}
 		for(i = Music.music.length + add; i < Music.music.length; i++){
