@@ -154,6 +154,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 			pinyin = temp.toLowerCase();
 		}
 	}
+	var pinyin;
 	var shouldC = false;
 	var l = len * 44100;
 	var advance = 0.01;
@@ -359,7 +360,7 @@ Player.sample = function player_sample(data, total, now) {
 		throw new Error("频率过低：声音周期不能比声音片段更长。");
 	}
 	//test
-	var pos = now * (data.data.length - t) / total;
+	var pos = now * (data.data.length - t*2) / total;
 	var pos1, pos2, k;
 	pos1 = Math.floor(pos / t) * t;
 	pos2 = Math.ceil(pos / t) * t;
@@ -368,7 +369,7 @@ Player.sample = function player_sample(data, total, now) {
 	} else {
 		k = (pos - pos1) / (pos2 - pos1);
 	}
-	t = Math.round(t);
+	t = Math.round(t*2);
 	pos1 = Math.max(0, Math.min(Math.round(pos1), data.data.length - t));
 	pos2 = Math.max(0, Math.min(Math.round(pos2), data.data.length - t));
 	var example = new Int16Array(t);
@@ -396,7 +397,7 @@ Player.transform = function player_transform(data, length, fPos, fFreq) {
 		sam = Player.sample(data, length, fPos(pos));
 
 		start = pos;
-		for (i = 0; i <= t0; i++) {
+		for (i = 0; i <= 88200 / t0; i++) {
 			if (i + start < 0) {
 				continue;
 			}
@@ -459,7 +460,7 @@ Player.main = function player_main() {
 	Player.voiceNode = Player.ctx.createGain();
 	Player.voiceNode.gain.value = 1;
 	Player.target = Player.ctx.destination;
-	Player.target = Player.DC;
+	//Player.target = Player.DC;
 	var real = new Float32Array(11);
 	var imag = new Float32Array(11);
 	var ac = Player.ctx;
@@ -636,8 +637,8 @@ Player.play = async function player_play(ignoreEnglish) {
 			Player.play(true);
 		return;
 	} else {}
-	var voice = Util.clone(Player.voice);
-	var music = Util.clone(Player.music);
+	var voice = Player.voice;
+	var music = Player.music;
 	var timeAhead = player_play.timeAhead || 3;
 	Player.ctx.resume();
 
@@ -772,10 +773,20 @@ Player.level2vol = function player_level2vol(level) {
 }
 Player.splitUp = function player_splitUp() {
 	/* 清空数据 */
-	Player.music = [];
-	Player.voice = [];
-	Player.highLight = [];
-
+	var obj = Player.sequence();
+	
+	Player.music = obj.music.concat(obj.chord).sort(function(a,b){return a.start - b. start});
+	Player.voice = obj.voice;
+	Player.highLight = obj.highLight;
+	Player.voicePass2();
+}
+Player.sequence = function player_sequence(){
+	var pmusic = [];
+	var pvoice = [];
+	var pchord = [];
+	var phighLight = [];
+	
+	
 	/* 计算音乐信息 */
 	Music.getLenSectionTempo();
 	var sp32b = Music.speedS;
@@ -805,9 +816,9 @@ Player.splitUp = function player_splitUp() {
 		cItem = Util.clone(Player.highLightItem);
 		cItem.time = curTime;
 		cItem.eleId = music[i].rawIndex;
-		Player.highLight.push(cItem);
+		phighLight.push(cItem);
 	}
-	Player.highLight.push({eleId:-1,time: curTime + sp32b * music[i-1].length});
+	phighLight.push({eleId:-1,time: curTime + sp32b * music[i-1].length});
 	curLen = curTime = 0;
 	/* 乐器旋律 */
 	for (i = 0; i < music.length; i++) {
@@ -836,7 +847,7 @@ Player.splitUp = function player_splitUp() {
 		}, Player.soundItem);
 		if (music[i].fx.extend) {
 			/* 如果延长？ */
-			last = Player.music[Player.music.length - 1];
+			last = pmusic[pmusic.length - 1];
 			/* 1. 是延长线 */
 			if (Math.abs(cItem.f[0].f - last.f[0].f) < 0.0001) {
 				last.len += cItem.len;
@@ -848,10 +859,10 @@ Player.splitUp = function player_splitUp() {
 				if (!cItem.word.trim()) {
 					cItem.word = last.word;
 				}
-				Player.music.push(cItem);
+				pmusic.push(cItem);
 			}
 		} else {
-			Player.music.push(cItem);
+			pmusic.push(cItem);
 		}
 	}
 
@@ -865,7 +876,7 @@ Player.splitUp = function player_splitUp() {
       f: [{time,f: 440,}],fx: [],
       word: "",isChord: false
      }*/
-    var py;
+		var py = null;
 		Array.isArray(music[i].word) && (music[i].word = music[i].word[0]);
 		f = jian2p(music[i].pitch) + 12 * music[i].octave + (+Music.arpeggio) - jian2p(6);
 		if(music[i].pinyin && music[i].pinyin[0]) py = music[i].pinyin[0];
@@ -886,7 +897,7 @@ Player.splitUp = function player_splitUp() {
 		}, Player.soundItem);
 		if (music[i].fx.extend && !cItem.word) {
 			/* 如果延长？ 如果有歌词就不算延长*/
-			last = Player.voice[Player.voice.length - 1];
+			last = pvoice[pvoice.length - 1];
 			/* 1. 是延长线 */
 			if (Math.abs(cItem.f[0].f - last.f[last.f.length - 1].f) < 0.0000001) {
 				last.len += cItem.len;
@@ -901,7 +912,7 @@ Player.splitUp = function player_splitUp() {
 				});
 			}
 		} else {
-			Player.voice.push(cItem);
+			pvoice.push(cItem);
 		}
 	}
 
@@ -975,8 +986,7 @@ Player.splitUp = function player_splitUp() {
 				newItem.vol = Player.level2vol(volBoost > 0 ? 4 : 1) / 5;
 				newItem.f[0].f = 440 * Math.pow(2, (Player.fMap[note] - 1 + Music.arpeggio / 12));
 				newItem.isChord = true;
-				if (id != 0 || String(Music.music[0].pitch) != '0')
-					Player.music.push(newItem);
+				pchord.push(newItem);
 			});
 		}
 		function one(noteary,_ttlen){
@@ -991,8 +1001,7 @@ Player.splitUp = function player_splitUp() {
 			newItem.vol = Player.level2vol(volBoost > 0 ? 4 : 1) / 5 * 3;
 			newItem.f[0].f = 440 * Math.pow(2, (Player.fMap[note] - 1 + Music.arpeggio / 12));
 			newItem.isChord = true;
-			if (id != 0 || String(Music.music[0].pitch) != '0')
-				Player.music.push(newItem);
+			pchord.push(newItem);
 		}
 		function fifth(noteary,_ttlen){
 			var note = noteary[2];
@@ -1005,16 +1014,17 @@ Player.splitUp = function player_splitUp() {
 			newItem.vol = Player.level2vol(volBoost > 0 ? 4 : 1) / 5 * 3;
 			newItem.f[0].f = 440 * Math.pow(2, (Player.fMap[note] - 1 + Music.arpeggio / 12)) / 2;
 			newItem.isChord = true;
-			if (id != 0 || String(Music.music[0].pitch) != '0')
-				Player.music.push(newItem);
+			pchord.push(newItem);
 		}
 	});
 
-	Player.music.sort(function(a, b) {
-		return a.start - b.start;
-	});
-	Player.voice = Util.clone(Player.voice);
-	Player.voicePass2();
+	return {
+		music: pmusic,
+		voice: pvoice,
+		chord: pchord,
+		highLight: phighLight
+	}
+	/*Player.voicePass2();*/
 }
 Player.showVoiceWindow = function() {
 	PopupWindow.open(voiceWindow);

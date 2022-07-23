@@ -106,6 +106,7 @@ input::-ms-clear {
 	text-decoration: none;
 	vertical-align: middle;
 	cursor: default;
+	touch-action: none;
 }
 
 .menu,.status {
@@ -213,7 +214,7 @@ input::-ms-clear {
 	background: red;
 	background: rgba(255,0,0,0.3);
 	outline: 1px solid red;
-	overflow: hidden;
+	/*overflow: hidden;*/
 }
 
 * {
@@ -330,6 +331,7 @@ body:not(.fensanalign) .container::after {
 	flex-basis: 23%;
 	margin-top: 1.5em;
 }
+
 
 .note > div:first-child {
 	/* padding-bottom: 8px; */
@@ -590,7 +592,13 @@ label {
 @media print {
 	input:not([type]),input[type=text],input[type=number],textarea,select {
 		border: none;
+		font-size: 1em;
 		outline: none!important;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		vertical-align: middle;
+		resize: none;
 	}
 
 	.menu,.status,#caret,hr {
@@ -729,7 +737,8 @@ input[type=number] {
 }
 
 .geci {
-	height: 1.2em;
+	/*height: 1.2em;*/
+	line-height: 1.1;
 	text-align: center;
 	white-space: nowrap;
 }

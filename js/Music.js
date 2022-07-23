@@ -1132,7 +1132,7 @@ UI.getHTMLforNote = function ui_getHTMLforNote(note, id) {
 }
 UI.getHTMLUnit = function ui_getHTMLUnit(classes, pitch, word, id) {
 	var regp = /([,.?!，。？：！“”、；])/g;
-	return ('<div class="note $classes" data-id="$id"><div class="acnote"><div class="upo"></div><div class="yin">$pitch</div><div class="minusline"></div><div class="downo"></div></div><div class="geci">$word</div></div>').split("$classes").join(classes).split("$pitch").join(Util.t2h(pitch)).split("$word").join(word.map(Util.t2h).join("</div><div class=\"geci\">").replace(regp, "<span style='position:absolute;'>$1</span>"))//移除标点符号空间
+	return ('<div class="note $classes" data-id="$id"><div class="acnote"><div class="upo"></div><div class="yin">$pitch</div><div class="minusline"></div><div class="downo"></div></div><div class="geci">$word</div></div>').split("$classes").join(classes).split("$pitch").join(Util.t2h(pitch)).split("$word").join(word.map(Util.t2h).map(function(a){return a.trim()||'&nbsp;'}).join("</div><div class=\"geci\">").replace(regp, "<span style='position:absolute;'>$1</span>"))//移除标点符号空间
 	.split("$id").join(id);
 }
 UI.switchLine = function ui_switchLine(up) {
@@ -2378,16 +2378,17 @@ UI.editPinyinGUI = function ui_editPinyinGUI(id){
 		if(!a.trim || !(a.trim())) return null;
 		if(!Pinyin.isHanzi(a.charAt(0))) return null;
 		if(!note.pinyin)note.pinyin=[];
+		console.log(note.pinyin)
 		return {
 			id: i,
 			word: a,
-			pinyin: note.pinyin[i] || null
+			pinyin: note.pinyin[i] || ''
 		}
 	}).filter(function(a){
 		return !!a;
 	});
 	var html = editAry.map(function(a){
-		return '<tr><td>第'+(a.id+1)+'行</td><td>'+Util.t2h(a.word)+'</td><td><input type="text" maxlength="6" size="7" style="font-family: monospace" autocorrect="off" autocapitalize="none" placeholder="'+Pinyin.getChar(a.word)+'" pattern="[a-z]*"></td></td></tr>';
+		return '<tr><td>第'+(a.id+1)+'行</td><td>'+Util.t2h(a.word)+'</td><td><input type="text" maxlength="6" size="7" style="font-family: monospace" autocorrect="off" value="'+a.pinyin+'" autocapitalize="none" placeholder="'+Pinyin.getChar(a.word)+'" pattern="[a-z]*"></td></td></tr>';
 	});
 	html ='<div class="window on destroy"><div class="windowtitle">修改拼音</div><div class="content"><table>' + html + '</table><center><button id="ok">确定</button></center></div></div>';
 	var a = Util.htmlNoId(html), dom=a.ele;

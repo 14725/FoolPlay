@@ -67,7 +67,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 				<div class="menu">
 					<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.min(Music.music[i].octave+1,1)};UI.render();}())">升高八度</a>
 					<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.max(Music.music[i].octave-1,-1)};UI.render();})()">降低八度</a>
-					<a href="javascript:(function(){if(UI.selStart == -1){UI.selStart = UI.senEnd};Music.music[UI.selEnd].fx.triplets = true;UI.render()})();">制作三连音...</a>
+					<a href="javascript:(function(){if(!Music.music[UI.selStart])PopupWindow.alert('无选择。');Music.music[UI.selStart].fx.triplets = true;UI.render()})();">制作三连音...</a>
 				</div>
 			</div>
 			<a href="javascript:UI.switchLine(false)" >下移词光标</a>
