@@ -2,7 +2,7 @@
 <html lang="zh-cn">
 <!-- 
 /*
-The file is.a part of Foolplay（傻瓜弹曲）
+The file is a part of Foolplay（傻瓜弹曲）
 Foolplay is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -190,6 +190,7 @@ async function pack(){
   for(i of dom.querySelectorAll('script:not([src]), .loading')){
   	i.remove();
   }
+  dom.body.insertAdjacentHTML('afterbegin','<noscript><p style="display:block!important;color:red">该环境无 JavaScript （或活动内容）功能。本程序无法运行。</p><style>*{display:none;}</style></noscript>')
   if(resPack.checked){
   	dom.body.insertAdjacentElement('afterbegin',await s('pack/mock.js'))
   	dom.body.insertAdjacentElement('afterbegin',await sT('data/inf.d'))
@@ -209,7 +210,7 @@ async function pack(){
     i.removeAttribute('src')
   }
   
-  dom.body.insertAdjacentHTML('beforeend','<scr'+'ipt>UI.about=function(){PopupWindow.alert("此功能在单文件打包版本中已删除。\\n"+Util.t2h(document.documentElement.firstChild.nodeValue))}</sc'+'ript>')
+  dom.body.insertAdjacentHTML('beforeend','<scr'+'ipt>UI.about=function(){PopupWindow.alert("<p>傻瓜弹曲 单文件打包版本<p>按 GPLv3 协议赋予您使用该软件的自由<p>去 <a href=http://asdfqw.gitee.io/foolplay>asdfqw.gitee.io/foolplay</a> 查看源代码以及更多信息")}</sc'+'ript>')
   dom.body.insertAdjacentHTML('afterbegin','<scr'+'ipt>navigator.serviceWorker.register=null  </sc'+'ript>')
   var html = '<!DOCTYPE html>'+dom.body.parentElement.outerHTML;
   console.log(html);

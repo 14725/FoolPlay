@@ -1,6 +1,7 @@
-/*Generated Script*/
+/*Generated Script, but with some manual fixes now*/
 /**
  * small-pinyin, GPLv3.
+ * Inspired by tiny-pinyin <https://github.com/creeperyang/pinyin>
  * @copyright asdfqw
  * @see https://gitee.com/asdfqw/small-pinyin/
  * @see https://www.gnu.org/licenses/gpl-3.0.en.html

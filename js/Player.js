@@ -1,5 +1,5 @@
 /*
-The file is.a part of Foolplay（傻瓜弹曲）
+The file is a part of Foolplay（傻瓜弹曲）
 Foolplay is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -108,7 +108,7 @@ var Player = {
 
 	tasking: [],
 
-	storage: yuxStorage
+	storage: AsyncStorage
 };
 Player.meta = {};
 Player.anoMeta = {};
@@ -229,7 +229,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 	var ffreq = Player.getF(freqList);
 
 	var buf1 = Player.transform(bestVoice, l, fTime, function(x) {
-		return Math.exp(ffreq(x)) + Math.sin(x *(2*3.14 )/ 44100 / 0.2) * Math.min(Math.max(x/44100-0.7 ,0),0.7)/1 * 5
+		return Math.exp(ffreq(x)) + Math.sin(x *(2*3.14 )/ 44100 * 6.5 / 2)* Math.min(Math.max(x/44100-0.7 ,0),0.7)/1 * 5
 	});
 	var ctx = Player.ctx;
 	var n = ctx.createBufferSource();
@@ -333,7 +333,7 @@ Player.convertBuffer = function player_convertBuffer(buffer) {
 }
 /* 线性插值，用点列表生成连续函数 */
 Player.getF = function Player_getF(points) {
-	console.log("Player.getF", points.length);
+	//console.log("Player.getF", points.length);
 	points = Util.clone(points);
 	return function(x) {
 		if (x < points[0][0]) {
@@ -369,7 +369,9 @@ Player.sample = function player_sample(data, total, now) {
 	} else {
 		k = (pos - pos1) / (pos2 - pos1);
 	}
-	t = Math.round(t*2);
+	//t = Math.round(t*2);
+	/* 直到在有心情修复后再... */
+	t = Math.round(t);
 	pos1 = Math.max(0, Math.min(Math.round(pos1), data.data.length - t));
 	pos2 = Math.max(0, Math.min(Math.round(pos2), data.data.length - t));
 	var example = new Int16Array(t);
@@ -381,7 +383,7 @@ Player.sample = function player_sample(data, total, now) {
 	return example;
 }
 Player.transform = function player_transform(data, length, fPos, fFreq) {
-	console.time("Player.transform");
+	//console.time("Player.transform");
 	var wave = new Int16Array(length);
 	//alert(sample(data,99999,40000));//return [];
 	/* 原始周期 */
@@ -409,7 +411,7 @@ Player.transform = function player_transform(data, length, fPos, fFreq) {
 		}
 		pos += t;
 	}
-	console.timeEnd("Player.transform");
+	//console.timeEnd("Player.transform");
 	return wave;
 }
 Player.soundItem = {
@@ -501,7 +503,6 @@ Player.start = function player_start(startTime, tune, len, vol, isChord, word) {
 		return;
 	}
 	Player.ctx.resume();
-
 	vol = vol * 0.7;
 	var gain = Player.ctx.createGain();
 
@@ -569,7 +570,7 @@ Player.queueHighLight = function fn() {
 	}
 
 	var time = Math.round(Player.ctx.currentTime * 1000);
-	while (Player.highLight.length && (Player.highLightStamp + cur.time * 1000 - time) < -50) {
+	while (Player.highLight.length && (Player.highLightStamp + cur.time * 1000 - time) < -500) {
 		cur = Player.highLight.shift();
 	}
 	if(Player.highLight[0]) Player.highLightTid = setTimeout(fn, Math.max(0, (Player.highLightStamp + Player.highLight[0].time * 1000 - time) | 0));
@@ -966,7 +967,7 @@ Player.sequence = function player_sequence(){
 				
 			}
 			if(!ok){
-				console.log('fallback')
+				//console.log('fallback')
 				chord(noteary);
 			}
 			volBoost = 1;

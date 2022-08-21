@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<!--  
-  The file is.a part of Foolplay（傻瓜弹曲）
+  The file is a part of Foolplay（傻瓜弹曲）
   Foolplay is free software: you can redistribute it and/or modify it under the 
 terms of the GNU General Public License as published by the Free Software 
 Foundation, either version 3 of the License, or (at your option) any later 
@@ -239,7 +239,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 <script>loadfile.innerHTML = "拼音数据"</script>
 <script src="js/TinyPY.js"></script>
 <script>loadfile.innerHTML = "缓存库"</script>
-<script src="js/yux-storage.js"></script>
+<script src="js/lf-storage.js"></script>
 <script>loadfile.innerHTML = "播放器"</script>
 <script src="js/Player.js"></script>
 <script>loadfile.innerHTML = "自动和弦器"</script>
@@ -250,7 +250,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 <script src="js/mespeak/transplant.js"></script>
 <script>
   /* 一个有 Bug 的本地服务器真很闹人 */
-	var classlist = ['Music','Player','yuxStorage','Chord','Pinyin','Transplant'];
+	var classlist = ['Music','Player','AsyncStorage','Chord','Pinyin','Transplant'];
 	classlist.forEach(function(a){
 	  if(!(a in window)){
 	    confirm(`${a} 没有正常加载。
@@ -278,6 +278,5 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 		  <input type="file" hidden onchange="(this.files[0] && (this.files[0].name.toLowerCase().indexOf('voice')==-1) && alert('您选择的文件名是' + this.files[0].name + '，这应该是你想要加载的 voice.d 文件吧？')),b_voi.className = this.files[0]?'append-yes':''" id="f_voi"/>
 		</div>
 	</div>
-	<div style="font-family:nds; position:fixed; left: -999px;">预加载字体</div>
 </body>
 </html>

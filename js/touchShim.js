@@ -1,5 +1,5 @@
 /*  
-The file is.a part of Foolplay（傻瓜弹曲）
+The file is a part of Foolplay（傻瓜弹曲）
 
 Foolplay is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
