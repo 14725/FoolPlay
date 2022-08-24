@@ -38,12 +38,12 @@ Object.defineProperty(Array.prototype, 'chainableForEach', {
 });
 /* Smooth scroll */
 (function() {
-	try {
+	/*try {
 		window.scrollTo({
 			left: self.pageXOffset
 		});
-		/*return;*/
-	} catch (e) {}
+		return;
+	} catch (e) {}*/
 	var rawScrollTo = window.scrollTo.bind(window);
 	var timer = 0;
 	var tLeft, tTop;
@@ -1064,6 +1064,13 @@ Player.showVoiceWindow = function() {
 
 		}
 	}
+	b_def.onclick = async function(){
+		try{
+			Player.downloadVoice();
+		}finally{
+			PopupWindow.close(voiceWindow);
+		}
+	}
 	;
 }
 Player.voicePass2 = function() {
@@ -1144,20 +1151,20 @@ Player.voicePass2 = function() {
 		}
 	});
 }
-Player.downloadVoice = async function player_downloadVoice(uncompressed) {
+Player.downloadVoice = function player_downloadVoice(uncompressed) {
 	if(!uncompressed && !Player.ctx.createBuffer(1,4096,44100).getChannelData){
 		return Player.downloadVoice(true);
 	}
 	var pro = PopupWindow.progress();
 	pro.text('正在加载音源设定...');
-	try {
-		let inf = await (await fetch('data/inf.d')).text();
-		await Player.storage.setItem('inf.d', inf);
-	} catch (e) {
-		pro.close();
-		Player.showVoiceWindow();
-	}
-	return new Promise(function(ok, fail) {
+	
+	return new Promise(async function(ok, fail) {
+		try {
+			let inf = await (await fetch('data/inf.d')).text();
+			await Player.storage.setItem('inf.d', inf);
+		} catch (e) {
+			fail();
+		}	
 		var xhr = new XMLHttpRequest();
 		pro.text('正在加载音源数据...');
 		xhr.onerror = xhr.onabort = function(event) {
@@ -1173,22 +1180,26 @@ Player.downloadVoice = async function player_downloadVoice(uncompressed) {
 			if (event.lengthComputable) {
 				pro.max(event.total).progress(event.loaded).progressText(`${(event.total / 1048576).toFixed(3)}MB / ${(event.loaded / 1048576).toFixed(3)}MB`);
 			} else {
-				pro.progressText(`${(event.loaded / 1048576).toFixed(3)}MB / 未知(约20MB)`);
+				pro.progressText(`${(event.loaded / 1048576).toFixed(3)}MB / 未知(约${uncompressed?20:3}MB)`);
 			}
 		}
 		;
 		xhr.onload = async function() {
 			if (xhr.status > 300) {
 				Player.trace('加载失败');
+				fail(new Error(`错误的 HTTP 状态码：${xhr.status}`));
+				return;
 			}
 			var buf;
 			if(!uncompressed){
 				var ctx = new OfflineAudioContext(1,1024,44100);
 				pro.text('正在解压缩音源数据...');
-				var buf32 = await ctx.decodeAudioData(xhr.response);
-				buf32 = buf32.getChannelData(0);
-				var buf16 = new Int16Array(buf32.length);
-				var i = buf32.length;
+				try{
+					var buf32 = await ctx.decodeAudioData(xhr.response);
+					buf32 = buf32.getChannelData(0);
+					var buf16 = new Int16Array(buf32.length);
+					var i = buf32.length;
+				}catch(e){fail(e)}
 				while(--i >= 0){
 					buf16[i] = buf32[i] * 32767;
 				}
@@ -1211,7 +1222,20 @@ Player.downloadVoice = async function player_downloadVoice(uncompressed) {
 			xhr.onabort();
 		}
 	}
-	);
+	).catch((e) =>{
+		pro.close();
+		Player.showVoiceWindow();
+		PopupWindow.alert(`
+			<p>很抱歉，程序自带音源加载失败。可能是因为网络颠簸，这不是你的错。</p>
+			<p>先关闭此对话框，然后您可以在下方操作中三选一：</p>
+			<ul>
+				<li>选择一个本地音源（袅袅虚拟歌手格式）；</li>
+				<li>点击“默认音源”，重新加载；</li>
+				<li>接着关闭对话框，同时傻瓜弹曲将不合成人声。</li>
+			</ul>
+		`.replace(/\n/g,''))
+		throw e;
+	});
 }
 /* Hacking file - render offline*/
 Player.saveWav = async function player_saveWav() {
