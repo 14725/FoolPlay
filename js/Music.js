@@ -1130,7 +1130,9 @@ UI.getHTMLforNote = function ui_getHTMLforNote(note, id) {
 	html = UI.getHTMLUnit(className, note.pitch, words, id) + appendedHTML;
 	return html;
 }
-UI.getHTMLUnit = function ui_getHTMLUnit(classes, pitch, word, id) {
+UI.getHTMLUnit = function ui_getHTMLUnit(classes, pitch, _word, id) {
+	var word = new Array(_word.length).fill("");
+	_word.forEach(function(c,i){word[i] = c});
 	var regp = /([,.?!，。？：！“”、；])/g;
 	return ('<div class="note $classes" data-id="$id"><div class="acnote"><div class="upo"></div><div class="yin">$pitch</div><div class="minusline"></div><div class="downo"></div></div><div class="geci">$word</div></div>').split("$classes").join(classes).split("$pitch").join(Util.t2h(pitch)).split("$word").join(word.map(Util.t2h).map(function(a){return a.trim()||'&nbsp;'}).join("</div><div class=\"geci\">").replace(regp, "<span style='position:absolute;'>$1</span>"))//移除标点符号空间
 	.split("$id").join(id);
