@@ -1192,7 +1192,7 @@ UI.getHTMLUnit = function ui_getHTMLUnit(classes, pitch, _word, id) {
 			word.map(Util.t2h)
 				.map(function(a){return a.trim()||'&nbsp;'})
 				.map(function(a){return '<div class="geci">' + a + '</div>'})
-				.join("</div><div class=\"geci\">")
+				.join("")
 				.replace(regp, "<span style='position:absolute;'>$1</span>"))//移除标点符号空间
 	.split("$id").join(id);
 }
