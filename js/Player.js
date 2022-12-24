@@ -1336,10 +1336,11 @@ Player.saveWav = async function player_saveWav() {
 	Player.target = Player._oldtar;
 	var data = await rpro;
 	pro.close();
-	window.data = true;
+	window.data = data;
 	if (stopped)
 		return;
 	Util.saveAs(Player.bufferToWave(data), 'audio/wav', Music.title + '.wav');
+	PopupWindow.open(showDownloadWindow);
 
 }
 Player.bufferToWave = function bufferToWave(abuffer, len) {

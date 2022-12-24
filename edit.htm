@@ -99,6 +99,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 		<div class="menu">
 			<label><input type="checkbox" onclick="document.body.className=( this.checked?'fensanalign':'');UI.layout();"/>对齐最后一行</label>
 			<label><input type="checkbox" onclick="UI.touchEnabled = this.checked"/>触摸启用选择</label>
+			<label><input type="checkbox" onclick="UI.shiftFix = this.checked"/>Shift 修复</label>
 			<a onclick="UI.render()">重新渲染</a>
 		</div>
 	</div>
@@ -179,7 +180,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 		</td>
 	</tr>
 	</table>
-	&emsp;<label id="speedLabel" for="speed">速度：</label><input id="speed" required value="120" min="10" max="400" size="3" step="1" oninput="Music.speed=this.value" style="text-align:left" type="number">
+	&emsp;<label id="speedLabel" for="speed">速度：</label><input id="speed" class="spin" required value="120" min="10" max="400" size="3" step="1" oninput="Music.speed=this.value" style="text-align:left" type="number">
 	<textarea class="author" style="font-family: '宋体',monospace;float:right;text-align:right;overflow:hidden;" oninput='Music.author = this.value;' rows="3" cols="19"></textarea>
 </div>
 <div style="clear:both"></div>
@@ -201,7 +202,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 	<a href="javascript:UI.paste()">粘贴</a>
 	<a href="javascript:UI.selStart = 0;UI.selEnd = 999999999999;UI.redraw();">全选</a>
 	<a href="javascript:UI.delete();">删除</a>
-	<a href="javascript:UI.editPinyinGUI(Math.min(Math.max(UI.selStart - Number(UI.selStart ==UI.selEnd),0),Music.music.length-1))">修改拼音...</a>
+	<a href="javascript:UI.editPinyinGUI(UI.getClosestNote(contextMenu.getBoundingClientRect().left, contextMenu.getBoundingClientRect().top))">修改拼音...</a>
 	<hr>
 	<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.min(Music.music[i].octave+1,1)};UI.render();}())">升高八度</a>
 	<a href="javascript:(function(){for(var i=UI.selStart;i<UI.selEnd;i++){Music.music[i].octave = Math.max(Music.music[i].octave-1,-1)};UI.render();})()">降低八度</a>
@@ -275,6 +276,13 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 		  <input type="file" hidden onchange="(this.files[0] && (this.files[0].name.toLowerCase().indexOf('inf')==-1) && alert('您选择的文件名是' + this.files[0].name + '，这应该是你想要加载的 inf.d 文件吧？')),b_inf.className = this.files[0]?'append-yes':''" id="f_inf"/>
 		  <input type="file" hidden onchange="(this.files[0] && (this.files[0].name.toLowerCase().indexOf('voice')==-1) && alert('您选择的文件名是' + this.files[0].name + '，这应该是你想要加载的 voice.d 文件吧？')),b_voi.className = this.files[0]?'append-yes':''" id="f_voi"/>
 		  <div style="clear:both"></div>
+		</div>
+	</div>
+	<div class="window on" id="showDownloadWindow">
+		<div class="windowtitle">文件保存提示<button class="close" onclick="UI.releaseDownload()"><b>×</b></button></div>
+		<div class="content">
+		  <p>请确认文件是否成功保存。</p>
+			<center><button onclick="UI.releaseDownload()">是的</button> | <button  onclick="UI.tryDownload()">不是，再次尝试保存！</button></center>
 		</div>
 	</div>
 </body>

@@ -22,16 +22,14 @@
 	clear: both;
 }
 
-@-ms-viewport {
-	width: device-width;
-}
-
-input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
+input:not(.spin:hover)::-webkit-outer-spin-button, input:not(.spin:hover)::-webkit-inner-spin-button {
 	-webkit-appearance: none;
 }
 
-input[type="number"] {
-	-moz-appearance: textfield;
+input[type="number"]:not(.spin:hover) {
+	-moz-appearance: textfield
+	
+
 }
 
 html {
@@ -734,7 +732,7 @@ input[type=number] {
 }
 
 .geci {
-	/*height: 1.2em;*/
+	height: 1.1em;
 	line-height: 1.1;
 	text-align: center;
 	white-space: nowrap;

@@ -125,7 +125,9 @@ function errorPage(error){
 }
 
 function checkNeed(request,response){
-  if(request.url.split('?')[0].toLowerCase().indexOf('.d') > 0 || request.url.split('?')[0].toLowerCase().indexOf('voice.png') >= 0){
+  if(request.url.split('?')[0].toLowerCase().indexOf('.d') > 0 
+	 || request.url.split('?')[0].toLowerCase().indexOf('voice.jpg') >= 0
+	  || request.url.split('?')[0].toLowerCase().indexOf('voice.png') >= 0){
     // Niao Source
     return false;
   }

@@ -752,6 +752,7 @@ var UI = {
 	},
 	isMouseDown: false,
 	domsAreas: -1,
+	posAreas: -1,
 	clipboard: [],
 	domList: Array.prototype.slice.call(document.querySelectorAll(".note")),
 	defaultLength: 8,
@@ -770,9 +771,11 @@ var UI = {
 	editingLynicLine: -1,
 	caretStyle: null,
 	ciheight: 0,
+	ciCalculated: false,
 	yinheight: 0,
 	// 在不知道具体渲染情况下的一个预设估计值，渲染后将得到数值
-  shouldScroll: true,
+	shouldScroll: true,
+	shiftFix: false
 };
 UI.render = Util.throttle(function ui_render() {
 	//功能：刷新歌谱的主要内容，会继续调用 UI.layout
@@ -883,12 +886,52 @@ UI.layout = function ui_layout() {
 			UI.domsAreas[id].width = dom.offsetLeft + dom.offsetWidth - UI.domsAreas[id].x;
 		}
 	});
+	//获取每一个“位置”的描述。这一描述将用于计算光标相关位置
+	UI.posAreas = UI.domsAreas.map(function(noteArea){
+		return {
+			x: noteArea.x, 
+			y: noteArea.y,
+			width: 0,
+			height: noteArea.height, 
+			midX: noteArea.x, 
+			midY: noteArea.y
+		}
+	});
+	if(UI.domsAreas.length){
+		UI.posAreas.push({
+			x: UI.domsAreas[UI.domsAreas.length - 1].x + UI.domsAreas[UI.domsAreas.length - 1].width, 
+			y: UI.domsAreas[UI.domsAreas.length - 1].y,
+			width: 0,
+			height: UI.domsAreas[UI.domsAreas.length - 1].height, 
+			midX: UI.domsAreas[UI.domsAreas.length - 1].x + UI.domsAreas[UI.domsAreas.length - 1].width, 
+			midY: UI.domsAreas[UI.domsAreas.length - 1].y
+		});
+	} else {
+		UI.posAreas.push({
+			x: 0,
+			y: 0,
+			width: 0,
+			height: 0,
+			midX: 0,
+			midY: 0
+		});
+	}
+	var oneOfWordElement = document.querySelector(".geci");
 	//获取音符实际占用的高度
 	if (UI.yinheight == 0 && UI.domList[0])
 		UI.yinheight = parseFloat(getComputedStyle(UI.domList[0].querySelector(".acnote")).height);
 	//获取歌词区域的高度
-	if ((UI.ciheight == 0 || isNaN(UI.ciheight)) && UI.domList[0])
-		UI.ciheight = parseFloat(getComputedStyle(UI.domList[0].querySelector(".geci")).height);
+	if (!UI.ciCalculated){
+		if(oneOfWordElement){
+			UI.ciheight = parseFloat(getComputedStyle(oneOfWordElement).height);
+			UI.ciCalculated = true;
+		} else {
+			UI.ciheight = parseFloat(getComputedStyle(document.body).fontSize * 1.2);
+		}
+		
+		
+	}
+		
 
 	// ??
 	UI.redraw();
@@ -1082,7 +1125,7 @@ UI.getHTMLforNote = function ui_getHTMLforNote(note, id) {
 		//	1.
 		//	==
 		className += "f16";
-		appendedHTML += UI.getHTMLUnit(className, "·", [''], id);
+		appendedHTML += UI.getHTMLUnit(className, "·", [], id);
 		break;
 	case 4:
 		className += "f8";
@@ -1134,7 +1177,23 @@ UI.getHTMLUnit = function ui_getHTMLUnit(classes, pitch, _word, id) {
 	var word = new Array(_word.length).fill("");
 	_word.forEach(function(c,i){word[i] = c});
 	var regp = /([,.?!，。？：！“”、；])/g;
-	return ('<div class="note $classes" data-id="$id"><div class="acnote"><div class="upo"></div><div class="yin">$pitch</div><div class="minusline"></div><div class="downo"></div></div><div class="geci">$word</div></div>').split("$classes").join(classes).split("$pitch").join(Util.t2h(pitch)).split("$word").join(word.map(Util.t2h).map(function(a){return a.trim()||'&nbsp;'}).join("</div><div class=\"geci\">").replace(regp, "<span style='position:absolute;'>$1</span>"))//移除标点符号空间
+	return (`
+<div class="note $classes" data-id="$id">
+	<div class="acnote">
+		<div class="upo"></div>
+		<div class="yin">$pitch</div>
+		<div class="minusline"></div>
+		<div class="downo"></div>
+	</div>
+	$word
+</div>`).split("$classes").join(classes)
+		.split("$pitch").join(Util.t2h(pitch))
+		.split("$word").join(
+			word.map(Util.t2h)
+				.map(function(a){return a.trim()||'&nbsp;'})
+				.map(function(a){return '<div class="geci">' + a + '</div>'})
+				.join("</div><div class=\"geci\">")
+				.replace(regp, "<span style='position:absolute;'>$1</span>"))//移除标点符号空间
 	.split("$id").join(id);
 }
 UI.switchLine = function ui_switchLine(up) {
@@ -1301,8 +1360,8 @@ UI.onKeyDown = function ui_onKeyDown(event) {
 		}
 		if (UI.author == Music.music.length)
 			UI.author--;
-		rect = UI.domsAreas[Math.min(UI.author, Music.music.length - 1)];
-		UI.author = UI.getClosestNoteIn(rect.midX, rect.midY - rect.height * 0.6);
+		rect = UI.posAreas[Math.min(UI.author, Music.music.length)];
+		UI.author = UI.getClosestNoteIn(rect.x, rect.midY - rect.height, true);
 		if (!event.shiftKey) {
 			UI.from = UI.author;
 		}
@@ -1320,8 +1379,8 @@ UI.onKeyDown = function ui_onKeyDown(event) {
 				break;
 			}
 		}
-		rect = UI.domsAreas[Math.min(UI.author, Music.music.length - 1)];
-		UI.author = UI.getClosestNoteIn(rect.midX, rect.midY + rect.height * 0.6);
+		rect = UI.posAreas[Math.min(UI.author, Music.music.length)];
+		UI.author = UI.getClosestNoteIn(rect.x, rect.midY + rect.height + 40, true);
 		if (!event.shiftKey) {
 			UI.from = UI.author;
 		}
@@ -1371,8 +1430,8 @@ UI.onKeyDown = function ui_onKeyDown(event) {
 		if (Music.music.length == 0)
 			return;
 
-		rect = UI.domsAreas[Math.min(UI.author, Music.music.length - 1)]
-		UI.author = UI.getClosestNoteIn(rect.midX, rect.midY - window.innerHeight + 100);
+		rect = UI.posAreas[Math.min(UI.author, Music.music.length)];
+		UI.author = UI.getClosestNoteIn(rect.x, rect.midY - window.innerHeight + 100, true);
 		if (!event.shiftKey) {
 			UI.from = UI.author;
 		}
@@ -1385,8 +1444,8 @@ UI.onKeyDown = function ui_onKeyDown(event) {
 		if (Music.music.length == 0)
 			return;
 
-		rect = UI.domsAreas[Math.min(UI.author, Music.music.length - 1)];
-		UI.author = UI.getClosestNoteIn(rect.midX, rect.midY + window.innerHeight - 100);
+		rect = UI.posAreas[Math.min(UI.author, Music.music.length)];
+		UI.author = UI.getClosestNoteIn(rect.x, rect.midY + window.innerHeight - 100, true);
 		if (!event.shiftKey) {
 			UI.from = UI.author;
 		}
@@ -1828,54 +1887,56 @@ UI.spliceWord = function ui_spliceWord(index, howmany /* 删除计数 */ , str) 
 		}
 	}
 }
-UI.getClosestNote = function ui_getClosestNote(clientX, clientY, over) {
+UI.getClosestNote = function ui_getClosestNote(clientX, clientY, toPosition) {
 	var containerRect = UI.container.getBoundingClientRect();
-	clientX -= containerRect.left;
-	clientY -= containerRect.top;
-	return UI.getClosestNoteIn(clientX, clientY, over);
+	return UI.getClosestNoteIn(clientX - containerRect.left, clientY - containerRect.top, toPosition);
 }
-UI.getClosestNoteIn = function ui_getClosestNoteIn(x, y, over) /*:ID*/
-{
-	var minid = 0;
-	var minDis = 99999999999999;
-	var tempDis = 0;
-	var rect;
-	if (over) {
-		UI.domsAreas.forEach(function(rect, id) {
-			tempDis = Math.abs(rect.x - x) + Math.abs(rect.midY - y) * 100000;
-			if (tempDis < minDis) {
-				minid = id;
-				minDis = tempDis;
-			}
-		});
-
-		if (UI.domsAreas[minid + 1] && UI.domsAreas[minid + 1].x < 3) {
-			rect = UI.domsAreas[minid];
-			tempDis = Math.abs(rect.x + rect.width - x) + Math.abs(rect.midY - y) * 100000;
-			if (tempDis < minDis) {
-				minid = minid + 1;
-			}
+/**
+ UI.getClosestNoteIn
+ @param {Number} x 相对于画布横坐标
+ @param {Number} y 相对于画布纵坐标
+ @param {Boolean} toPosition 寻找一个位置还是一个音符？
+ @returns {Number} 
+ 如果 toPosition == false, 找到的音符在数组中的下标；
+ 如果 toPosition == ture, 找到的位置。与 UI.from 遵守同一规则
+ */
+UI.getClosestNoteIn = function ui_getClosestNoteIn(x, y, toPosition){
+	function getYDist(y, area){
+		var top = area.y, bottom = area.y + area.height;
+		if(y >= top && y <= bottom){
+			return 0;
+		} else if (y < top){
+			return top - y;
+		} else if(y > bottom){
+			return y - bottom;
+		} else {
+			throw new Error("错误：试图检测一个不合常理的区域。");
 		}
-
-		rect = UI.domsAreas[UI.domsAreas.length - 1];
-		if (rect) {
-			tempDis = Math.abs(rect.x + rect.width - x) + Math.abs(rect.midY - y) * 100000;
-			if (tempDis < minDis) {
-				minid = UI.domsAreas.length;
-			}
-		}
-
-	} else {
-		UI.domsAreas.forEach(function(rect, id) {
-			tempDis = Math.abs(rect.midX - x) + Math.abs(rect.midY - y) * 100000;
-			if (tempDis < minDis) {
-				minid = id;
-				minDis = tempDis;
-			}
-		});
 	}
-	return minid;
+	function getXDict(x, area){
+		return Math.abs(x - area.midX);
+	}
+	function getDist(x, y, area){
+		return getXDict(x, area) + getYDist(y, area) * 1e6;
+	}
+	var areas;
+	var tmpArea;
+	if(toPosition){
+		areas = UI.posAreas;
+	} else {
+		areas = UI.domsAreas;
+	}
+	var minDis = 1e20, curDis, minId = -1;
+	for(var i = 0; i < areas.length; i++){
+		curDis = getDist(x, y, areas[i]);
+		if(curDis < minDis){
+			minDis = curDis;
+			minId = i;
+		}
+	}
+	return minId;
 }
+
 UI.delete = function ui_delete() {
 	if (UI.editingLynicLine == -1) {
 		UI.insertEdit([]);
@@ -2073,12 +2134,25 @@ UI.onContextMenu = function ui_onContextMenu(event) {
 	event.preventDefault();
 }
 UI.setEditor = function ui_setEditor() {
+	/* Shift 状态处理 */
+	/* 一些移动设备在选择的时候发送如下序列： */
+	/* 
+		按下 Shift 键，
+		按下 方向 键 （ShiftKey 不真！）。
+		松开 Shift 键，
+
+ 		事实上这个 Bug 影响了浏览器原生行为
+	*/
 	document.addEventListener("keydown", function(event) {
+		if(!UI.shiftFix && event.key == 'Shift' )
 		UI.isShiftDown = event.shiftKey;
 	});
 	document.addEventListener("keyup", function(event) {
+		if(!UI.shiftFix && event.key == 'Shift' )
 		UI.isShiftDown = event.shiftKey;
 	});
+
+	/* 鼠标拖选处理——记录拖选状态 */
 	document.addEventListener("mousedown", function ui_capture_mouse(event) {
 		if (event.button == 0)
 			UI.isSelectMouseDown = true;
@@ -2086,6 +2160,8 @@ UI.setEditor = function ui_setEditor() {
 	document.addEventListener("mouseup", function ui_release_mouse() {
 		UI.isSelectMouseDown = false;
 	});
+
+	/* 鼠标拖选处理——计算位置 */
 	document.addEventListener("mousedown", function ui_mousedown_to_(event) {
 		if (Music.music.length == 0) {
 			return;
@@ -2100,10 +2176,10 @@ UI.setEditor = function ui_setEditor() {
 		if (UI.isShiftDown) {//UI.from = UI.oldSelStart
 		} else {
 			//UI.oldSelStart = UI.from = UI.author = UI.getClosestNote(event.clientX, event.clientY, true);
-			UI.from = UI.author = UI.getClosestNote(event.clientX, event.clientY);
-			var heightYin = 40;
-			var eleArea = document.querySelector(".geci").getBoundingClientRect();
-			var heightWord = eleArea.bottom - eleArea.top;
+			UI.from = UI.author = UI.getClosestNote(event.clientX, event.clientY, true);
+			var heightYin = UI.yinheight || 28;
+			//var eleArea = document.querySelector(".geci").getBoundingClientRect();
+			var heightWord = UI.ciheight;
 			var author = Math.min(UI.author, Music.music.length - 1)
 			var h = event.clientY - UI.domsAreas[author].y - UI.container.getBoundingClientRect().top;
 			if (h > heightYin && Music.music[UI.author]) {
@@ -2403,5 +2479,12 @@ UI.editPinyinGUI = function ui_editPinyinGUI(id){
 		})
 		PopupWindow.close(dom);
 	}
+}
+UI.releaseDownload = function(){
+	window.data = null;
+	PopupWindow.close(showDownloadWindow);
+}
+UI.tryDownload = function(){
+	Util.saveAs(Player.bufferToWave(window.data), 'audio/wav', Music.title + '.wav');
 }
 UI.main();
