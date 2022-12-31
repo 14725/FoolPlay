@@ -539,7 +539,7 @@ Player.start = function player_start(startTime, tune, len, vol, isChord, word) {
 	//setTimeout(cancel,(Player.timeStart + startTime - Player.ctx.currentTime + len) * 1000 + 300);
 	return cancel;
 }
-Player.simplePlay = function player_simplePlay(tune, octave) {
+Player.simplePlay = function player_simplePlay(tune, octave, shift = 0) {
 	if (!Player.ctx)
 		return;
 	if (tune == 0)
@@ -547,7 +547,7 @@ Player.simplePlay = function player_simplePlay(tune, octave) {
 	if (!Player.enableSMPlay)
 		return;
 	tune = Player.fMap[tune];
-	var f = 440 * Math.pow(2, tune + octave + Music.arpeggio / 12);
+	var f = 440 * Math.pow(2, tune + octave + Music.arpeggio / 12 + shift / 12);
 	Player.start(Player.ctx.currentTime - Player.timeStart, f, 1, 1, false, null);
 
 }
@@ -831,7 +831,7 @@ Player.sequence = function player_sequence(){
       word: "",isChord: false
      }*/
 		music[i].word && (music[i].word = music[i].word[0]);
-		f = jian2p(music[i].pitch) + 12 * music[i].octave + (+Music.arpeggio) - jian2p(6);
+		f = jian2p(music[i].pitch) + music[i].shift + 12 * music[i].octave + (+Music.arpeggio) - jian2p(6);
 		if (isNaN(f))
 			continue;
 		f = 440 * Math.pow(2, f / 12);
@@ -879,7 +879,7 @@ Player.sequence = function player_sequence(){
      }*/
 		var py = null;
 		Array.isArray(music[i].word) && (music[i].word = music[i].word[0]);
-		f = jian2p(music[i].pitch) + 12 * music[i].octave + (+Music.arpeggio) - jian2p(6);
+		f = jian2p(music[i].pitch) + music[i].shift + 12 * music[i].octave + (+Music.arpeggio) - jian2p(6);
 		if(music[i].pinyin && music[i].pinyin[0]) py = music[i].pinyin[0];
 		if (isNaN(f))
 			continue;

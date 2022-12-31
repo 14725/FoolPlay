@@ -1,83 +1,115 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>傻瓜弹曲——FAQ</title>
-  <link rel="stylesheet" href="index.css">
-  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>傻瓜弹曲——FAQ</title>
+	<link rel="stylesheet" href="index.css">
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 
-  <base target="_blank" />
+	<base target="_blank" />
 </head>
-<body>
-  <style>
-    pre{
-      -webkit-user-select: all;
-      -moz-user-select: all;
-      -ms-user-select: all;
-      user-select: all;
-      white-space: pre-wrap;
-    }
-  </style>
-  <h2>FAQ</h2>
-  <p>会集合一些问题，和一些绕过措施。</p>
-  <details>
-    <summary>我保存文件的时候，提示“下载失败”？</summary>
-    <p>许多浏览器，尤其是手机上的浏览器或者所谓“下载加速器”，不能保存由网页程序生成的文件。如果必要，请换用 Chrome、 Firefox 等。它们自带的下载功能与网页结合紧密，能下载本站文件。</p>
-    <p>紧急应对方案：</p>
-    <pre>javascript:function(){document.write(Util.t2h(UI.outString()));document.close()}();</pre>
-    <ol>
-      <li>把上面的脚本粘贴到浏览器地址栏（小心地址栏会删除前面的<code>javascript:</code>，需重新补充）或者<button onclick="writeString(this)">试试点击这里</button>；</li>
-      <li>把浏览器窗口中的文字复制粘贴到一纯文本文档中。</li>
-    </ol>
-    如上方法得到的文档也可以被傻瓜弹曲打开。
-  </details>
-  <details>
-  	<summary>无法导出音频？</summary>
-  	<p>部分浏览器限制导出音频（常作为反浏览器指纹技术/反跟踪技术的副作用，例如 Bromite 浏览器的反指纹技术）。在那遥远的不会到来的时候，我可能减少对 Web Audio.API 的依赖，不过现在你先骂人吧。</p>
-  	<p>P.S. 我已经懒得支持这样的浏览器了。</p>
-  </details>
-  <details>
-    <summary>能输入播放英文？！</summary>
-    <p>中文一字一格，向光标后面顶；标点符号和英文一堆字母一格，会塞到前面去。英文播放不使用袅袅音源，而是使用meSpeak合成，音色与音源无关。</p>
-  </details>
-  <details>
-  	<summary>不能后台播放？</summary>
-  	<p>作为一个网页应用，一切都要听浏览器的。一些浏览器被置于后台时会禁止网站的定时器功能，这会让我的程序无法继续播放。</p>
-  	<p>这时候建议您换个浏览器。尽管大多数浏览器初一后台的时候都会延迟定时器，但本站3秒的定时器间隔相对大多数浏览器的后台定时器延迟应该不是问题。</p>
-  </details>
-  <details>
-  	<summary>歌手声音很怪？</summary>
-  	<p><small>P.S. 目前本程序使用 TD-PSOLA 算法缩放音频，这个算法损失音质较大。另外，它需要一个正经的调教算法。如能改进欢迎 Pull Request。</small></p>
-  	<ul>
-  		<li>默认音源来自软件合成，音色可能不佳。如果你在意机器音色，请换一个真人音源。</li>
-  		<li>检查音源选择页面。选择音源是勾选或取消勾选“我是男生”（降八度）可对音色有改善。如果这个参数未指定，声音可能被缩放过头，会给人感觉吊着嗓子唱歌。</li>
-  		<li>我不去调教这个歌手，而使用（我认为的）歌手的默认参数，如果制作不好易吐字不清。目前只能换慢歌或者换音源。</li>
-  		<li>如果你只是觉得很异常，但又不是上面两个出故障的情况，那你只能用吐沫星子淹我了，毕竟这不是一个高级的合成器，网页版的本质让我难挂外部合成器。</li>
-  	</ul>
-  </details>
-  <details>
-  	<summary>为什么地址里面会有 <code>#id-nonsense-?????</code> 这一类字符串？</summary>
-  	<p>如果您打开文件，文件内容将会通过地址传来。（内容在 hash 处，服务器无感知。）这会让地址特别长，从而点一下地址栏都可能让某些浏览器崩溃！所以当加载完页面后，我们会清除地址中的文件数据。那个ID真的nonsense，以减少浏览器历史记录的混乱（或许不是）。如果你觉得这不好，欢迎提 issue。</p>
-  </details>
-    <details>
-    <summary>我发现了一个Bug，并且你这里没有提到！</summary>
-    <p>到 Gitee 上的<a href="https://gitee.com/asdfqw/FoolPlay/issues"> Issues </a>页面。</p>
-    <p>里面可能有更多信息。如果找不到，可以在那里提交一个 Issue 。描述清楚状况。如果网页上有错误信息，拷进来。如果只发生于某个文档，请把那个文档保存也传上来。</p>
-    <hr>
-    <p>当然，如果你懂网页，能自行修复 这个 Bug，也可去 Fork 这个项目并且 Pull Request。</p>
-    <p><small>我才不会告诉你一些能忍的Bug我就懒得修了。然而还是提出为妙。</small></p>
-  </details>
 
-  <script>
-    function writeString(btn){
-      try{
-      parent.UI.about('data:text/html;charset=UTF-8,' + encodeURIComponent(`<textarea style="box-sizing:border-box;position:fixed;top:0;bottom:0;left:0;width:100%;">${parent.Util.t2h(parent.UI.outString())}</textarea>`));
-      }catch(e){
-        alert('本按钮不能工作：\n'+e.stack);
-        btn.disabled = true;
-      }
-    }
-  </script>
+<body>
+	<style>
+		pre {
+			-webkit-user-select: all;
+			-moz-user-select: all;
+			-ms-user-select: all;
+			user-select: all;
+			white-space: pre-wrap;
+		}
+	</style>
+	<h2>FAQ</h2>
+	<p>会集合一些问题，和一些绕过措施。</p>
+	<details>
+		<summary>一进入网站就报错……之前不这样啊……</summary>
+		<p>您应该使用互联网上应对这个问题的最传统方案（请按顺序执行，执行完每一条后观察错误是否消失）：</p>
+		<ol>
+			<li>刷新页面</li>
+			<li>请禁用浏览器插件/脚本/扩展，刷新页面。</li>
+			<li>确认您连接了互联网，刷新。</li>
+			<li>清除浏览器“缓存”（视不同浏览器名称有不同），刷新页面。</li>
+			<li>
+				清除浏览器“Cookie”“网站数据”“站点数据”（视不同浏览器名称有不同），刷新页面。<br>
+				<small>（这可能导致正在编辑的乐谱以及加载的音源丢失。请先尝试“文件->保存”保存数据）</small>
+			</li>
+			<li>
+				复制所有出现的错误信息，进入<a href="https://gitee.com/asdfqw/FoolPlay/issues"> Issues </a>页面，
+				或留言板（见主页，或者“帮助->关于”）提交 Bug 。等待一年时间。<br>
+				<small>建议走 Issues ，在两个不常去的地方，我更常去 Issues 。</small>
+			</li>
+			<li>点击错误框里面的<button style="all:revent;" tabindex="-1">关闭所有</button>。</li>
+		</ol>
+		<details>
+			<summary>内幕</summary>
+			<p>“Script error” 可能是被浏览器插件（或者某项功能）干扰，这个错误是网站自身无法识别的。</p>
+			<p>本站采用了激进的缓存策略，（断网了都能访问！），然而有时会导致问题。</p>
+			<p>更多时候是我的 Bug ，（但不至于一进来就出错吧）</p>
+		</details>
+	</details>
+	<details>
+		<summary>我保存文件的时候，提示“下载失败”？</summary>
+		<p>许多浏览器，尤其是手机上的浏览器或者所谓“下载加速器”，不能保存由网页程序生成的文件。如果必要，请换用 Chrome、 Firefox 等。它们自带的下载功能与网页结合紧密，能下载本站文件。</p>
+		<p>紧急应对方案：</p>
+		<pre>javascript:function(){document.write(Util.t2h(UI.outString()));document.close()}();</pre>
+		<ol>
+			<li>把上面的脚本粘贴到浏览器地址栏（小心地址栏会删除前面的<code>javascript:</code>，需重新补充）或者<button
+					onclick="writeString(this)">试试点击这里</button>；</li>
+			<li>把浏览器窗口中的文字复制粘贴到一纯文本文档中。</li>
+		</ol>
+		<p>如上方法得到的文档也可以被傻瓜弹曲打开。</p>
+	</details>
+	<details>
+		<summary>无法导出音频？</summary>
+		<p>部分浏览器限制导出音频（常作为反浏览器指纹技术/反跟踪技术的副作用，例如 Bromite 浏览器的反指纹技术）。在那遥远的不会到来的时候，我可能减少对 Web Audio.API 的依赖，不过现在你先骂人吧。</p>
+		<p>P.S. 我已经懒得支持这样的浏览器了。</p>
+	</details>
+	<details>
+		<summary>能输入播放英文？！</summary>
+		<p>中文一字一格，向光标后面顶；标点符号和英文一堆字母一格，会塞到前面去。英文播放不使用袅袅音源，而是使用meSpeak合成，音色与音源无关。</p>
+	</details>
+	<details>
+		<summary>不能后台播放？</summary>
+		<p>作为一个网页应用，一切都要听浏览器的。一些浏览器被置于后台时会禁止网站的定时器功能，这会让我的程序无法继续播放。</p>
+		<p>这时候建议您换个浏览器。尽管大多数浏览器初一后台的时候都会延迟定时器，但本站3秒的定时器间隔相对大多数浏览器的后台定时器延迟应该不是问题。</p>
+	</details>
+	<details>
+		<summary>歌手声音很怪？</summary>
+		<p><small>P.S. 目前本程序使用 TD-PSOLA 算法缩放音频，这个算法损失音质较大。另外，它需要一个正经的调教算法。如能改进欢迎 Pull Request。</small></p>
+		<ul>
+			<li>默认音源来自软件合成，音色可能不佳。如果你在意机器音色，请换一个真人音源。</li>
+			<li>检查音源选择页面。选择音源是勾选或取消勾选“我是男生”（降八度）可对音色有改善。如果这个参数未指定，声音可能被缩放过头，会给人感觉吊着嗓子唱歌。</li>
+			<li>我不去调教这个歌手，而使用（我认为的）歌手的默认参数，如果制作不好易吐字不清。目前只能换慢歌或者换音源。</li>
+			<li>如果你只是觉得很异常，但又不是上面两个出故障的情况，那你只能用吐沫星子淹我了，毕竟这不是一个高级的合成器，网页版的本质让我难挂外部合成器。</li>
+		</ul>
+	</details>
+	<details>
+		<summary>为什么地址里面会有 <code>#id-nonsense-?????</code> 这一类字符串？</summary>
+		<p>如果您打开文件，文件内容将会通过地址传来。（内容在 hash
+			处，服务器无感知。）这会让地址特别长，从而点一下地址栏都可能让某些浏览器崩溃！所以当加载完页面后，我们会清除地址中的文件数据。那个ID真的nonsense，以减少浏览器历史记录的混乱（或许不是）。如果你觉得这不好，欢迎提
+			issue。</p>
+	</details>
+	<details>
+		<summary>我发现了一个Bug，并且你这里没有提到！</summary>
+		<p>到 Gitee 上的<a href="https://gitee.com/asdfqw/FoolPlay/issues"> Issues </a>页面。</p>
+		<p>里面可能有更多信息。如果找不到，可以在那里提交一个 Issue 。描述清楚状况。如果网页上有错误信息，拷进来。如果只发生于某个文档，请把那个文档保存也传上来。</p>
+		<hr>
+		<p>当然，如果你懂网页，能自行修复 这个 Bug，也可去 Fork 这个项目并且 Pull Request。</p>
+		<p><small>我才不会告诉你一些能忍的Bug我就懒得修了。然而还是提出为妙。</small></p>
+	</details>
+
+	<script>
+		function writeString(btn) {
+			try {
+				parent.UI.about('data:text/html;charset=UTF-8,' + encodeURIComponent(`<textarea style="box-sizing:border-box;position:fixed;top:0;bottom:0;left:0;width:100%;">${parent.Util.t2h(parent.UI.outString())}</textarea>`));
+			} catch (e) {
+				alert('本按钮不能工作：\n' + e.stack);
+				btn.disabled = true;
+			}
+		}
+	</script>
 </body>
+
 </html>

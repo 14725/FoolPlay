@@ -324,10 +324,6 @@ body:not(.fensanalign) .container::after {
 }
 
 
-.note > div:first-child {
-	/* padding-bottom: 8px; */
-}
-
 .space {
 	padding-left: 3px;
 }
@@ -339,8 +335,10 @@ body:not(.fensanalign) .container::after {
 
 .yin sup {
 	position: absolute;
-	top: 0;
-	left: -2px;
+	top: -3px;
+	left: 0px;
+	line-height: 1;
+	transform: translateX(-50%);
 }
 
 .acnote{

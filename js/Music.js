@@ -12,7 +12,8 @@ You should have received a copy of the GNU General Public License along with thi
 //Shim
 HTMLElement.prototype.matchesSelector = function() {
 	var body = HTMLElement.prototype;
-	return body.webkitMatchesSelector || body.msMatchesSelector || body.mozMatchesSelector || body.oMatchesSelector;
+	/* Now the `matches` are pretty good. */
+	return body.webkitMatchesSelector || body.msMatchesSelector || body.mozMatchesSelector || body.oMatchesSelector || body.matches;
 }();
 
 //Utils
@@ -36,6 +37,7 @@ Util.clone = function util_clone(a) {
 		b = {};
 	}
 	for (var i in a) {
+		if(i == "undefined-undefined") debugger;
 		if (a[i] == null)
 			continue;
 		/* 原型攻击防护 */
@@ -183,7 +185,6 @@ Util.copy = function util_copy(e) {
 	transfer.blur();
 	console.log('复制成功');
 	document.body.removeChild(transfer);
-
 }
 Util.t2h = function util_t2h(str) {
 	var d = util_t2h.d;
@@ -289,9 +290,6 @@ PopupWindow.progress = function popupWindow_progress() {
 		}
 	});
 	var oncl;
-	/*if(!cancelable){
-    
-  }*/
 	document.body.appendChild(dom);
 	PopupWindow.open(dom);
 	var rtn = {
@@ -393,12 +391,13 @@ var Music = {
 Music.MusicNote = function() {
 	//返回一个 MusicNote， 一个集合（假构造函数）
 	return {
-		pitch: 1,
-		octave: 0,
-		length: 32,
-		word: [],
+		pitch: 1,    /* 0, 1, 2, 3, 4, 5, 6, 7 */
+		shift: null,    /* -1, 0, 1 */ /* 还去管更离谱的吗？我不管无调音乐！ */
+		octave: 0,   /* -1, 0, 1 */
+		length: 32,  /* 个 三十二分音符 */
+		word: [],    
 		pinyin: [],
-		fx: {}
+		fx: {},
 	};
 }
 Music.getLenSectionTempo = function music_getLenSectionTempo() {
@@ -460,6 +459,7 @@ Music.split = function music_split() {
 		sections.push(thisSection);
 
 }
+/* 最大的 Fuck！ */
 Music.flatBar = function(){
 	/* 目前没有机制保证 loop 过长 */
 	/* 0. 确定 Loop 存在*/
@@ -691,7 +691,7 @@ Music.flat = function music_flat() {
 	});
 	return res;
 }
-Music.flatOneBar = function(bar, line) {
+Music.flatOneBar = function music_flatOneBar(bar, line) {
 	var rtn = Util.clone(bar);
 	function makeOk(tmp){
 		if (!tmp)
@@ -707,7 +707,39 @@ Music.flatOneBar = function(bar, line) {
 	});
 	return rtn;
 }
+/**
+ * 根据上一个音状态决定这个音的变音记号标注
+ * 返回 null 为不标注
+ * 注：副作用：会给没有标注升降的音符标注升降
+ * 注：副作用：修改 status 对象
+ * @param {Number} status 上一个音的升降情况
+ * @param {Object} note   音
+ * @returns {Number|null}
+ */
+Music.checkShift = function music_checkShift(status, note){
+	/* 检查不合法值 */
+	var key = "" + note.pitch + "-" + note.octave;
+	if(status[key] == null){
+		status[key] = 0;
+	}
+	switch(note.shift){
+		case 1: case 2: case -1: case -2: case 0: break;
+		default: note.shift = status[key];
+	}
+	/* 休止符怎么能有升号呢？ */
+	if(parseInt(note.pitch) == 0){
+		note.shift = 0;
+		return null;
+	}
+	if(status[key] == note.shift){
+		return null;
+	} else {
+		status[key] = note.shift;
+		return note.shift;
+	}
+}
 
+//*/
 //UI
 var UI = {
 	container: document.querySelector(".container"),
@@ -774,8 +806,7 @@ var UI = {
 	ciCalculated: false,
 	yinheight: 0,
 	// 在不知道具体渲染情况下的一个预设估计值，渲染后将得到数值
-	shouldScroll: true,
-	shiftFix: false
+	shouldScroll: true
 };
 UI.render = Util.throttle(function ui_render() {
 	//功能：刷新歌谱的主要内容，会继续调用 UI.layout
@@ -813,6 +844,8 @@ UI.render = Util.throttle(function ui_render() {
 		var endHTML = "<div class=\"sectionLine\"></div></div>";
 		var className = [];
 		var inTriplets = 0;
+		var shiftState = {}; /* 跟踪临时小节的升降状态 */
+
 		//对每一个音符拼接HTML，并统计时间长度，以便宽松按节拍添加空格
 		Music.music.forEach(function(a) {
 			if (String(a.pitch) == '0') {
@@ -820,7 +853,11 @@ UI.render = Util.throttle(function ui_render() {
 			}
 		});
 		for (i = 0; i < item.length; i++) {
-			thisSectionHTML.push(UI.getHTMLforNote(item[i].note, item[i].id));
+			thisSectionHTML.push(UI.getHTMLforNote(
+				item[i].note, 
+				item[i].id, 
+				Music.checkShift(shiftState, item[i].note)
+			));
 			curLen += item[i].note.length;
 			if (item[i].note.fx.triplets) {
 				if ((i < item[i].note.length - 2) && (item[i + 1].note.length == item[i + 2].note.length) && (item[i + 2].note.length == item[i].note.length) && ((Music.lenSection - curLen >= item[i].note.length))) {
@@ -1101,7 +1138,8 @@ UI.appendCLine = function ui_appendCLine(pid, nid, word, ishouse) {
 	}
 
 }
-UI.getHTMLforNote = function ui_getHTMLforNote(note, id) {
+UI.getHTMLforNote = function ui_getHTMLforNote(note, id, shift) {
+	/* 应不应该显示升降号不能由音符音高本身决定 */
 	var html = "";
 	var className = "";
 	var appendedHTML = "";
@@ -1170,13 +1208,37 @@ UI.getHTMLforNote = function ui_getHTMLforNote(note, id) {
 		break;
 	}
 	//html = UI.getHTMLUnit(className, note.pitch, note.word, id) + appendedHTML;
-	html = UI.getHTMLUnit(className, note.pitch, words, id) + appendedHTML;
+	html = UI.getHTMLUnit(className, note.pitch, words, id, shift) + appendedHTML;
 	return html;
 }
-UI.getHTMLUnit = function ui_getHTMLUnit(classes, pitch, _word, id) {
+UI.getHTMLUnit = function ui_getHTMLUnit(classes, pitch, _word, id, shift) {
 	var word = new Array(_word.length).fill("");
 	_word.forEach(function(c,i){word[i] = c});
 	var regp = /([,.?!，。？：！“”、；])/g;
+	var pitchHTML;
+	
+	switch(shift){
+		case 1:
+			pitchHTML = "<sup>♯</sup>";
+			break;
+		case -1:
+			pitchHTML = "<sup>♭</sup>";
+			break;
+		/* 如果后人要实现重升重降, 须注意字体问题 */
+		case 2:
+			pitchHTML = "<sup>×</sup>";
+			break;
+		case -2:
+			pitchHTML = "<sup>♭♭</sup>";
+			break;
+		case 0:
+			pitchHTML = "<sup>♮</sup>";
+			break;
+		default:
+			pitchHTML = "";
+			/* 置为其他值不显示符号 */
+	}
+	pitchHTML += Util.t2h(pitch);
 	return (`
 <div class="note $classes" data-id="$id">
 	<div class="acnote">
@@ -1187,7 +1249,7 @@ UI.getHTMLUnit = function ui_getHTMLUnit(classes, pitch, _word, id) {
 	</div>
 	$word
 </div>`).split("$classes").join(classes)
-		.split("$pitch").join(Util.t2h(pitch))
+		.split("$pitch").join(pitchHTML)
 		.split("$word").join(
 			word.map(Util.t2h)
 				.map(function(a){return a.trim()||'&nbsp;'})
@@ -1534,12 +1596,32 @@ UI.onGlobalKeyDown = function(event) {
 		event.stopPropagation();
 	}
 }
-UI.refreshIME = function ui_refresh_IME(value) {
+UI.refreshIME = function ui_refreshIME(value) {
 	if (value != null)
 		UI.editbox.value = value;
 	UI.IMETip.innerText = UI.editbox.value;
 }
-UI.onInput = function(event) {
+/**
+ * @callback mapTSFn
+ * @param {Object} note      音符，传引用，可修改
+ * @param {Boolean} isSingle 是光标吗？
+ * @param {Number} id        第几个？
+ */
+/**
+ * 对选区内每一项元素执行这一操作
+ * @param {mapTSFn} fn
+ */
+UI.mapThroughSelection = function ui_mapThroughSelection(fn){
+	var start = UI.selStart, end = UI.selEnd, isSingle = false;
+	if(UI.selStart == UI.selEnd /* 没有选择 */){
+		isSingle = true;
+		start = Math.max(0, end - 1);
+	}
+	for(var i = start; i < end; i++){
+		fn(Music.music[i], isSingle, i);
+	}
+}
+UI.onInput = function ui_onInput(event) {
 	//歌谱的输入方法
 	//TODO: Check this after the UI.insertEdit
 	UI.refreshIME();
@@ -1550,29 +1632,17 @@ UI.onInput = function(event) {
 	var content = event.target.value;
 	if (content == "")
 		return;
-	if (true) {
-		//转时值对应表
+	/* 转时值对应表 */{
 		var extendTable = {};
-		extendTable[2] = 4;
-		extendTable[4] = 8;
-		extendTable[8] = 16;
-		extendTable[16] = 24;
-		extendTable[24] = 32;
+		extendTable[2] = 4;		extendTable[4] = 8;		extendTable[8] = 16;	
+		extendTable[16] = 24;	extendTable[24] = 32;
 		var shortenTable = {};
-		shortenTable[32] = 24;
-		shortenTable[24] = 16;
-		shortenTable[16] = 8;
-		shortenTable[8] = 4;
-		shortenTable[4] = 2;
+		shortenTable[32] = 24;	shortenTable[24] = 16;	shortenTable[16] = 8;
+		shortenTable[8] = 4;	shortenTable[4] = 2;
 		var postTable = {};
-		postTable[2] = 3;
-		postTable[3] = 2;
-		postTable[4] = 6;
-		postTable[6] = 4;
-		postTable[8] = 12;
-		postTable[12] = 8;
-		postTable[16] = 24;
-		postTable[24] = 16;
+		postTable[2] = 3;		postTable[3] = 2;		postTable[4] = 6;
+		postTable[6] = 4;		postTable[8] = 12;		postTable[12] = 8;
+		postTable[16] = 24;		postTable[24] = 16;
 		var conventTable = {
 			"-": extendTable,
 			"/": shortenTable,
@@ -1582,7 +1652,7 @@ UI.onInput = function(event) {
 			"。": postTable
 		};
 	}
-	var note;
+	var note, changedRender = false, changedLayout = false, changedRedraw = false;
 	content = content.split("……").join("…").split("'").join("").toLowerCase().split("");
 	for (var i = 0; i < content.length; i++) {
 		var oneChar = content[i];
@@ -1621,7 +1691,8 @@ UI.onInput = function(event) {
 			if (UI.from == UI.author) {
 				UI.from = ++UI.author;
 			}
-			Player.simplePlay(note.pitch, note.octave);
+			UI.render.atOnce();
+			Player.simplePlay(note.pitch, note.octave, note.shift);
 
 			UI.refreshIME("");
 			break;
@@ -1631,45 +1702,41 @@ UI.onInput = function(event) {
 		case "=":
 		case ".":
 		case "。":
-			if (Music.music[UI.selEnd - 1] != null) {
-				note = Music.music[UI.selEnd - 1];
+			UI.mapThroughSelection(function(note){
 				if (conventTable[oneChar][note.length]) {
 					note.length = conventTable[oneChar][note.length];
-					UI.render();
+					changedRender = true;
 				}
-			}
+			})
 			UI.refreshIME("");
-
 			break;
 		case "*":
-			if (Music.music[UI.selEnd - 1] != null) {
-				note = Music.music[UI.selEnd - 1];
+			UI.mapThroughSelection(function(note, isSingle){
 				if (note.octave == 1)
 					note.octave = 0;
 				else
 					note.octave++;
-				UI.render();
-				Player.simplePlay(note.pitch, note.octave);
-			}
+				changedRender = true;
+				if(isSingle) Player.simplePlay(note.pitch, note.octave);
+			});
 			UI.refreshIME("");
 			break;
 		case "+":
 		case "!":
 		case "！":
-			if (Music.music[UI.selEnd - 1] != null) {
-				note = Music.music[UI.selEnd - 1];
+			UI.mapThroughSelection(function(note, isSingle){
 				if (note.octave == -1)
 					note.octave = 0;
 				else
 					note.octave--;
-				UI.render();
-				Player.simplePlay(note.pitch, note.octave);
-			}
+				changedRender = true;
+				if(isSingle) Player.simplePlay(note.pitch, note.octave);
+			});
 			UI.refreshIME("");
 			break;
 		case "`":
 		case "~":
-		case "·":
+		case "·":  /* 延长声音！ */
 			if (Music.music[UI.selEnd - 1] != null) {
 				note = Music.MusicNote();
 				note.pitch = Music.music[UI.selEnd - 1].pitch;
@@ -1684,31 +1751,45 @@ UI.onInput = function(event) {
 
 			break;
 		case "^":
-		case "…":
-			if (Music.music[UI.selEnd - 1] != null) {
-				note = Music.music[UI.selEnd - 1];
+		case "…":  /* 连接连音符！ */
+			UI.mapThroughSelection(function(note, isSingle, i){
+				if(!isSingle && i == UI.selStart) return;
+				if(isSingle  && UI.selEnd == 1) return;
 				note.fx.extend = !note.fx.extend;
-				UI.render();
-			}
+				changedRender = true;
+			});
 			event.target.value = "";
 
 			break;
 		case ":":
 		case "：":
-			var sid = Music.indexNoteInSection(UI.selEnd - 1);
-			if (sid == -1)
-				sid = 0;
-			if (Music.loops[sid] == null)
-				Music.loops[sid] = {};
-			if (!Music.loops[sid].loop && !Music.loops[sid].do) {
-				Music.loops[sid].loop = true;
-			} else if (Music.loops[sid].loop && !Music.loops[sid].do) {
-				Music.loops[sid].do = true;
-			} else if (Music.loops[sid].loop && Music.loops[sid].do) {
-				Music.loops[sid].loop = false;
-			} else if (!Music.loops[sid].loop && Music.loops[sid].do) {
-				Music.loops[sid].do = false;
+			var sid = Music.indexNoteInSection(UI.selEnd);
+			if (sid == -1) sid = 0;
+			var sid2 = Music.indexNoteInSection(UI.selStart);
+			if (sid2 == -1) sid2 = 0;
+			Music.loops[sid] == null && (Music.loops[sid] = {});
+			Music.loops[sid2] == null && (Music.loops[sid2] = {});
+			if(UI.selEnd == UI.selStart || sid == sid2){
+				sid = Music.indexNoteInSection(UI.selEnd - 1);
+				if (sid == -1)
+					sid = 0;
+				if (!Music.loops[sid].loop && !Music.loops[sid].do) {
+					Music.loops[sid].loop = true;
+				} else if (Music.loops[sid].loop && !Music.loops[sid].do) {
+					Music.loops[sid].do = true;
+				} else if (Music.loops[sid].loop && Music.loops[sid].do) {
+					Music.loops[sid].loop = false;
+				} else if (!Music.loops[sid].loop && Music.loops[sid].do) {
+					Music.loops[sid].do = false;
+				}
+			} else {
+				if(!Music.loops[sid].loop || !Music.loops[sid2].do){
+					Music.loops[sid].loop = Music.loops[sid2].do = true;
+				} else {
+					Music.loops[sid].loop = Music.loops[sid2].do = false;
+				}
 			}
+			
 			event.target.value = "";
 
 			UI.render();
@@ -1765,10 +1846,33 @@ UI.onInput = function(event) {
 			content.shift();
 			content.shift();
 			break;
+		case "b": /* 降记号！ */
+			UI.mapThroughSelection(function(note){
+				if(note.shift == 0) note.shift = -1;
+				else note.shift = 0;
+				changedRender = true;
+				Player.simplePlay(note.pitch, note.octave, note.shift);
+			});
+			break;
+		case "#": /* 升记号 */
+			UI.mapThroughSelection(function(note){
+				if(note.shift == 0) note.shift = 1;
+				else note.shift = 0;
+				changedRender = true;
+				Player.simplePlay(note.pitch, note.octave, note.shift);
+			});
+			break;
 		default:
 			//event.target.value = "";
 
 		}
+	}
+	if(changedRender){
+		UI.render();
+	} else if(changedLayout){
+		UI.layout();
+	} else if(changedRedraw){
+		UI.redraw();
 	}
 	event.target.value = event.target.value.replace(/[^ds|\-0-9]/g, "");
 	UI.refreshIME();
@@ -2144,11 +2248,9 @@ UI.setEditor = function ui_setEditor() {
  		事实上这个 Bug 影响了浏览器原生行为
 	*/
 	document.addEventListener("keydown", function(event) {
-		if(!UI.shiftFix && event.key == 'Shift' )
 		UI.isShiftDown = event.shiftKey;
 	});
 	document.addEventListener("keyup", function(event) {
-		if(!UI.shiftFix && event.key == 'Shift' )
 		UI.isShiftDown = event.shiftKey;
 	});
 
