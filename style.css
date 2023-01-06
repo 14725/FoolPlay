@@ -711,6 +711,8 @@ input[type=number] {
 	border-color: #eee rgb(134,138,142) rgb(134,138,142) #eee;
 	box-shadow: 0 0 1px gray;
 	border-radius: 3px;
+	line-height: 1.2;
+	vertical-align: middle;
 }
 
 .window button:active {

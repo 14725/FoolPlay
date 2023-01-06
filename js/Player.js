@@ -124,6 +124,21 @@ var itemT = {
 	volFull: 0,
 	data: null /* TODO:是什么呢 */
 };
+
+Player.bestBank = function player_bestBank(metas, avgFreq, timeInSec){
+	var best = metas[0], bestScore = 999999, curScore = 9999999;
+	for(var i = metas.length - 1; i >= 0; i--){
+		var scoreFreq = Math.abs(Math.log(metas[i].freq) - Math.log(avgFreq));
+		var scoreTime = Math.abs(Math.log(metas[i].length / 2 / 44100) - Math.log(timeInSec));
+		curScore = Math.sqrt( scoreFreq * scoreFreq +  scoreTime * scoreTime );
+		if(curScore < bestScore){
+			bestScore = curScore;
+			best = metas[i];
+		}
+	}
+	return best;
+}
+
 Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, raw) {
 	//前置条件检测
 	if (1) {
@@ -181,13 +196,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 	} else {
 		//console.log(Player.meta[pinyin][0]);
 		
-		bestVoice=Player.meta[pinyin][0];
-		Player.meta[pinyin].forEach(function(a) {
-			if (Math.abs(a.freq - avgFreq) < bestFreq) {
-				bestVoice = a;
-				bestFreq = Math.abs(a.freq - avgFreq);
-			}
-		});
+		bestVoice=Player.bestBank(Player.meta[pinyin], avgFreq, len);
 	}
 	//延长处理
 	if (!raw.isTooLong || sentense == '啦') {
@@ -237,7 +246,7 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 	var st = start;
 	g.gain.value = vol;
 	g.gain.linearRampToValueAtTime(0.0001, Player.timeStart + 0);
-	g.gain.linearRampToValueAtTime(0.1, Player.timeStart + start - advance);
+	g.gain.linearRampToValueAtTime(0.6, Player.timeStart + start - advance);
 	g.gain.linearRampToValueAtTime(vol, Player.timeStart + start);
 	g.gain.linearRampToValueAtTime(vol,Math.max(Player.timeStart + start - advance + (l - bestVoice.consonant) / 44100 *0.7 ,Player.timeStart + start+0.0001, Player.timeStart + start - advance + (l -(raw.isTooLong?0:bestVoice.length / 2 - bestVoice.vowel) )/ 44100-0.3));
 	g.gain.linearRampToValueAtTime(0.0001, Player.timeStart + start - advance + (l -(raw.isTooLong?0:bestVoice.length / 2 - bestVoice.vowel) )/ 44100);
@@ -1093,6 +1102,7 @@ Player.voicePass2 = function() {
 	q4pos = Math.min(times.length - 1, q4pos + 1);
 
 	Player.voice = Player.voice.filter(function(v) {
+		/* 预处理：去除空音符 */
 		if (!v.word) {
 			return false;
 		}
@@ -1101,36 +1111,55 @@ Player.voicePass2 = function() {
 		}
 		return true;
 	}).chainableForEach(function(v, i, ary) {
+		/* （瞎）检测可能的停顿。 
+		    如果音符长度在四分位之前，那么很可能需要换气
+	       （一句歌词平均4-20字，事实上要更多） */
 		if (i < ary.length - 1) {
-			if (v.word.length - 1) {
+			if (v.word.replace(/[a-zA-Z]/, "").length > 1) {
+				// 标点
 				v.isTooLong = true;
 			} else if (v.len + v.start + 0.001 < ary[i + 1].start) {
+				// 休止符
 				v.isTooLong = true;
 			} else {
+				// 硬阈值
 				v.isTooLong = (v.len > times[q4pos]);
 			}
 		} else {
+			// 最后一个字……
 			v.isTooLong = true;
 		}
 	}).chainableForEach(function(t, i, a) {
+		/* 去除重复的“停顿” */
 		if (i < a.length - 1 && a[i + 1].isTooLong == true) {
 			t.isTooLong = false;
 		}
 	}).chainableForEach(function(t, i, a) {
+		/* 换气 */
+		if (t.isTooLong == true) {
+			if(a[i+1] && a[i+1].start - t.start - t.len < 1e-3){
+				
+				let last_freq_len = t.len - t.f[t.f.length - 1].time;
+				t.len -= Math.min(0.5, last_freq_len * 0.382);
+			}
+		}
+	}).chainableForEach(function(t, i, a) {
+		/* 备份原来的 */
+		t._f = Util.clone(t.f);
+	}).chainableForEach(function(t, i, a) {
+		/* 在音符开头处理音符间的平滑连接 */
 		var m = a[i - 1];
 		var n = a[i + 1];
 		if (i > 0 && !m.isTooLong) {
 			//t.f[0].time = 0.2;
 			//console.log(t.word,Util.clone(t.f),t.f[0].time,(t.f[1]||{}).time)
-			if (t.f[1] && t.f[1].time < t.f[0].time) {
-				t.f[0].time = t.f[1].time / 1.2;
-			}
+			
 			t.f.unshift({
 				///* 上一个音调的中间 */
-				//time:((m.start + m.len) + (m.start + m.f[m.f.length-1].time))/2 - t.start,
-				time:(m.start) - t.start,
+				time:((m.start + m.len) + (m.start + m.f[m.f.length-1].time))/2 - t.start,
+				//time:(m.start) - t.start,
 				//time: -0.1,
-				f: m.f[m.f.length - 2].f
+				f: m._f[m._f.length - 1].f
 			});
 		} else {
 			/* 音头上拉 */
@@ -1139,6 +1168,9 @@ Player.voicePass2 = function() {
 				f: t.f[0].f / 5 * 4
 			});
 		}
+	}).chainableForEach(function(t, i, a) {
+		var m = a[i - 1];
+		var n = a[i + 1];
 		if ( n) {
 			t.f.push({
 				time: Math.max(0,t.len - 0.3, t.f[t.f.length - 1].time ),
@@ -1209,7 +1241,7 @@ Player.downloadVoice = function player_downloadVoice(uncompressed) {
 			}
  
 			pro.close();
-			Player.storage.setItem('voice.d', buf).then(function() {
+			Player.storage.setItem('voice.d', buf).then(function(){
 				Player.load1();
 			}).catch(fail);
 		}
