@@ -27,9 +27,9 @@ input:not(.spin:hover)::-webkit-outer-spin-button, input:not(.spin:hover)::-webk
 }
 
 input[type="number"]:not(.spin:hover) {
-	-moz-appearance: textfield
-	
-
+	-webkit-appearance: textfield;
+	-moz-appearance: textfield;
+	appearance: none;
 }
 
 html {
@@ -200,6 +200,10 @@ input::-ms-clear {
 
 .header * {
 	vertical-align: middle;
+}
+
+.header tr, .header td {
+    line-height: 0;
 }
 
 .hl {
@@ -375,7 +379,9 @@ body:not(.fensanalign) .container::after {
 
 .tempo1,.tempo0 {
 	text-align: center;
-	-webkit-appreatce: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
 	width: 1.5em;
 }
 
@@ -739,5 +745,5 @@ input[type=number] {
 }
 
 .append-yes:after {
-	content: '✔️';
+	content: '✔️';
 }

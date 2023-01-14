@@ -916,23 +916,38 @@ UI.layout = function ui_layout() {
 				width: dom.offsetWidth,
 				height: dom.offsetHeight,
 				midX: dom.offsetLeft + dom.offsetWidth / 2,
-				midY: dom.offsetTop + dom.offsetHeight / 2
+				midY: dom.offsetTop + dom.offsetHeight / 2,
+				id: id
 			}
 		} else {
 			//存在：与上一个合并
 			UI.domsAreas[id].width = dom.offsetLeft + dom.offsetWidth - UI.domsAreas[id].x;
 		}
 	});
+	var extraPosAreas = [];
 	//获取每一个“位置”的描述。这一描述将用于计算光标相关位置
-	UI.posAreas = UI.domsAreas.map(function(noteArea){
-		return {
+	UI.posAreas = UI.domsAreas.map(function(noteArea, i , areas){
+		var res = {
 			x: noteArea.x, 
 			y: noteArea.y,
 			width: 0,
 			height: noteArea.height, 
 			midX: noteArea.x, 
-			midY: noteArea.y
+			midY: noteArea.y,
+			id: noteArea.id
+		};
+		if(areas[i+1] && areas[i+1].y != noteArea.y){
+			extraPosAreas.push({
+				x: noteArea.x + noteArea.width, 
+				y: noteArea.y,
+				width: 0,
+				height: noteArea.height, 
+				midX: noteArea.x + noteArea.width, 
+				midY: noteArea.y,
+				id: noteArea.id+1
+			})
 		}
+		return res;
 	});
 	if(UI.domsAreas.length){
 		UI.posAreas.push({
@@ -941,7 +956,8 @@ UI.layout = function ui_layout() {
 			width: 0,
 			height: UI.domsAreas[UI.domsAreas.length - 1].height, 
 			midX: UI.domsAreas[UI.domsAreas.length - 1].x + UI.domsAreas[UI.domsAreas.length - 1].width, 
-			midY: UI.domsAreas[UI.domsAreas.length - 1].y
+			midY: UI.domsAreas[UI.domsAreas.length - 1].y,
+			id: UI.domsAreas[UI.domsAreas.length - 1].id+1
 		});
 	} else {
 		UI.posAreas.push({
@@ -950,9 +966,11 @@ UI.layout = function ui_layout() {
 			width: 0,
 			height: 0,
 			midX: 0,
-			midY: 0
+			midY: 0,
+			id: 0
 		});
 	}
+	UI.posAreas = UI.posAreas.concat(extraPosAreas);
 	var oneOfWordElement = document.querySelector(".geci");
 	//获取音符实际占用的高度
 	if (UI.yinheight == 0 && UI.domList[0])
@@ -963,7 +981,7 @@ UI.layout = function ui_layout() {
 			UI.ciheight = parseFloat(getComputedStyle(oneOfWordElement).height);
 			UI.ciCalculated = true;
 		} else {
-			UI.ciheight = parseFloat(getComputedStyle(document.body).fontSize * 1.2);
+			UI.ciheight = parseFloat(getComputedStyle(document.body).fontSize) * 1.2;
 		}
 		
 		
@@ -2035,7 +2053,7 @@ UI.getClosestNoteIn = function ui_getClosestNoteIn(x, y, toPosition){
 		curDis = getDist(x, y, areas[i]);
 		if(curDis < minDis){
 			minDis = curDis;
-			minId = i;
+			minId = areas[i].id;if(isNaN(minId)) debugger;
 		}
 	}
 	return minId;
@@ -2279,11 +2297,16 @@ UI.setEditor = function ui_setEditor() {
 		} else {
 			//UI.oldSelStart = UI.from = UI.author = UI.getClosestNote(event.clientX, event.clientY, true);
 			UI.from = UI.author = UI.getClosestNote(event.clientX, event.clientY, true);
+			//UI.from = UI.author = UI.getClosestNote(event.clientX, event.clientY);
 			var heightYin = UI.yinheight || 28;
 			//var eleArea = document.querySelector(".geci").getBoundingClientRect();
 			var heightWord = UI.ciheight;
 			var author = Math.min(UI.author, Music.music.length - 1)
 			var h = event.clientY - UI.domsAreas[author].y - UI.container.getBoundingClientRect().top;
+			/* 特殊情况：如果光标在最后一列，会定位到下面一行的音，从而 h < 0 */
+			if(h < 0){
+				h = event.clientY - UI.domsAreas[author - 1].y - UI.container.getBoundingClientRect().top;
+			}
 			if (h > heightYin && Music.music[UI.author]) {
 				UI.editingLynicLine = Math.min(parseInt((h - heightYin) / heightWord)
 				, UI.domsAreas[author].y==UI.domsAreas[UI.domsAreas.length-1].y ? Math.max(UI.editingLynicLine,Music.music[UI.author].word.length) : 999

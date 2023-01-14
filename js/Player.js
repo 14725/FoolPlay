@@ -1096,7 +1096,7 @@ Player.voicePass2 = function() {
 	}).sort();
 
 	/* 四分位*/
-	var q4pos = parseInt(times.length * 3 / 4);
+	var q4pos = parseInt(times.length * 15 / 16);
 	for (; q4pos < times.length && times[q4pos] == times[q4pos + 1]; q4pos++)
 		;
 	q4pos = Math.min(times.length - 1, q4pos + 1);
