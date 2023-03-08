@@ -140,6 +140,7 @@ Player.bestBank = function player_bestBank(metas, avgFreq, timeInSec){
 }
 
 Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, raw) {
+  /* TODO: 重构Player.js */
 	//前置条件检测
 	if (1) {
 		if (!Player.enableVoice)
@@ -194,8 +195,6 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 	if (!isHanzi) {
 		bestVoice = Player.anoMeta[pinyin];
 	} else {
-		//console.log(Player.meta[pinyin][0]);
-		
 		bestVoice=Player.bestBank(Player.meta[pinyin], avgFreq, len);
 	}
 	//延长处理
@@ -248,9 +247,24 @@ Player.manvoice = function player_manvoice(sentense, detune, start, len, vol, ra
 	g.gain.linearRampToValueAtTime(0.0001, Player.timeStart + 0);
 	g.gain.linearRampToValueAtTime(0.6, Player.timeStart + start - advance);
 	g.gain.linearRampToValueAtTime(vol, Player.timeStart + start);
-	g.gain.linearRampToValueAtTime(vol,Math.max(Player.timeStart + start - advance + (l - bestVoice.consonant) / 44100 *0.7 ,Player.timeStart + start+0.0001, Player.timeStart + start - advance + (l -(raw.isTooLong?0:bestVoice.length / 2 - bestVoice.vowel) )/ 44100-0.3));
+	/* F**K 已经无法维护。*/
+	g.gain.linearRampToValueAtTime(vol,Math.max(Math.min(Player.timeStart + start - advance + (l - bestVoice.consonant) / 44100 *0.7 , Player.timeStart + start - advance + (l -(raw.isTooLong?0:bestVoice.length / 2 - bestVoice.vowel)-0.05 )/ 44100),Player.timeStart + start+0.0001, Player.timeStart + start - advance + (l -(raw.isTooLong?0:bestVoice.length / 2 - bestVoice.vowel) )/ 44100-0.3));
 	g.gain.linearRampToValueAtTime(0.0001, Player.timeStart + start - advance + (l -(raw.isTooLong?0:bestVoice.length / 2 - bestVoice.vowel) )/ 44100);
+  /*{
+    let a = Player.timeStart + start - advance + (l - bestVoice.consonant) / 44100 *0.7;
+    let b = Player.timeStart + start+0.0001;
+    let c = Player.timeStart + start - advance + (l -(raw.isTooLong?0:bestVoice.length / 2 - bestVoice.vowel) )/ 44100-0.3;
+    let k = Math.max(a,b,c);
+    let x = Player.timeStart + start - advance + (l -(raw.isTooLong?0:bestVoice.length / 2 - bestVoice.vowel) )/ 44100;
+    if(k > x){
+      console.warn("TooLong",a,b,c,k,x,raw.isTooLong, raw, bestVoice);
+    }
+    {
+    let a =  (l - bestVoice.consonant) *0.7;
+    let x =  (l -(raw.isTooLong?0:bestVoice.length / 2 - bestVoice.vowel) );
 
+  }
+  }*/
 	n.buffer = Player.convertBuffer(buf1);
 	n.connect(g);
 	g.connect(Player.target);
@@ -520,9 +534,10 @@ Player.start = function player_start(startTime, tune, len, vol, isChord, word) {
 	var osc;
 	if (!Player.pianoSample) {
 		vol *= 0.2;
-		gain.gain.value = 0.001;
+		//gain.gain.value = 0.001;
+		gain.gain.value = vol;
 		gain.gain.exponentialRampToValueAtTime(vol, Player.timeStart + startTime + 0.02);
-		gain.gain.exponentialRampToValueAtTime(vol * 0.2, Player.timeStart + startTime + len * 0.8);
+		gain.gain.exponentialRampToValueAtTime(vol * 0.9, Player.timeStart + startTime + len * 0.8);
 		gain.gain.linearRampToValueAtTime(0.001, Player.timeStart + startTime + len);
 		osc = Player.ctx.createOscillator();
 		//osc.type = "sine";
@@ -1123,11 +1138,11 @@ Player.voicePass2 = function() {
 				v.isTooLong = true;
 			} else {
 				// 硬阈值
-				v.isTooLong = (v.len > times[q4pos]);
+				//v.isTooLong = (v.len > times[q4pos]);
 			}
 		} else {
 			// 最后一个字……
-			v.isTooLong = true;
+			//v.isTooLong = true;
 		}
 	}).chainableForEach(function(t, i, a) {
 		/* 去除重复的“停顿” */

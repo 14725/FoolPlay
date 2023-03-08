@@ -1133,7 +1133,11 @@ UI.appendCLine = function ui_appendCLine(pid, nid, word, ishouse) {
 		clinedom.style.left = (ishouse ? parea.x : parea.midX) + "px";
 		clinedom.style.top = (parea.y) + "px";
 		//clinedom.style.width = narea.x - parea.x + (ishouse ? narea.width : 0) + "px";
-		clinedom.style.width = (narea.midX - parea.midX) + "px";
+		if(ishouse){
+		  clinedom.style.width=(narea.x - parea.x+narea.width)+"px"
+		}else{
+		  clinedom.style.width = (narea.midX - parea.midX) + "px";
+		}
 		UI.coverOn.appendChild(clinedom);
 	} else {
 		clinedom = document.createElement("div");
@@ -1347,8 +1351,8 @@ UI.onKeyDown = function ui_onKeyDown(event) {
 	//if(UI.selStart == UI.selEnd && UI.selEnd == -1)
 	//	UI.selEnd = 0;
 	if (event.keyCode == 13) {
-		UI.switchLine();
-		UI.onChangeListener(event);
+		UI.switchLine();event.target.value = "";
+		//UI.onChangeListener(event);
 		return;
 	}
 
@@ -2304,9 +2308,10 @@ UI.setEditor = function ui_setEditor() {
 			var author = Math.min(UI.author, Music.music.length - 1)
 			var h = event.clientY - UI.domsAreas[author].y - UI.container.getBoundingClientRect().top;
 			/* 特殊情况：如果光标在最后一列，会定位到下面一行的音，从而 h < 0 */
-			if(h < 0){
+			if(h < 0 && author > 0){
 				h = event.clientY - UI.domsAreas[author - 1].y - UI.container.getBoundingClientRect().top;
 			}
+			if(h < 0) h = 0;
 			if (h > heightYin && Music.music[UI.author]) {
 				UI.editingLynicLine = Math.min(parseInt((h - heightYin) / heightWord)
 				, UI.domsAreas[author].y==UI.domsAreas[UI.domsAreas.length-1].y ? Math.max(UI.editingLynicLine,Music.music[UI.author].word.length) : 999
