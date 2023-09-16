@@ -1373,10 +1373,11 @@ UI.onKeyDown = function ui_onKeyDown(event) {
 		}
 		if (Music.music.length == 0)
 			return;
-		//最开始
-		if (UI.author == 0)
-			return;
+
 		if (UI.from == UI.author) {
+			//最开始
+			if (UI.author == 0)
+				return;
 			//没有选择
 			if (UI.editingLynicLine == -1) {
 				if (event.keyCode != 46 && Music.music[UI.author - 1].length % 3 == 0)
@@ -1546,6 +1547,8 @@ UI.onKeyDown = function ui_onKeyDown(event) {
 			UI.copy();
 			if (event.keyCode == 88) {
 				UI.insertEdit([]);
+				UI.from = UI.author = UI.selStart;
+				UI.redraw();
 			}
 		} else {
 			cancel = false;
@@ -2354,8 +2357,8 @@ UI.setEditor = function ui_setEditor() {
 			return;
 		if (Math.abs(UI.lastClickedNotePos[0] - event.clientX) + Math.abs(UI.lastClickedNotePos[1] - event.clientY) > 10)
 			return;
-		if (event.button >= 1)
-			return;
+		//if (event.button >= 1)
+		//	return;
 		if (!Music.music.length)
 			return;
 		var myid = UI.getClosestNote(event.clientX, event.clientY, true);
