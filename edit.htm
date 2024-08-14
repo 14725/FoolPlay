@@ -86,19 +86,19 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 			<a href="javascript:(function(){Player.showVoiceWindow()})();">选择音源</a>
 			<a id="loadme" href="javascript:(function(){})();">英语支持未加载...</a>
 			<hr>
-			<label><input type="checkbox" checked onclick="Player.enableSMPlay = this.checked"/>编辑时奏音乐</label>
+			<label><input type="checkbox" checked autocomplete="off" onclick="Player.enableSMPlay = this.checked"/>编辑时奏音乐</label>
 			<hr>
-			<label><input type="checkbox" checked onclick="Player.enableMusic = this.checked"/>奏旋律</label>
-			<label><input type="checkbox" checked onclick="Player.enableVoice = this.checked"/>唱人声</label>
-			<label><input type="checkbox" checked onclick="Player.enableChord = this.checked"/>奏伴奏</label>
+			<label><input type="checkbox" checked autocomplete="off" onclick="Player.enableMusic = this.checked"/>奏旋律</label>
+			<label><input type="checkbox" checked autocomplete="off" onclick="Player.enableVoice = this.checked"/>唱人声</label>
+			<label><input type="checkbox" checked autocomplete="off" onclick="Player.enableChord = this.checked"/>奏伴奏</label>
 
 		</div>
 	</div>
 	<div class="item">
 		视图
 		<div class="menu">
-			<label><input type="checkbox" onclick="document.body.className=( this.checked?'fensanalign':'');UI.layout();"/>对齐最后一行</label>
-			<label><input type="checkbox" onclick="UI.touchEnabled = this.checked"/>触摸启用选择</label>
+			<label><input type="checkbox" autocomplete="off" onclick="document.body.className=( this.checked?'fensanalign':'');UI.layout();"/>对齐最后一行</label>
+			<label><input type="checkbox" autocomplete="off" onclick="UI.touchEnabled = this.checked"/>触摸启用选择</label>
 			<a onclick="UI.render()">重新渲染</a>
 		</div>
 	</div>

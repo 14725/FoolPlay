@@ -371,7 +371,7 @@ Player.getF = function Player_getF(points) {
 }
 /* 取样，并且“加窗” */
 Player.sample = function player_sample(data, total, now) {
-	var t = 44100 / data.freq;
+	var t = 44100 / data.freq * 2;
 	if (t > data.data.length) {
 		throw new Error("频率过低：声音周期不能比声音片段更长。");
 	}
