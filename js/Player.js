@@ -1179,15 +1179,18 @@ Player.voicePass2 = function () {
 		}
 	});
 }
-Player.downloadVoice = function player_downloadVoice(uncompressed) {
-	if (!uncompressed && !Player.ctx.createBuffer(1, 4096, 44100).getChannelData) {
-		return Player.downloadVoice(true);
-	}
+Player.downloadVoice = function player_downloadVoice() {
 	var pro = PopupWindow.progress();
 	pro.text('正在加载音源设定...');
 
 	return new Promise(async function (ok, fail) {
 		try {
+		  if (!Player.ctx.createBuffer(1, 4096, 44100).getChannelData) {
+		    setTimeout(function(){
+		      PopupWindow.alert("您的浏览器不提供音频解码功能。");
+		    });
+		    fail();
+    	}
 			let inf = await (await fetch('data/inf.d')).text();
 			await Player.storage.setItem('inf.d', inf);
 		} catch (e) {
@@ -1219,7 +1222,7 @@ Player.downloadVoice = function player_downloadVoice(uncompressed) {
 				return;
 			}
 			var buf;
-			if (!uncompressed) {
+			if (true /* TODO: 移除它 */) {
 				var ctx = new OfflineAudioContext(1, 1024, 44100);
 				pro.text('正在解压缩音源数据...');
 				try {
@@ -1232,9 +1235,7 @@ Player.downloadVoice = function player_downloadVoice(uncompressed) {
 					buf16[i] = buf32[i] * 32767;
 				}
 				buf = buf16.buffer;
-			} else {
-				buf = xhr.response;
-			}
+			} 
 
 			pro.close();
 			Player.storage.setItem('voice.d', buf).then(function () {
@@ -1244,7 +1245,7 @@ Player.downloadVoice = function player_downloadVoice(uncompressed) {
 			;
 		xhr.responseType = "arraybuffer";
 		try {
-			xhr.open('GET', uncompressed ? 'data/voice.png' : 'data/voice.jpg', true);
+			xhr.open('GET', 'data/voice.jpg', true);
 			xhr.send();
 		} catch (e) {
 			xhr.onabort();

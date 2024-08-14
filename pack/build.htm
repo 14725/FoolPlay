@@ -107,7 +107,7 @@ You should have received a copy of the GNU General Public License along with thi
 		<tr><th>补充文件</th><th>作用</th></tr>
 		<tr><td>../data/pianosap.mp3</td><td>把芯片音乐换成玩具钢琴</td></tr>
 		<tr><td>../data/inf.d</td><td>（在版权允许时可换成其他文件）袅袅虚拟歌手音色库的描述文件（oto）</td></tr>
-		<tr><td>../data/voice.png</td><td>（在版权允许时可换成其他文件）袅袅虚拟歌手音色库的数据文件（注意扩展名！已改名，以禁止服务器gzip压缩（效果不好）并允许本程序显示加载进度）</td></tr>
+		<tr><td>../data/voice.jpg</td><td>（在版权允许时可换成其他文件）袅袅虚拟歌手音色库的数据文件（注意扩展名！已改名，以禁止服务器gzip压缩（效果不好）并允许本程序显示加载进度）</td></tr>
 	</table>
 	<p>否则请勾选“打包额外文件”，把上述文件打包到单文件中。</p>
 	<hr>
@@ -210,7 +210,7 @@ async function pack(){
     i.removeAttribute('src')
   }
   
-  dom.body.insertAdjacentHTML('beforeend','<scr'+'ipt>UI.about=function(){PopupWindow.alert("<p>傻瓜弹曲 单文件打包版本<p>按 GPLv3 协议赋予您使用该软件的自由<p>去 <a href=http://asdfqw.gitee.io/foolplay>asdfqw.gitee.io/foolplay</a> 查看源代码以及更多信息")}</sc'+'ript>')
+  dom.body.insertAdjacentHTML('beforeend','<scr'+'ipt>UI.about=function(){PopupWindow.alert("<p>傻瓜弹曲 单文件打包版本<p>按 GPLv3 协议赋予您使用该软件的自由<p>去 <a href=http://14725.github.io/FoolPlay>14725.github.io/FoolPlay</a> 查看源代码以及更多信息")}</sc'+'ript>')
   dom.body.insertAdjacentHTML('afterbegin','<scr'+'ipt>navigator.serviceWorker.register=null  </sc'+'ript>')
   var html = '<!DOCTYPE html>'+dom.body.parentElement.outerHTML;
   console.log(html);
