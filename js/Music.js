@@ -1556,10 +1556,12 @@ UI.onKeyDown = function ui_onKeyDown(event) {
 		break;
 	case 86:
 		//(Ctrl+)V
-		if (event.ctrlKey && UI.editingLynicLine == -1)
+		if (event.ctrlKey && UI.editingLynicLine == -1) {
 			UI.paste();
-		else
+			UI.from = UI.author = UI.selStart + UI.clipboard.length;
+		} else {
 			cancel = false;
+		}
 		break;
 	case 27:
 		//Esc
@@ -1934,6 +1936,7 @@ UI.insertEdit = function ui_insertEdit(notes) {
 	UI.render();
 }
 UI.symbols = /[-abcdefghijklmnopqrstuvwxyz,.!'?，。；【】、！￥…（）—：“”’‘《》？]/ig;
+// TODO: 重新编写这个方法
 UI.spliceWord = function ui_spliceWord(index, howmany /* 删除计数 */ , str) {
 	var items = [];
 	var pushingSymbol = "";
@@ -1945,25 +1948,10 @@ UI.spliceWord = function ui_spliceWord(index, howmany /* 删除计数 */ , str) 
 		UI.spliceWord(index - 1, howmany + 1, (Music.music[index - 1].word[UI.editingLynicLine] || ' ') + str);
 		return;
 	}
-	//准备插入
+	// 分词
 	for (var i = 0; i < str.length; i++) {
 		char = str.charAt(i);
 		console.log('char ', char);
-		/*if (symbols.test(char)) {
-      if (isPushing) {
-        pushingSymbol += char;
-      } else {
-        if(items[items.length - 1] == null){
-          items[items.length - 1] = '';
-        }
-        items[items.length - 1] += pushingSymbol;
-        pushingSymbol = '';
-      }
-      isPushing=true;
-    } else {
-      isPushing = false;
-      items.push(char);
-    }*/
 		symbols.lastIndex = 0;
 		if (symbols.test(char)) {
 			if (items[items.length - 1] == null) {
@@ -1976,6 +1964,7 @@ UI.spliceWord = function ui_spliceWord(index, howmany /* 删除计数 */ , str) 
 			items.push(char);
 		}
 	}
+	// 执行删除
 	add = items.length;
 	for (i = index + howmany; i < Music.music.length; i++) {
 		items.push(Music.music[i].word[UI.editingLynicLine] || '');
@@ -1984,10 +1973,11 @@ UI.spliceWord = function ui_spliceWord(index, howmany /* 删除计数 */ , str) 
 		}
 
 	}
+	// 执行添加
 	for (i = 0; i < Music.music.length - index && i < items.length; i++) {
 		Music.music[i + index].word[UI.editingLynicLine] = items[i];
 	}
-
+	// 清除后续空格
 	for (i = index + items.length; i < Music.music.length; i++) {
 		Music.music[i].word[UI.editingLynicLine] = "";
 	}
@@ -2011,7 +2001,7 @@ UI.spliceWord = function ui_spliceWord(index, howmany /* 删除计数 */ , str) 
 		for(i = Music.music.length - 1; i >= index+add; i--){
 			Music.music[i].pinyin[UI.editingLynicLine] = Music.music[i-add].pinyin[UI.editingLynicLine];
 		}
-		for(i=index;i<index+add;i++){
+		for(i = index; i < index+add && i < Music.music.length; i++){
 			Music.music[i].pinyin[UI.editingLynicLine]='';
 		}
 	}
@@ -2315,9 +2305,9 @@ UI.setEditor = function ui_setEditor() {
 				h = event.clientY - UI.domsAreas[author - 1].y - UI.container.getBoundingClientRect().top;
 			}
 			if(h < 0) h = 0;
-			if (h > heightYin && Music.music[UI.author]) {
+			if (h > heightYin && Music.music[author]) {
 				UI.editingLynicLine = Math.min(parseInt((h - heightYin) / heightWord)
-				, UI.domsAreas[author].y==UI.domsAreas[UI.domsAreas.length-1].y ? Math.max(UI.editingLynicLine,Music.music[UI.author].word.length) : 999
+				, UI.domsAreas[author].y==UI.domsAreas[UI.domsAreas.length-1].y ? Math.max(UI.editingLynicLine,Music.music[author].word.length) : 999
 				);
 				UI.redraw();
 			} else {
