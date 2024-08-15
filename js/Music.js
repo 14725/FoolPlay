@@ -237,7 +237,25 @@ Util.htmlNoId = function util_htmlNoId(html) {
 		ele: cxt.childNodes.length == 1 ? cxt.children[0] : cxt,
 		ids: data
 	}
-}
+};
+Util.loadJS = function util_loadJS(src) {
+	console.info("Util.loadJS", src);
+	return new Promise(function(ok, fail) {
+		var script = document.createElement("script");
+		script.onload = function() {
+			console.info("Util.loadJS loaded", src);
+			document.head.removeChild(script);
+			ok();
+		}
+		script.oncancel = script.onerror = function (event) {
+			console.error("Util.loadJS failed", src, event);
+			document.head.removeChild(script);
+			fail(event);
+		}
+		script.src = src;
+		document.head.appendChild(script);
+	});
+};
 
 var PopupWindow = {
 	_windowDragging: null,
@@ -2603,6 +2621,102 @@ UI.editPinyinGUI = function ui_editPinyinGUI(id){
 		PopupWindow.close(dom);
 	}
 }
+UI.exportMidi = async function(useUTF8 = false) {
+	function jian2p(i) {
+		if (i == 0)
+			return NaN;
+		return [0, 2, 4, 5, 7, 9, 11][i - 1];
+	}
+	
+	if(!("JZZ" in window)) {
+		UI.statusbar.querySelector("div").innerText = "加载 JZZ.js 外部库..."
+		await Util.loadJS("https://cdn.jsdelivr.net/npm/jzz");
+		await Util.loadJS("https://cdn.jsdelivr.net/npm/jzz-midi-smf");
+	}
+	if(!("JZZ" in window) || !("MIDI" in window.JZZ) || !("SMF" in window.JZZ.MIDI)) {
+		PopupWindow.alert("外部库加载失败…… 不能导出 MIDI 文件。");
+	}
+	UI.statusbar.querySelector("div").innerText = "就绪"
+	var smf = new JZZ.MIDI.SMF();
+	var info  = new JZZ.MIDI.SMF.MTrk(); smf.push(info);
+	var vocal = new JZZ.MIDI.SMF.MTrk(); smf.push(vocal);
+	var inst  = new JZZ.MIDI.SMF.MTrk(); smf.push(inst);
+	// 设置“源信息”
+	info.smfBPM(parseFloat(Music.speed))
+		.smfProgName(location.origin+location.pathname)
+		.smfTimeSignature(Music.tempo[1], Music.tempo[0]);
+	if(useUTF8) {
+		info.smfSeqName(Music.title)
+	} else {
+		// 转换为大写拼音
+		info.smfSeqName(Music.title.replace(/[\x7f-\uffffffff]/ig, function(source) {var temp = Pinyin.pinyin(source).trim().replace(/^./, function(s) {return s.toUpperCase()}); return temp;}).replace(/[\x7f-\uffffffff]+/ig, "_"))
+	}
+	vocal.smfSeqName("Voice");
+	inst.smfSeqName("Instruments");
+	// 调号必须单独设定，因为 JZZ.MIDI 库不能解析偏移。
+	var MIDIKey = JZZ.MIDI.smfKeySignature(document.querySelector(".arpeggio").selectedOptions[0].innerText.slice(0, 2));// 指定记号中升降号数目……真·全世界都用五线谱……
+	vocal.add(0, MIDIKey);
+	var myScope = [];
+	Util.clone(Music.flat()).forEach(function(item) {
+		item.midiPitch = 60 + Music.arpeggio + jian2p(item.pitch) + item.octave * 12 + item.shift;
+		var last = myScope[myScope.length - 1];
+		// 判断是否重复？
+		if (last && (item && item.fx && item.fx.extend) && item.midiPitch == last.midiPitch && item.word.join("").trim() == "") {
+			// 这是个被延长线链接的音符
+			return last.length += item.length;
+		}
+		return myScope.push(item);
+	});
+	// 32 拍计数 -> MIDI 时钟拍数
+	myScope.forEach(function(item) {
+		item.length *= 96 / 8;
+	});
+	// 处理三连音符号
+	var tripletCount = 0;
+	myScope.forEach(function(item) {
+		if(item && item.fx && item.fx.triplets) {
+			tripletCount = 3;
+		}
+		if(tripletCount > 0) {
+			item.length /= 3;
+			item.length *= 2;
+			tripletCount --;
+		}		
+	});
+	// 转换到 MIDI
+	// 测试：全部写入 Music 轨道！
+	var ticksCount = 96 * 4 * Music.tempo[1] / Music.tempo[0];
+	var wordFlow = false;
+	myScope.forEach(function(item, i) {
+		item.word = item.word.join("").trim();
+		if(!useUTF8) {
+			item.pinyin = item.pinyin.join("").trim();
+			if(item.word != "" && item.pinyin == "") {
+				item.pinyin = Pinyin.pinyin(item.word).replace(/[^a-z]/g, "") || "";
+			}
+			item.word = item.pinyin + " ";
+		}
+		if(i > 0 && item.word == "" && item.fx && item.fx.extend && myScope[i-1].word != "") {
+			item.word = "-"; // 常见的延长记号
+		}
+	});
+	myScope.forEach(function(item) {
+		if(item.midiPitch == item.midiPitch) {
+			if(item.word != ""){
+				vocal.add(ticksCount, JZZ.MIDI.noteOn(0, item.midiPitch, 127));
+				vocal.add(ticksCount, JZZ.MIDI.smfLyric(item.word));
+				vocal.add(ticksCount + item.length - 1, JZZ.MIDI.noteOff(0, item.midiPitch));	
+			} else {
+				inst.add(ticksCount, JZZ.MIDI.noteOn(0, item.midiPitch, 127));
+				inst.add(ticksCount + item.length - 1, JZZ.MIDI.noteOff(0, item.midiPitch));	
+			}
+		}
+		ticksCount += item.length;
+	});
+	vocal.add(ticksCount, JZZ.MIDI.smfEndOfTrack());
+	inst.add(ticksCount, JZZ.MIDI.smfEndOfTrack());
+	Util.saveAs(smf.toUint8Array(), "audio/midi", Music.title + ".mid");
+};
 UI.releaseDownload = function(){
 	window.data = null;
 	PopupWindow.close(showDownloadWindow);
