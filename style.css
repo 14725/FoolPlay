@@ -755,7 +755,7 @@ input[type=number] {
 }
 
 .append-yes:after {
-	content: '✔️';
+	content: '✔';
 }
 
 select{
