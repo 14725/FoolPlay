@@ -799,251 +799,228 @@ Player.splitUp = function player_splitUp() {
 	Player.voicePass2();
 }
 Player.sequence = function player_sequence() {
-	var pmusic = [];
-	var pvoice = [];
-	var pchord = [];
-	var phighLight = [];
+    var pmusic = [];
+    var pvoice = [];
+    var pchord = [];
+    var phighLight = [];
 
 
-	/* 计算音乐信息 */
-	Music.getLenSectionTempo();
-	var sp32b = Music.speedS;
-	var curLen = 0;
-	var curTime = 0;
-	var music = Player.flatAndTag();
-	var lenTempo = Music.lenTempo;
-	var lenSection = Music.lenSection;
+    /* 计算音乐信息 */
+    Music.getLenSectionTempo();
+    var sp32b = Music.speedS;
+    var curLen = 0;
+    var curTime = 0;
+    var music = Player.flatAndTag();
+    var lenTempo = Music.lenTempo;
+    var lenSection = Music.lenSection;
 
-	function jian2p(i) {
-		if (i == 0)
-			return NaN;
-		return [0, 2, 4, 5, 7, 9, 11][i - 1];
-	}
-	var time;
-	var cItem;
-	var f;
-	var last;
+    function jian2p(i) {
+        if (i == 0)
+            return NaN;
+        return [0, 2, 4, 5, 7, 9, 11][i - 1];
+    }
+    var time;
+    var cItem;
+    var f;
+    var last;
 
-	/* 光标！ */
-	for (var i = 0; i < music.length; i++) {
-		curLen += music[i].length;
-		time = sp32b * music[i].length;
-		curTime = (curLen - music[i].length) * sp32b + 0.1;
-		// 光标！
-		// 光标！
-		cItem = Util.clone(Player.highLightItem);
-		cItem.time = curTime;
-		cItem.eleId = music[i].rawIndex;
-		phighLight.push(cItem);
-	}
-	phighLight.push({ eleId: -1, time: curTime + sp32b * music[i - 1].length });
-	curLen = curTime = 0;
-	/* 乐器旋律 */
-	for (i = 0; i < music.length; i++) {
-		curLen += music[i].length;
-		time = sp32b * music[i].length;
-		curTime = (curLen - music[i].length) * sp32b + 0.1;
-		/* {vol,len:秒,start:秒,
-      f: [{time,f: 440,}],fx: [],
-      word: "",isChord: false
-     }*/
-		music[i].word && (music[i].word = music[i].word[0]);
-		f = jian2p(music[i].pitch) + music[i].shift + 12 * music[i].octave + (+Music.arpeggio) - jian2p(6);
-		if (isNaN(f))
-			continue;
-		f = 440 * Math.pow(2, f / 12);
-		cItem = Util.templateClone({
-			vol: Player.level2vol(music[i].level),
-			len: music[i].length * sp32b,
-			start: curTime,
-			f: [{
-				time: 0,
-				f: f
-			}],
-			word: music[i].word || '',
-			isChord: false,
-		}, Player.soundItem);
-		if (music[i].fx.extend) {
-			/* 如果延长？ */
-			last = pmusic[pmusic.length - 1];
-			/* 1. 是延长线 */
-			if (Math.abs(cItem.f[0].f - last.f[0].f) < 0.0001) {
-				last.len += cItem.len;
-				last.vol = Math.max(last.vol, cItem.vol);
-			}/* 2. 是圆滑线 */
-			else {
-				last.vol = Math.max(last.vol, cItem.vol);
-				last.len += cItem.len / 10;
-				if (!cItem.word.trim()) {
-					cItem.word = last.word;
-				}
-				pmusic.push(cItem);
-			}
-		} else {
-			pmusic.push(cItem);
-		}
-	}
+    /* 光标！ */
+    for (var i = 0; i < music.length; i++) {
+        curLen += music[i].length;
+        time = sp32b * music[i].length;
+        curTime = (curLen - music[i].length) * sp32b + 0.1;
+        // 光标！
+        // 光标！
+        cItem = Util.clone(Player.highLightItem);
+        cItem.time = curTime;
+        cItem.eleId = music[i].rawIndex;
+        phighLight.push(cItem);
+    }
+    phighLight.push({ eleId: -1, time: curTime + sp32b * music[i - 1].length });
+    curLen = curTime = 0;
+    /* 乐器旋律 */
+    for (i = 0; i < music.length; i++) {
+        curLen += music[i].length;
+        time = sp32b * music[i].length;
+        curTime = (curLen - music[i].length) * sp32b + 0.1;
+        /* {vol,len:秒,start:秒,
+         *     f: [{time,f: 440,}],fx: [],
+         *     word: "",isChord: false
+    }*/
+        music[i].word && (music[i].word = music[i].word[0]);
+        f = jian2p(music[i].pitch) + music[i].shift + 12 * music[i].octave + (+Music.arpeggio) - jian2p(6);
+        if (isNaN(f))
+            continue;
+        f = 440 * Math.pow(2, f / 12);
+        cItem = Util.templateClone({
+            vol: Player.level2vol(music[i].level),
+                                   len: music[i].length * sp32b,
+                                   start: curTime,
+                                   f: [{
+                                       time: 0,
+                                   f: f
+                                   }],
+                                   word: music[i].word || '',
+                                   isChord: false,
+        }, Player.soundItem);
+        if (music[i].fx.extend) {
+            /* 如果延长？ */
+            last = pmusic[pmusic.length - 1];
+            /* 1. 是延长线 */
+            if (Math.abs(cItem.f[0].f - last.f[0].f) < 0.0001) {
+                last.len += cItem.len;
+                last.vol = Math.max(last.vol, cItem.vol);
+            }/* 2. 是圆滑线 */
+            else {
+                last.vol = Math.max(last.vol, cItem.vol);
+                last.len += cItem.len / 10;
+                if (!cItem.word.trim()) {
+                    cItem.word = last.word;
+                }
+                pmusic.push(cItem);
+            }
+        } else {
+            pmusic.push(cItem);
+        }
+    }
 
-	curLen = curTime = 0;
-	/* 人声 */
-	for (i = 0; i < music.length; i++) {
-		curLen += music[i].length;
-		time = sp32b * music[i].length;
-		curTime = (curLen - music[i].length) * sp32b + 0.1;
-		/* {vol,len:秒,start:秒,
-      f: [{time,f: 440,}],fx: [],
-      word: "",isChord: false
-     }*/
-		var py = null;
-		Array.isArray(music[i].word) && (music[i].word = music[i].word[0]);
-		f = jian2p(music[i].pitch) + music[i].shift + 12 * music[i].octave + (+Music.arpeggio) - jian2p(6);
-		if (music[i].pinyin && music[i].pinyin[0]) py = music[i].pinyin[0];
-		if (isNaN(f))
-			continue;
-		f = 440 * Math.pow(2, f / 12);
-		cItem = Util.templateClone({
-			vol: Player.level2vol(music[i].level),
-			len: music[i].length * sp32b,
-			start: curTime,
-			f: [{
-				time: 0,
-				f: f
-			}],
-			word: (music[i].word || '').trim(),
-			isChord: false,
-			pinyin: py
-		}, Player.soundItem);
-		if (music[i].fx.extend && !cItem.word) {
-			/* 如果延长？ 如果有歌词就不算延长*/
-			last = pvoice[pvoice.length - 1];
-			/* 1. 是延长线 */
-			if (Math.abs(cItem.f[0].f - last.f[last.f.length - 1].f) < 0.0000001) {
-				last.len += cItem.len;
-				last.vol = Math.max(last.vol, cItem.vol);
-			}/* 2. 是圆滑线 */
-			else {
-				last.len += cItem.len;
-				last.vol = Math.max(last.vol, cItem.vol);
-				last.f.push({
-					time: cItem.start - last.start,
-					f: cItem.f[0].f
-				});
-			}
-		} else {
-			pvoice.push(cItem);
-		}
-	}
+    curLen = curTime = 0;
+    /* 人声 */
+    for (i = 0; i < music.length; i++) {
+        curLen += music[i].length;
+        time = sp32b * music[i].length;
+        curTime = (curLen - music[i].length) * sp32b + 0.1;
+        /* {vol,len:秒,start:秒,
+         *     f: [{time,f: 440,}],fx: [],
+         *     word: "",isChord: false
+    }*/
+        var py = null;
+        Array.isArray(music[i].word) && (music[i].word = music[i].word[0]);
+        f = jian2p(music[i].pitch) + music[i].shift + 12 * music[i].octave + (+Music.arpeggio) - jian2p(6);
+        if (music[i].pinyin && music[i].pinyin[0]) py = music[i].pinyin[0];
+        if (isNaN(f))
+            continue;
+        f = 440 * Math.pow(2, f / 12);
+        cItem = Util.templateClone({
+            vol: Player.level2vol(music[i].level),
+                                   len: music[i].length * sp32b,
+                                   start: curTime,
+                                   f: [{
+                                       time: 0,
+                                   f: f
+                                   }],
+                                   word: (music[i].word || '').trim(),
+                                   isChord: false,
+                                   pinyin: py
+        }, Player.soundItem);
+        if (music[i].fx.extend && !cItem.word) {
+            /* 如果延长？ 如果有歌词就不算延长*/
+            last = pvoice[pvoice.length - 1];
+            /* 1. 是延长线 */
+            if (Math.abs(cItem.f[0].f - last.f[last.f.length - 1].f) < 0.0000001) {
+                last.len += cItem.len;
+                last.vol = Math.max(last.vol, cItem.vol);
+            }/* 2. 是圆滑线 */
+            else {
+                last.len += cItem.len;
+                last.vol = Math.max(last.vol, cItem.vol);
+                last.f.push({
+                    time: cItem.start - last.start,
+                    f: cItem.f[0].f
+                });
+            }
+        } else {
+            pvoice.push(cItem);
+        }
+    }
 
-	var chordNotes = Chord.getChord().flat();
-	//console.log('chordNotes', chordNotes)
-	var sttime = 0;
-	var tempo = Music.tempo;
-	chordNotes.forEach(function (noteary, id) {
-		var ttlen = noteary.len;
-		//;console.log(noteary)
-		noteary = noteary.chordnotes.sort()
-		var extend = 1;
-		if (id < chordNotes.length - 1 && noteary.toString() == chordNotes[id + 1].toString()) {
-			extend = 4;
-		}
-		var volBoost = 1.2;
-		while (ttlen > 0) {
-			let ok = false;
-			if (tempo[0] == '4' || tempo[0] == '8') {
-				ok = true;
-				if (tempo[1] == '4' || tempo[1] == '2' || tempo[1] == '12') {
-					let pos = (sttime / lenTempo) % tempo[1];
-					if (pos == 0) {
-						one(noteary);
-					} else if (pos == 2) {
-						fifth(noteary);
-					} else {
-						chord(noteary);
-					}
-				} else if (tempo[1] == '3') {
-					let pos = (sttime / lenTempo) % 3;
-					if (pos == 0) {
-						one(noteary);
-					} else {
-						chord(noteary);
-					}
-				} else if (tempo[1] == '6') {
-					let pos = (sttime / lenTempo) % 2;
-					let _2_3 = lenTempo * 2 / 3;
-					if (pos == 0) {
-						one(noteary, ttlen / 3 * 2);
-					} else {
-						fifth(noteary, ttlen / 3 * 2);
-					}
-					sttime += _2_3;
-					chord(noteary, ttlen / 3);
-					sttime -= _2_3;
-				} else {
-					ok = false;
-				}
+    var chordNotes = Chord.getChord().flat();
+    //console.log('chordNotes', chordNotes)
+    var sttime = 0;
+    var tempo = Music.tempo;
+    chordNotes.forEach(function (noteary, id) {
+        var ttlen = noteary.len;
+        noteary = noteary.chordnotes.sort()
+        var extend = 1;
+        if (id < chordNotes.length - 1 && noteary.toString() == chordNotes[id + 1].toString()) {
+            extend = 4;
+        }
+        var volBoost = 1.2;
+        while (ttlen > 0) {
+            let ok = false;
+            if (tempo[0] == '4' || tempo[0] == '8') {
+                ok = true;
+                if (tempo[1] == '4' || tempo[1] == '2' || tempo[1] == '12' || tempo[1] == '3') {
+                    let pos = (sttime / lenTempo) % tempo[1], _1_2 = lenTempo / 2;
+                    if (pos == 0) {
+                        one(noteary, ttlen * 4, -1);
+                        sttime += _1_2;
+                        fifth(noteary, ttlen / 2, -1);
+                        sttime -= _1_2;
+                    } else if (pos % 2 == 0 || tempo[1] == '3') {
+                        single(noteary, ttlen / 2, 1, 3, 0);
+                        sttime += _1_2;
+                        fifth(noteary, ttlen / 2, -1);
+                        sttime -= _1_2;
+                    } else {
+                        one(noteary, ttlen / 2, 0);
+                        sttime += _1_2;
+                        fifth(noteary, ttlen / 2, -1);
+                        sttime -= _1_2;
+                    }
+                    chord(noteary, ttlen, +1);
+                    chord(noteary, ttlen, 0);
+                } else {
+                    ok = false;
+                }
 
-			}
-			if (!ok) {
-				//console.log('fallback')
-				chord(noteary);
-			}
-			volBoost = 1;
-			sttime += lenTempo;
-			ttlen -= lenTempo;
-		}
-		sttime += ttlen;
-		function chord(noteary, _ttlen) {
-			if (!_ttlen) {
-				_ttlen = ttlen;
-			}
+            }
+            if (!ok) {
+                //console.log('fallback')
+                chord(noteary);
+            }
+            volBoost = 1;
+            sttime += lenTempo;
+            ttlen -= lenTempo;
+        }
+        sttime += ttlen;
 
-			noteary.forEach(function (note) {
-				var newItem = Util.clone(Player.soundItem);
-				newItem.len = (_ttlen + extend) * sp32b;
-				newItem.start = sttime * sp32b + 0.1;
-				newItem.vol = Player.level2vol(volBoost > 0 ? 4 : 1) / 5;
-				newItem.f[0].f = 440 * Math.pow(2, (Player.fMap[note] - 1 + Music.arpeggio / 12));
-				newItem.isChord = true;
-				pchord.push(newItem);
-			});
-		}
-		function one(noteary, _ttlen) {
-			var note = noteary[0];
-			if (!_ttlen) {
-				_ttlen = ttlen;
-			}
+        function single(noteary, _ttlen, noteId, volT, shift = 0) {
+            var note = noteary[noteId];
+            if (!_ttlen) {
+                _ttlen = ttlen;
+            }
 
-			var newItem = Util.clone(Player.soundItem);
-			newItem.len = (_ttlen + extend) * sp32b;
-			newItem.start = sttime * sp32b + 0.1;
-			newItem.vol = Player.level2vol(volBoost > 0 ? 4 : 1) / 5 * 3;
-			newItem.f[0].f = 440 * Math.pow(2, (Player.fMap[note] - 1 + Music.arpeggio / 12));
-			newItem.isChord = true;
-			pchord.push(newItem);
-		}
-		function fifth(noteary, _ttlen) {
-			var note = noteary[2];
-			var newItem = Util.clone(Player.soundItem);
-			if (!_ttlen) {
-				_ttlen = ttlen;
-			}
-			newItem.len = (_ttlen + extend) * sp32b;
-			newItem.start = sttime * sp32b + 0.1;
-			newItem.vol = Player.level2vol(volBoost > 0 ? 4 : 1) / 5 * 3;
-			newItem.f[0].f = 440 * Math.pow(2, (Player.fMap[note] - 1 + Music.arpeggio / 12)) / 2;
-			newItem.isChord = true;
-			pchord.push(newItem);
-		}
-	});
+            var newItem = Util.clone(Player.soundItem);
+            newItem.len = (_ttlen + extend) * sp32b;
+            newItem.start = sttime * sp32b + 0.1;
+            newItem.vol = Player.level2vol(volBoost > 0 ? 4 : 1) / 5 * volT;
+            newItem.f[0].f = 440 * Math.pow(2, (Player.fMap[note] - 1 + Music.arpeggio / 12 + shift));
+            newItem.isChord = true;
+            pchord.push(newItem);
+        }
+        function one(noteary, _ttlen, shift = 0) {
+            single(noteary, _ttlen, 0, 3, shift);
+        }
+        function fifth(noteary, _ttlen, shift = -1) {
+            single(noteary, _ttlen, 2, 3, shift);
+        }
+        function chord(noteary, _ttlen, shift = 0) {
+            noteary.forEach(function (_,i) {
+                single(noteary, _ttlen, i, 1, shift);
+            });
+        }
+    });
 
-	return {
-		music: pmusic,
-		voice: pvoice,
-		chord: pchord,
-		highLight: phighLight
-	}
-	/*Player.voicePass2();*/
+    return {
+        music: pmusic,
+        voice: pvoice,
+        chord: pchord,
+        highLight: phighLight
+    }
+    /*Player.voicePass2();*/
 }
+
 Player.showVoiceWindow = function () {
 	PopupWindow.open(voiceWindow);
 	Array.from(voiceWindow.querySelectorAll('.append-yes')).forEach(function (a) {
