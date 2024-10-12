@@ -28,7 +28,7 @@ input:not(.spin:hover)::-webkit-outer-spin-button, input:not(.spin:hover)::-webk
 }
 
 /* 火狐有些麻烦。 */
-input[type="number"] {
+input[type="number"]:not(:hover) {
 	-moz-appearance: textfield;
 }
 
@@ -338,9 +338,17 @@ body:not(.fensanalign) .container::after {
 	margin-top: 1.5em;
 }
 
-
 .space {
-	padding-left: 3px;
+	padding-left: 1px;
+}
+.note.f16+.space {
+	margin-left: 0.1em; /* 补偿缩短短音导致的空格消失 */
+}
+.note.f8+.space {
+	margin-left: 0.05em; /* 补偿缩短短音导致的空格消失 */
+}
+.space+.note.f16, .space+.note.f8 {
+	margin-left: 0;     /* 补偿缩短短音导致的空格消失 */
 }
 
 .yin {
@@ -492,7 +500,7 @@ label {
 }
 
 #imetip {
-	background: white;
+    background-color: Field;
 	font-family: monospace;
 	position: absolute;
 	font-weight: bold;
@@ -752,6 +760,7 @@ input[type=number] {
 	line-height: 1.1;
 	text-align: center;
 	white-space: nowrap;
+	font-size: 90%;
 }
 
 .append-yes:after {
