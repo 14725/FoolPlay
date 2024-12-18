@@ -2140,7 +2140,7 @@ UI.open = function ui_open() {
 }
 UI.openListener = function ui_openListener(me) {
 	if (!me.files) {
-		throw "您的浏览器不支持打开本地文件。";
+		throw Error("您的浏览器不支持打开本地文件。");
 	}
 	if (me.files && me.files[0]) {
 		var reader = new FileReader();
@@ -2236,7 +2236,10 @@ UI.saveAs = function ui_saveAs() {
 		console.warn(e);
 	}
 	content = "<!DOCTYPE html>\n<meta charset=\"utf-8\"/>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<style>\n*{\n  text-align: center;\n}\nbody{\n  max-width:500px;\n  margin:auto;\n  padding:5px;\n}\nh1{\n  font-weight: 300;\n}\na {\n  display:inline-block;\n  background: #3498db;\n  background-image: linear-gradient(to bottom, #3498db, #2980b9);\n  border-radius: 999px;\n  text-shadow: 1px 1px 3px #666666;\n  box-shadow: 0px 1px 3px #666666;\n  color: white;\n  font-size: 20px;\n  padding: 10px 20px 10px 20px;\n  border: solid #1f628d 2px;\n  text-decoration: none!important;\n}\na:hover {\n  background: #3cb0fd;\n  background-image: linear-gradient(to bottom, #3cb0fd, #3498db);\n}\nli{\n  font-size: small;\n  color:gray;\n  text-align: left;\n}\n</style>\n<p>本文件是“傻瓜弹曲”的歌谱文件，它记录着一首歌，名叫：</p>\n<h1>%title%</h1>\n<a href=\"%url%#data=%tdata%\">点击此处查看歌谱</a>\n<br>\n<br>\n<hr>\n<ol>\n  <li>如果弹出“打开方式”对话框，请选择浏览器。</li>\n  <li>如果上面的按钮不能正常工作，请换用“浏览器”、“HTML 查看器”等打开本文件，或者在傻瓜弹曲网站（%url%）中，文件 -> 打开。</li>\n</ol>\n<scr" + "ipt>%data%</scr" + "ipt>";
-	content = content.replace(/%url%/g, a.href.split('#')[0].split('?')[0]).replace("%data%", UI.outString()).replace("%title%", Music.title).replace("%tdata%", encodeURIComponent(UI.outString()));
+	content = content.replace(/%url%/g, a.href.split('#')[0].split('?')[0])
+	                 .replace("%data%", UI.outString())
+	                 .replace("%title%", Music.title)
+	                 .replace("%tdata%", encodeURIComponent(UI.outString()));
 	Util.saveAs(content, 'text/html', a.download);
 }
 UI.new = function ui_new(action) {
@@ -2250,12 +2253,37 @@ UI.new = function ui_new(action) {
 		return;
 	}
 	if (file && file.length > 0) {
-		dom = document.createElement("div");
-		dom.className = "window destroy on";
-		dom.innerHTML = '<div class="windowtitle">' + '来自网页的消息 <button class="close"><b>×</b></button>' + '</div>' + '<div class="content">' + '<div class="msg">' + '<p>您现在正在查看示例页面。</p>' + '<ul>' + '<li>' + '<a href="javascript:;" onclick="UI.new(this.className)" class="force">继续新建文件</a><br>' + '- 您未保存的数据将会丢失' + '</li>' + '<li>' + '<a href="javascript:;" onclick="UI.new(this.className)"  class="view">检查您未保存的文件</a><br>' + '</li>' + '</ul>' + '</div>' + '<center>' + '<button onclick="PopupWindow.close(this.parentElement.parentElement.parentElement)">' + '知道了' + '</button>' + '</center>' + '</div>';
-		//dom.querySelector(".msg").innerHTML = msg.split("\n").join("<br>");
-		document.body.appendChild(dom);
-		PopupWindow.open(dom);
+		var needConfirmation = false;
+		if (localStorage.saved) {
+			try {
+				var temp_music = JSON.parse(localStorage.saved);
+				if(temp_music && temp_music.music.length > 0) {
+					needConfirmation = true;
+				}
+			} catch(e) {
+				console.warn("localStorage.saved 非空，但包括无效 JSON。")
+				console.warn(e);
+			}
+		}
+		if (needConfirmation) {
+			dom = document.createElement("div");
+			dom.className = "window destroy on";
+			dom.innerHTML = '<div class="windowtitle">' +
+			'禁止新建，下一步？ <button class="close"><b>×</b></button>' +
+			'</div>' +
+			'<div class="content">' +
+			'<div class="msg">' +
+			'您有未保存的乐谱，禁止新建文件。<br><br>查看<b>《' + Util.t2h(temp_music.title) +'》</b>？'  + '</div>' + '<center>' +
+			'<button onclick="UI.new(\'view\')">' + '确认' + '</button> ' +
+			'<button onclick="PopupWindow.close(this.parentElement.parentElement.parentElement)">' + '取消' + '</button>' +
+			'</center>' + '</div>';
+			//dom.querySelector(".msg").innerHTML = msg.split("\n").join("<br>");
+			document.body.appendChild(dom);
+			PopupWindow.open(dom);
+		} else {
+			UI.new("force");
+		}
+
 	} else {
 		confirm('确认放弃未保存的修改并清空文档？') && UI.new("force");
 	}
