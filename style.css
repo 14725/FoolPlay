@@ -28,7 +28,8 @@ input:not(.spin:hover)::-webkit-outer-spin-button, input:not(.spin:hover)::-webk
 }
 
 /* 火狐有些麻烦。 */
-input[type="number"]:not(:hover) {
+/* 不像 Chrome 那样在触摸时把箭头显示出来，因为它把调整按钮画在文本的里面 */
+input[type="number"] {
 	-moz-appearance: textfield;
 }
 
@@ -404,22 +405,22 @@ body:not(.fensanalign) .container::after {
 	width: 1.5em;
 }
 
-input:not([type]), input[type=text], input[type=number], textarea, select {
+.header input:not([type]), .header input[type=text], .header input[type=number], .header textarea, .header select {
 	outline: dotted grey 1px;
 	border: none;
 }
 
-select:not(:hover):not(:focus) {
+.header select:not(:hover):not(:focus) {
 	appearance: none;
 	-moz-appearance: none;
 	-webkit-appearance: none;
 }
 
-select::-ms-expand {
+.header select::-ms-expand {
 	display: none;
 }
 
-input:not([type]):hover, input[type=text]:hover, input[type=number]:hover, textarea:hover, select:hover, input:not([type]):focus, input[type=text]:focus, input[type=number]:focus, textarea:focus, select:focus {
+.header input:not([type]):hover, .header input[type=text]:hover, .header input[type=number]:hover, .header textarea:hover, .header select:hover, .header input:not([type]):focus, .header input[type=text]:focus, .header input[type=number]:focus, .header textarea:focus, .header select:focus {
 	outline: solid blue 2px;
 }
 
@@ -435,6 +436,10 @@ label {
 .selected,.selected + .space,.selected + .sectionLine {
 	background: Highlight;
 	color: HighlightText;
+}
+
+.highlight {
+	background: rgba(184,214,251,.5);
 }
 
 .coverOn {
@@ -761,6 +766,7 @@ input[type=number] {
 	text-align: center;
 	white-space: nowrap;
 	font-size: 90%;
+	margin-bottom: 3px;
 }
 
 .append-yes:after {
@@ -768,7 +774,46 @@ input[type=number] {
 }
 
 select{
-  background: #fff;
+	background: #fff;
+}
+
+.pinyin-editor {
+	border: none;
+	margin: 0;
+	padding: 0;
+	width: auto;
+	height: auto;
+	background: none;
+
+	position: absolute;
+	top: 50px; 
+	white-space: nowrap;
+}
+.pinyin-editor div {
+	border: 1px solid;
+	padding: 0.3em;
+	background-color: Canvas;
+	box-shadow: 3px 3px 3px rgba(0,0,0,.1);
+	display: inline-block;
+}
+
+.pinyin-editor::backdrop {
+	background-color: transparent;
+}
+
+.pinyin-editor input[type=text] {
+	box-sizing: border-box;
+	display: block;
+	width: 4em;
+	font-family: 'Courier New', Courier, monospace;
+	text-align: left;
+}
+
+.pinyin-editor.rtl {
+	direction: rtl;
+}
+.pinyin-editor.rtl input[type=text]{
+	text-align: right;
 }
 
 @media screen and (prefers-color-scheme: dark){
@@ -790,5 +835,9 @@ select{
   }
   input,textarea,select{
     background: #000;
+  }
+  .pinyin-editor {
+	background-color: black;
+	backdrop-filter: unset;
   }
 }

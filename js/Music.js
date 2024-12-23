@@ -83,14 +83,6 @@ Util.throttle = function util_throttle(func, that, delay) {
 	throttledFunc.atOnce = callit;
 	return throttledFunc;
 }
-Util.css = function util_css(list, obj) {
-	var ary = Array.prototype.slice.call(list);
-	for (var i in ary) {
-		for (var j in obj) {
-			ary[i].style[j] = obj[j];
-		}
-	}
-}
 Util.live = function util_live(eventName, parent, selector, listener) {
 	function patchedListener(event) {
 		var tmpEle = event.target;
@@ -183,8 +175,12 @@ Util.copy = function util_copy(e) {
 		PopupWindow.alert("错误：不能复制文本。");
 	}
 	transfer.blur();
-	console.log('复制成功');
 	document.body.removeChild(transfer);
+}
+Util.constrain = function util_constrain(min, a, max) {
+	if(a < min) return min;
+	if(a > max) return max;
+	return a;
 }
 Util.t2h = function util_t2h(str) {
 	var d = util_t2h.d;
@@ -810,11 +806,11 @@ var UI = {
 	openFailedCount: 0,
 	_oldSelStart: 0,
 	get oldSelStart() {
-		console.warn("oldSelStart 已经停用. 请使用UI.from 或者 UI.author.");
+		console.warn("oldSelStart 已经停用. 请使用 UI.from 或者 UI.author.");
 		return this._oldSelStart;
 	},
 	set oldSelStart(v) {
-		console.warn("oldSelStart 已经停用. 请使用UI.from 或者 UI.author.");
+		console.warn("oldSelStart 已经停用. 请使用 UI.from 或者 UI.author.");
 		this._oldSelStart = v;
 	},
 	lastClickedNotePos: null,
@@ -824,9 +820,13 @@ var UI = {
 	ciCalculated: false,
 	yinheight: 0,
 	// 在不知道具体渲染情况下的一个预设估计值，渲染后将得到数值
-	shouldScroll: true
+	shouldScroll: true,
+	// 按下右键后的鼠标位置？
+	contextMenuPtX: 0,
+	contextMenuPtY: 0,
+	contextMenuNote: null
 };
-UI.render = Util.throttle(function ui_render() {
+UI.render = function ui_render() {
 	//功能：刷新歌谱的主要内容，会继续调用 UI.layout
 
 	//准备进行处理，更新节拍数据
@@ -905,9 +905,7 @@ UI.render = Util.throttle(function ui_render() {
 		UI.throttledLayout();
 	else
 		UI.layout();
-}, null, function() {
-	return Music.music.length;
-});
+};
 UI.layout = function ui_layout() {
 	//功能：读取浏览器对歌谱的布局，
 	//重绘光标
@@ -996,7 +994,7 @@ UI.layout = function ui_layout() {
 	//获取歌词区域的高度
 	if (!UI.ciCalculated){
 		if(oneOfWordElement){
-			UI.ciheight = parseFloat(getComputedStyle(oneOfWordElement).height);
+			UI.ciheight = parseFloat(getComputedStyle(oneOfWordElement).height) + parseFloat(getComputedStyle(oneOfWordElement).marginBottom) ;
 			UI.ciCalculated = true;
 		} else {
 			UI.ciheight = parseFloat(getComputedStyle(document.body).fontSize) * 1.2;
@@ -1028,8 +1026,6 @@ UI.layout = function ui_layout() {
 }
 UI.throttledLayout = UI.layout;
 UI.redraw = function ui_redraw() {
-	var temp, isreved = false;
-
 	var yinheight, ciheight;
 	//清除选择态
 	Array.prototype.slice.call(document.querySelectorAll(".selected")).forEach(function(dom) {
@@ -1349,7 +1345,7 @@ UI.switchLine = function ui_switchLine(up) {
 	}
 	UI.shouldScroll = false;
 	if (changed)
-		UI.render.atOnce();
+		UI.render();
 	UI.layout();
 	UI.shouldScroll = true;
 	var scrPos = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
@@ -1736,7 +1732,7 @@ UI.onInput = function ui_onInput(event) {
 			if (UI.from == UI.author) {
 				UI.from = ++UI.author;
 			}
-			UI.render.atOnce();
+			changedRender = true;
 			Player.simplePlay(note.pitch, note.octave, note.shift);
 
 			UI.refreshIME("");
@@ -1837,7 +1833,7 @@ UI.onInput = function ui_onInput(event) {
 			
 			event.target.value = "";
 
-			UI.render();
+			changedRender = true;
 			break;
 		case "d":
 		case "s":
@@ -1860,7 +1856,7 @@ UI.onInput = function ui_onInput(event) {
 				if (Music.loops[sid] == null)
 					Music.loops[sid] = {};
 				Music.loops[sid][map[cmd]] = !Music.loops[sid][map[cmd]];
-				UI.render();
+				changedRender = true;
 				event.target.readonly = "readonly";
 				event.target.value = "";
 				event.target.readonly = "";
@@ -2289,10 +2285,10 @@ UI.new = function ui_new(action) {
 	}
 }
 UI.onContextMenu = function ui_onContextMenu(event) {
-	var winwidth = window.innerWidth;
-	var winheight = window.innerHeight;
 	UI.contextMenu.style.display = "block";
-
+	UI.contextMenuPtX = event.clientX;
+	UI.contextMenuPtY = event.clientX;
+	UI.contextMenuNote = UI.getClosestNote(event.clientX, event.clientY);
 	var rect = UI.contextMenu.getBoundingClientRect();
 	UI.contextMenu.style.left = Math.min(innerWidth - (rect.right - rect.left), event.clientX) + "px";
 	UI.contextMenu.style.top = Math.min(innerHeight - (rect.bottom - rect.top), event.clientY) + "px";
@@ -2523,7 +2519,7 @@ UI.main = function ui_main() {
     PopupWindow.alert("程序出现错误，请保存文件并且查看控制台。");
   });*/
 	window.addEventListener('load', function fn() {
-		/*.TODO: 查找bug的真正原因 */
+		// 这里进行 layout 未必是好主意。因为这个时候可能歌谱加载完成但尚未 render
 		try {
 			UI.layout();
 		} catch (e) {
@@ -2615,6 +2611,92 @@ UI.about = function ui_about(url) {
 	}
 }
 UI.editPinyinGUI = function ui_editPinyinGUI(id){
+	if(ui_editPinyinGUI.id == null) {
+		ui_editPinyinGUI.id = 0;
+	}
+	if(ui_editPinyinGUI.element == null) {
+		// 建立对话框
+		let template = Util.htmlNoId(`
+			<dialog class="pinyin-editor">
+				<div id="pinyins"></div>
+				<datalist id="pyPrompts"></datalist>
+				<div style="margin:auto">
+					<button id="back" onclick="UI.editPinyinGUI(UI.editPinyinGUI.id - 1)">⬅️</button> 
+					<button id="close" onclick="UI.editPinyinGUI.element.close()">🆗</button> 
+					<button id="back" onclick="UI.editPinyinGUI(UI.editPinyinGUI.id + 1)">➡️</button> 
+				</div>
+				
+			</dialog>
+		`);
+		let element = template.ele;
+		element.pinyins = template.ids.pinyins;
+		template.ids.pyPrompts.id = "pyPrompts";
+		ui_editPinyinGUI.element = element;
+		ui_editPinyinGUI.ids = template.ids;
+		// 填充拼音列表
+		template.ids.pyPrompts.append(...([... new Set(Pinyin.dict.items)].map((a, opt) => {opt = document.createElement("option"); opt.label = opt.value = a; return opt;})))
+
+		// 初始化一些有用的事件
+		function clickToClose(ev) {
+			if(ev.currentTarget == ev.target) {
+				// 对话框是分体式对话框，本身是透明的。
+				ev.currentTarget.close();
+				ev.preventDefault();
+			}
+		}
+		element.addEventListener("click", clickToClose);
+		element.addEventListener("contextmenu", clickToClose);
+		element.onclose = () => document.querySelectorAll(".highlight").forEach((a) => a.classList.remove("highlight"));
+		document.body.appendChild(element);
+	}
+	function repositionBox() {
+		// TODO 如果向左面对齐怎么写？
+		var id = ui_editPinyinGUI.id;
+		var pos = UI.domsAreas[id];
+		var targetX = pos.x + pos.width;
+		var targetY = pos.y + UI.yinheight;
+		var docShiftX = UI.container.getBoundingClientRect().left - document.documentElement.getBoundingClientRect().left;
+		var docShiftY = UI.container.getBoundingClientRect().top - document.documentElement.getBoundingClientRect().top;
+		var myShiftX = 0;
+		var myShiftY = parseFloat(getComputedStyle(ui_editPinyinGUI.ids.pinyins).paddingLeft) +  parseFloat(getComputedStyle(ui_editPinyinGUI.ids.pinyins).borderLeft) ;
+		document.querySelectorAll(".highlight").forEach((a) => a.classList.remove("highlight"));
+		document.querySelectorAll(`[data-id="${id}"]`).forEach((a) => a.classList.add("highlight"));
+		ui_editPinyinGUI.element.style.top = (targetY + docShiftY - myShiftY).toFixed(2) + "px";
+		ui_editPinyinGUI.element.style.left = (targetX + docShiftX - myShiftX).toFixed(2) + "px";
+	}
+	function updateForm() {
+		var id = ui_editPinyinGUI.id;
+		var note = Music.music[id];
+		var editAry ;
+		console.log(Util.clone(note))
+		if(!note.word) note.word = [];
+		ui_editPinyinGUI.ids.pinyins.textContent = "";
+		note.word.map(function(a,i){
+			if(!a) return null;
+			if(!a.trim || !(a.trim())) return null;
+			if(!Pinyin.isHanzi(a.charAt(0))) return null;
+			if(!note.pinyin)	note.pinyin=[];
+			var element = Util.htmlNoId('<input type="text" class="geci" placeholder="yin" list="pyPrompts"/>').ele;
+			element.placeholder = Pinyin.getChar(a);
+			element.value = note.pinyin[i] || '';
+			element.oninput = function() {
+				note.pinyin[i] = element.value;
+			}
+			return element;
+		}).forEach((a) => ui_editPinyinGUI.ids.pinyins.appendChild(a));
+	}
+	function updateDialog() {
+		ui_editPinyinGUI.id = Util.constrain(0, ui_editPinyinGUI.id, Music.music.length - 1);
+		repositionBox();
+		updateForm();
+		debugger;
+		
+	}
+	let element = ui_editPinyinGUI.element;
+	ui_editPinyinGUI.id = id;
+	element.showModal();
+	updateDialog();
+	/*
 	var note = Music.music[id];
 	var editAry ;
 	console.log(Util.clone(note))
@@ -2638,7 +2720,7 @@ UI.editPinyinGUI = function ui_editPinyinGUI(id){
 		return '<tr><td>第'+(a.id+1)+'行</td><td>'+Util.t2h(a.word)+'</td><td><input type="text" maxlength="6" size="7" style="font-family: monospace" autocorrect="off" value="'+a.pinyin+'" autocapitalize="none" placeholder="'+Pinyin.getChar(a.word)+'" pattern="[a-z]*"></td></td></tr>';
 	});
 	html ='<div class="window on destroy"><div class="windowtitle">修改拼音</div><div class="content"><table>' + html + '</table><center><button id="ok">确定</button></center></div></div>';
-	var a = Util.htmlNoId(html), dom=a.ele;
+	var a = Util.htmlNoId(html), dom=a.eleeditPin;
 	document.body.appendChild(dom);
 	PopupWindow.open(dom);
 	a.ids.ok.onclick = function(){
@@ -2647,7 +2729,7 @@ UI.editPinyinGUI = function ui_editPinyinGUI(id){
 			Music.music[id].pinyin[editAry[i].id] = ip.value.toLowerCase().replace(/[^a-z]/g,'');
 		})
 		PopupWindow.close(dom);
-	}
+	}*/
 }
 UI.exportMidi = async function(useUTF8 = false) {
 	function jian2p(i) {
