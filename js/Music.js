@@ -1670,6 +1670,8 @@ UI.onInput = function ui_onInput(event) {
 		//UI.refreshIME("");
 		return;
 	}
+	// 去除回车以防止回车被当作空格插入到歌词中。
+	event.target.value = event.target.value.replace(/\r|\n/g, "");
 	var content = event.target.value;
 	if (content == "")
 		return;
@@ -1920,7 +1922,7 @@ UI.onInput = function ui_onInput(event) {
 }
 UI.onChangeListener = function ui_onChangeListener(event) {
 	//TODO: Check this after spliceWord
-	var content = event.target.value;
+	var content = event.target.value.replace(/\r|\n/ig, "");
 	if (content == "")
 		return;
 	if (content.length > 10) {
