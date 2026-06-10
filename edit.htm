@@ -268,7 +268,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 	<div class="window on" id="voiceWindow">
 		<div class="windowtitle">加载音源文件<button class="close"><b>×</b></button></div>
 		<div class="content">
-		  <p>本程序使用袅袅中文音源，但不附带音源文件。你可以到<a href="https://dsailab.com/voice/">https://dsailab.com/voice/</a>下载</p>
+		  <p>本程序使用袅袅中文音源，但不附带音源文件。<br>由于袅袅虚拟歌手（旧版）已经停止运营，<br>请<a href="https://cn.bing.com/search?q=%e8%a2%85%e8%a2%85%e8%99%9a%e6%8b%9f%e6%ad%8c%e6%89%8b+%e9%9f%b3%e6%ba%90">网络搜索“袅袅虚拟歌手 音源”</a>碰碰运气。</p>
 		  <hr>
 		  <button id="b_inf" onclick="f_inf.click()">inf.d?</button><button id="b_voi" onclick="f_voi.click()">voice.d?</button>|<label><input type="checkbox" id="c_man" style="vertical-align:middle" />降八度</label>|<button id="b_app">应用</button>||<button id="b_def" style="float: right">默认音源</button>
 		  <input type="file" hidden onchange="(this.files[0] && (this.files[0].name.toLowerCase().indexOf('inf')==-1) && alert('您选择的文件名是' + this.files[0].name + '，这应该是你想要加载的 inf.d 文件吧？')),b_inf.className = this.files[0]?'append-yes':''" id="f_inf"/>
@@ -284,4 +284,4 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 		</div>
 	</div>
 </body>
-</html>
+</html>
